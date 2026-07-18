@@ -1,0 +1,618 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── AUTH & USERS ──────────────────────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(cuid())
+  email           String?   @unique
+  phone           String?   @unique
+  passwordHash    String?
+  name            String
+  avatar          String    @default("")
+  bio             String    @default("")
+  role            String    @default("user") // user, seller, business, admin
+  isVerified      Boolean   @default(false)
+  isPhoneVerified Boolean   @default(false)
+  isEmailVerified Boolean   @default(false)
+  pendingEmail    String?
+  pendingPhone    String?
+  isActive        Boolean   @default(true)
+  isSuspended     Boolean   @default(false)
+  suspendedReason String?
+  lastLoginAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  sessions          Session[]
+  listings          Listing[]
+  reviewsGiven      Review[]          @relation("ReviewAuthor")
+  reviewsReceived   Review[]          @relation("ReviewTarget")
+  messagesSent      Message[]         @relation("MessageSender")
+  messagesReceived  Message[]         @relation("MessageReceiver")
+  conversations1    Conversation[]    @relation("ConversationUser1")
+  conversations2    Conversation[]    @relation("ConversationUser2")
+  favorites         Favorite[]
+  savedSearches     SavedSearch[]
+  priceAlerts       PriceAlert[]
+  notifications     Notification[]
+  payments          Payment[]
+  subscriptions     Subscription[]
+  notificationsPrefs NotificationPreference?
+  profile           UserProfile?
+  businessProfile   BusinessProfile?
+  sellerStats       SellerStats?
+  following         Follow[]          @relation("Follower")
+  followers         Follow[]          @relation("Following")
+  reports           Report[]          @relation("ReportAuthor")
+  reportsReceived   Report[]          @relation("ReportTarget")
+  moderationLogs    ModerationLog[]
+  sessions2fa       TwoFactorSession[]
+  verificationRequests VerificationRequest[]
+}
+
+model UserProfile {
+  id            String  @id @default(cuid())
+  userId        String  @unique
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dateOfBirth   String?
+  gender        String?
+  address       String?
+  city          String?
+  country       String  @default("KE")
+  latitude      Float?
+  longitude     Float?
+  website       String?
+  socialLinks   String  @default("{}") // JSON: {facebook, twitter, instagram, linkedin}
+  totalViews    Int     @default(0)
+  totalLeads    Int     @default(0)
+}
+
+model BusinessProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName     String
+  companyLogo     String  @default("")
+  companyBanner   String  @default("")
+  description     String  @default("")
+  industry        String  @default("")
+  taxId           String  @default("")
+  registrationNo  String  @default("")
+  isVerified      Boolean @default(false)
+  verifiedAt      DateTime?
+  website         String  @default("")
+  employeeCount   String  @default("")
+  foundedYear     Int?
+  address         String  @default("")
+  socialLinks     String  @default("{}")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  ipAddress    String?
+  userAgent    String?
+  isActive     Boolean  @default(true)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}
+
+model TwoFactorSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String
+  type      String   // login, verify_phone, verify_email, reset_password
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ─── LISTINGS ──────────────────────────────────────────────────────────────────
+
+model Listing {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+  locationId      String
+  location        Location @relation(fields: [locationId], references: [id])
+
+  title           String
+  slug            String   @unique
+  description     String
+  price           Float    @default(0)
+  originalPrice   Float?
+  currency        String   @default("KES")
+  condition       String   @default("Used")
+  status          String   @default("active") // draft, pending, active, sold, expired, suspended, archived
+  isFeatured      Boolean  @default(false)
+  isNegotiable    Boolean  @default(false)
+  isPromoted      Boolean  @default(false)
+  promotedUntil   DateTime?
+  views           Int      @default(0)
+  impressions     Int      @default(0)
+  favorites_count Int      @default(0) @map("favorites_count")
+  messagesCount   Int      @default(0)
+  contactName     String
+  contactPhone    String
+  contactEmail    String   @default("")
+  customFields    String   @default("{}") // JSON: dynamic fields per category
+  tags            String   @default("[]") // JSON array of tags
+  expiresAt       DateTime?
+  renewedAt       DateTime?
+  publishedAt     DateTime?
+  boostCount      Int      @default(0)
+  boostUntil      DateTime?
+  featuredUntil   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  images          ListingImage[]
+  videos          ListingVideo[]
+  documents       ListingDocument[]
+  favorites       Favorite[]
+  messages        Message[]
+  reports         Report[]
+  boosts          Boost[]
+  moderationLogs  ModerationLog[]
+
+  @@index([userId])
+  @@index([categoryId])
+  @@index([locationId])
+  @@index([status])
+  @@index([isFeatured])
+  @@index([createdAt])
+}
+
+model ListingImage {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String  @default("")
+  order     Int     @default(0)
+}
+
+model ListingVideo {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  thumbnail String  @default("")
+  duration  Int     @default(0) // seconds
+}
+
+model ListingDocument {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  name      String
+  type      String
+  size      Int     @default(0)
+}
+
+// ─── CATEGORIES & LOCATIONS ────────────────────────────────────────────────────
+
+model Category {
+  id         String     @id @default(cuid())
+  name       String
+  slug       String     @unique
+  icon       String     @default("")
+  image      String     @default("")
+  parentId   String?
+  parent     Category?  @relation("SubCategories", fields: [parentId], references: [id], onDelete: Cascade)
+  children   Category[] @relation("SubCategories")
+  order      Int        @default(0)
+  isActive   Boolean    @default(true)
+  customFields String   @default("[]") // JSON: [{name, type, required, options}]
+  listings   Listing[]
+  priceAlerts PriceAlert[]
+  seoTitle   String     @default("")
+  seoDesc    String     @default("")
+
+  @@index([parentId])
+}
+
+model Location {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  parentId  String?
+  parent    Location? @relation("SubLocations", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Location[] @relation("SubLocations")
+  latitude  Float?
+  longitude Float?
+  isActive  Boolean   @default(true)
+  order     Int       @default(0)
+  listings  Listing[]
+  priceAlerts PriceAlert[]
+  level     Int       @default(0) // 0=country, 1=county, 2=sub-county, 3=area
+
+  @@index([parentId])
+}
+
+// ─── CATEGORIES & LOCATIONS ───────────────────────────────────────────────────
+
+// ─── MESSAGING ─────────────────────────────────────────────────────────────────
+
+model Conversation {
+  id          String    @id @default(cuid())
+  user1Id     String
+  user1       User      @relation("ConversationUser1", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2Id     String
+  user2       User      @relation("ConversationUser2", fields: [user2Id], references: [id], onDelete: Cascade)
+  listingId   String?
+  lastMessage String    @default("")
+  lastMessageAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  messages    Message[]
+
+  @@unique([user1Id, user2Id, listingId])
+  @@index([user1Id])
+  @@index([user2Id])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId     String
+  receiver       User         @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  listingId      String?
+  listing        Listing?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  content        String
+  type           String       @default("text") // text, image, file, listing_share
+  mediaUrl       String?
+  isRead         Boolean      @default(false)
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
+// ─── FAVORITES & SAVED SEARCHES ────────────────────────────────────────────────
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+}
+
+model SavedSearch {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  query     String   // JSON: {search, category, location, minPrice, maxPrice, condition, sort}
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model PriceAlert {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  locationId String?
+  location   Location? @relation(fields: [locationId], references: [id])
+  minPrice   Float?
+  maxPrice   Float?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+// ─── REVIEWS & RATINGS ─────────────────────────────────────────────────────────
+
+model Review {
+  id         String   @id @default(cuid())
+  authorId   String
+  author     User     @relation("ReviewAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  targetId   String
+  target     User     @relation("ReviewTarget", fields: [targetId], references: [id], onDelete: Cascade)
+  listingId  String?
+  rating     Int      // 1-5
+  title      String   @default("")
+  comment    String
+  isVerified Boolean  @default(false) // verified purchase
+  isPublic   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([authorId, targetId, listingId])
+}
+
+model SellerStats {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalViews      Int     @default(0)
+  totalLeads      Int     @default(0)
+  totalMessages   Int     @default(0)
+  totalSales      Int     @default(0)
+  avgRating       Float   @default(0)
+  totalReviews    Int     @default(0)
+  responseTime    Float   @default(0) // avg hours
+  responseRate    Float   @default(0) // percentage
+  profileViews    Int     @default(0)
+  listingViews    Int     @default(0)
+  lastActiveAt    DateTime?
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followingId String
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+// ─── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // message, listing_sold, price_drop, review, payment, system, promotion
+  title     String
+  body      String
+  data      String   @default("{}") // JSON: extra data (listingId, conversationId, etc.)
+  isRead    Boolean  @default(false)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model NotificationPreference {
+  id                   String  @id @default(cuid())
+  userId               String  @unique
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emailMessages        Boolean @default(true)
+  emailListings        Boolean @default(true)
+  emailPromotions     Boolean @default(true)
+  emailPriceAlerts     Boolean @default(true)
+  smsMessages          Boolean @default(false)
+  smsListings          Boolean @default(false)
+  pushMessages         Boolean @default(true)
+  pushListings         Boolean @default(true)
+  whatsappMessages     Boolean @default(false)
+  whatsappPromotions   Boolean @default(false)
+}
+
+// ─── PAYMENTS & SUBSCRIPTIONS ──────────────────────────────────────────────────
+
+model Payment {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount        Float
+  currency      String   @default("KES")
+  type          String   // listing_fee, subscription, boost, featured, promotion
+  provider      String   // mpesa, stripe, flutterwave, paystack, paypal
+  reference     String   @unique // internal reference
+  externalId    String?  // provider transaction ID
+  status        String   @default("pending") // pending, processing, completed, failed, refunded
+  metadata      String   @default("{}") // JSON: extra data
+  description   String   @default("")
+  createdAt     DateTime @default(now())
+  completedAt   DateTime?
+  failedAt      DateTime?
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Subscription {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId        String
+  plan          Plan     @relation(fields: [planId], references: [id])
+  status        String   @default("active") // active, cancelled, expired, past_due
+  startDate     DateTime @default(now())
+  endDate       DateTime
+  autoRenew     Boolean  @default(true)
+  paymentId     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model Plan {
+  id              String   @id @default(cuid())
+  name            String   // Free, Premium, Business
+  slug            String   @unique
+  description     String
+  price           Float
+  currency        String   @default("KES")
+  interval        String   @default("monthly") // monthly, yearly
+  features        String   // JSON: {maxListings, maxImages, featured, boost, etc.}
+  maxListings     Int      @default(5)
+  maxImages       Int      @default(5)
+  maxVideos       Int      @default(0)
+  isFeatured      Boolean  @default(false)
+  isPromoted      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  order           Int      @default(0)
+  createdAt       DateTime @default(now())
+  subscriptions   Subscription[]
+}
+
+model Boost {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  userId    String
+  type      String   // boost, featured, promote
+  amount    Float
+  startDate DateTime @default(now())
+  endDate   DateTime
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+}
+
+// ─── REPORTS & MODERATION ──────────────────────────────────────────────────────
+
+model Report {
+  id            String   @id @default(cuid())
+  authorId      String
+  author        User     @relation("ReportAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  targetId      String?
+  target        User?    @relation("ReportTarget", fields: [targetId], references: [id], onDelete: SetNull)
+  listingId     String?
+  listing       Listing?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  type          String   // spam, scam, inappropriate, fake, duplicate, other
+  reason        String
+  details       String   @default("")
+  status        String   @default("pending") // pending, reviewed, resolved, dismissed
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  resolution    String   @default("")
+  createdAt     DateTime @default(now())
+
+  @@index([status])
+  @@index([listingId])
+}
+
+model ModerationLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  listingId   String?
+  listing     Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  action      String   // auto_flagged, auto_removed, manual_review, approved, suspended, deleted
+  reason      String
+  details     String   @default("")
+  aiScore     Float?
+  createdAt   DateTime @default(now())
+}
+
+// ─── BLOG & CMS ───────────────────────────────────────────────────────────────
+
+model BlogPost {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String   @default("")
+  coverImage  String   @default("")
+  authorId    String?
+  authorName  String   @default("ChapKE Team")
+  category    String   @default("")
+  tags        String   @default("[]")
+  status      String   @default("draft") // draft, published, archived
+  views       Int      @default(0)
+  seoTitle    String   @default("")
+  seoDesc     String   @default("")
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CmsPage {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  metaTitle   String   @default("")
+  metaDesc    String   @default("")
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String   @default("General")
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+}
+
+// ─── SYSTEM ────────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String   @default("{}")
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+model Banner {
+  id          String   @id @default(cuid())
+  title       String
+  imageUrl    String
+  linkUrl     String   @default("")
+  position    String   @default("home") // home, category, sidebar
+  isActive    Boolean  @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  clicks      Int      @default(0)
+  impressions Int      @default(0)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model VerificationRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idType      String   // national_id, passport, drivers_license, alien_id
+  idNumber    String
+  idFrontUrl  String   @default("")
+  idBackUrl   String   @default("")
+  selfieUrl   String   @default("")
+  status      String   @default("pending") // pending, approved, rejected
+  reviewedBy  String?
+  reviewNote  String   @default("")
+  reviewedAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([status])
+  @@index([userId])
+}
+
+model SystemSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("string") // string, number, boolean, json
+}
