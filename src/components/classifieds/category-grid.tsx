@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
   Car,
@@ -79,17 +80,8 @@ const itemVariants = {
 }
 
 export function CategoryGrid() {
-  const { categories, selectedCategory, setSelectedCategory } = useAppStore()
+  const { categories } = useAppStore()
   const parentCategories = categories.filter((c) => !c.parentId)
-
-  const handleClick = (slug: string) => {
-    if (selectedCategory === slug) {
-      setSelectedCategory(null)
-    } else {
-      setSelectedCategory(slug)
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
 
   return (
     <section className="py-12 sm:py-16 relative">
@@ -110,49 +102,42 @@ export function CategoryGrid() {
         >
           {parentCategories.map((cat) => {
             const Icon = iconMap[cat.icon] || Briefcase
-            const isActive = selectedCategory === cat.slug
             const color = categoryColors[cat.slug] || { bg: 'bg-royal/10', iconColor: 'text-royal' }
             const count = cat._count?.listings || 0
 
             return (
-              <motion.button
-                key={cat.id}
-                variants={itemVariants}
-                onClick={() => handleClick(cat.slug)}
-                className={cn(
-                  'group relative flex flex-col items-center gap-3 rounded-2xl p-4 sm:p-5 transition-all duration-300',
-                  isActive
-                    ? 'bg-royal text-white shadow-xl ring-2 ring-royal/20'
-                    : 'bg-white hover:shadow-xl hover:-translate-y-1 border border-slate-100',
-                )}
-              >
-                <div
+              <motion.div key={cat.id} variants={itemVariants}>
+                <Link
+                  href={`/c/${cat.slug}`}
                   className={cn(
-                    'relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl transition-all duration-300',
-                    isActive
-                      ? 'bg-white/20 text-white'
-                      : cn(color.bg, 'group-hover:scale-110')
+                    'group relative flex flex-col items-center gap-3 rounded-2xl p-4 sm:p-5 transition-all duration-300 bg-white hover:shadow-xl hover:-translate-y-1 border border-slate-100',
                   )}
                 >
-                  <Icon className={cn(
-                    'h-6 w-6 sm:h-7 sm:w-7 relative z-10 transition-transform duration-300',
-                    isActive ? 'text-white' : cn(color.iconColor, 'group-hover:scale-110')
-                  )} />
-                  {count > 0 && !isActive && (
-                    <span className="absolute -top-1 -right-1 bg-accent-orange text-white text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold leading-none px-1 shadow-sm">
-                      {count}
-                    </span>
-                  )}
-                </div>
-                <div className="text-center">
-                  <p className={cn(
-                    'text-xs sm:text-sm font-semibold leading-tight transition-colors',
-                    isActive ? 'text-white' : 'text-navy/80 group-hover:text-navy'
-                  )}>
-                    {cat.name}
-                  </p>
-                </div>
-              </motion.button>
+                  <div
+                    className={cn(
+                      'relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl transition-all duration-300',
+                      cn(color.bg, 'group-hover:scale-110')
+                    )}
+                  >
+                    <Icon className={cn(
+                      'h-6 w-6 sm:h-7 sm:w-7 relative z-10 transition-transform duration-300',
+                      cn(color.iconColor, 'group-hover:scale-110')
+                    )} />
+                    {count > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-accent-orange text-white text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold leading-none px-1 shadow-sm">
+                        {count}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-center">
+                    <p className={cn(
+                      'text-xs sm:text-sm font-semibold leading-tight transition-colors text-navy/80 group-hover:text-navy'
+                    )}>
+                      {cat.name}
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
             )
           })}
         </motion.div>

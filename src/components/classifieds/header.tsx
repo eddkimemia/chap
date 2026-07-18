@@ -12,7 +12,6 @@ import {
   Sun,
   Moon,
   Home,
-  ArrowLeft,
   Car,
   Monitor,
   Smartphone,
@@ -170,17 +169,6 @@ export function Header() {
         <div className="container mx-auto flex h-16 items-center gap-3 px-4 lg:px-8">
           {/* Left: Logo + Back */}
           <div className="flex items-center gap-2 shrink-0">
-            {view !== 'home' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0 rounded-xl hover:bg-primary/5 hover:text-primary"
-                onClick={resetToHome}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="sr-only">Back</span>
-              </Button>
-            )}
             <button
               onClick={resetToHome}
               className="flex items-center gap-2 shrink-0 group"
@@ -241,29 +229,28 @@ export function Header() {
 
           {/* Right: Icons + Post Ad + Auth + Theme + Mobile menu */}
           <div className="flex items-center gap-1 shrink-0">
-            {/* Favorites */}
-            <Link href={currentUser ? '/dashboard/favorites' : '/login'}>
-              <Button variant="ghost" size="icon" className="hidden md:flex h-9 w-9 rounded-xl hover:bg-slate-100">
-                <Heart className="h-4 w-4 text-navy/60" />
-                <span className="sr-only">Favorites</span>
-              </Button>
-            </Link>
-
-            {/* Messages */}
-            <Link href={currentUser ? '/dashboard/messages' : '/login'}>
-              <Button variant="ghost" size="icon" className="hidden md:flex h-9 w-9 rounded-xl hover:bg-slate-100 relative">
-                <MessageCircle className="h-4 w-4 text-navy/60" />
-                <span className="sr-only">Messages</span>
-              </Button>
-            </Link>
-
-            {/* Notifications */}
-            <Link href={currentUser ? '/dashboard/notifications' : '/login'}>
-              <Button variant="ghost" size="icon" className="hidden md:flex h-9 w-9 rounded-xl hover:bg-slate-100">
-                <Bell className="h-4 w-4 text-navy/60" />
-                <span className="sr-only">Notifications</span>
-              </Button>
-            </Link>
+            {currentUser && (
+              <>
+                <Link href="/dashboard/favorites">
+                  <Button variant="ghost" size="icon" className="hidden md:flex h-9 w-9 rounded-xl hover:bg-slate-100">
+                    <Heart className="h-4 w-4 text-navy/60" />
+                    <span className="sr-only">Favorites</span>
+                  </Button>
+                </Link>
+                <Link href="/dashboard/messages">
+                  <Button variant="ghost" size="icon" className="hidden md:flex h-9 w-9 rounded-xl hover:bg-slate-100 relative">
+                    <MessageCircle className="h-4 w-4 text-navy/60" />
+                    <span className="sr-only">Messages</span>
+                  </Button>
+                </Link>
+                <Link href="/dashboard/notifications">
+                  <Button variant="ghost" size="icon" className="hidden md:flex h-9 w-9 rounded-xl hover:bg-slate-100">
+                    <Bell className="h-4 w-4 text-navy/60" />
+                    <span className="sr-only">Notifications</span>
+                  </Button>
+                </Link>
+              </>
+            )}
 
             {/* Location Selector */}
             <div className="hidden lg:block">

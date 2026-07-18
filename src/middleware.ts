@@ -94,6 +94,16 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isPublicPath(pathname)) {
+    // Redirect authenticated users away from login/register to prevent flash
+    if (pathname === '/login' || pathname === '/register') {
+      const token = getSessionTokenFromRequest(request)
+      if (token) {
+        const user = await validateSession(token)
+        if (user) {
+          return NextResponse.redirect(new URL('/dashboard', request.url))
+        }
+      }
+    }
     return NextResponse.next()
   }
 

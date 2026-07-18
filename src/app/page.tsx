@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useCallback, useMemo, useState } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Search, TrendingUp, Sparkles, ArrowRight, Heart, Clock, MapPin, Package, Users, Eye, Zap, ShoppingBag, ChevronRight, Star, Store, BadgeCheck, ShieldCheck, MessageCircle, Smartphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -182,6 +183,13 @@ export default function Home() {
     } catch { /* localStorage read-only, silently ignore */ }
   }, [listings])
 
+  const heroImages = ['/uploads/hero1.jpg', '/uploads/hero2.jpg', '/uploads/hero3.jpg', '/uploads/hero4.jpg']
+  const [heroBg, setHeroBg] = useState(0)
+  useEffect(() => {
+    const timer = setInterval(() => setHeroBg((p) => (p + 1) % heroImages.length), 5000)
+    return () => clearInterval(timer)
+  }, [])
+
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
@@ -216,8 +224,22 @@ export default function Home() {
         {view === 'home' && (
           <>
             {/* Hero Section */}
-            <section className="relative overflow-hidden bg-gradient-to-br from-white via-slate-50 to-white">
-              <div className="container mx-auto px-4 lg:px-8 py-16 sm:py-20 lg:py-28">
+            <section className="relative overflow-hidden bg-navy">
+              {/* Background slideshow */}
+              <div className="absolute inset-0">
+                {heroImages.map((src, i) => (
+                  <Image
+                    key={src}
+                    src={src}
+                    alt=""
+                    fill
+                    className={`object-cover transition-opacity duration-1000 ${i === heroBg ? 'opacity-100' : 'opacity-0'}`}
+                    priority={i === 0}
+                  />
+                ))}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-black/20 to-black/30" />
+              </div>
+              <div className="container mx-auto px-4 lg:px-8 py-16 sm:py-20 lg:py-28 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                   <motion.div
                     initial={{ opacity: 0, x: -30 }}
@@ -234,7 +256,7 @@ export default function Home() {
                       Kenya&apos;s Premier Digital Marketplace
                     </motion.div>
 
-                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-balance text-navy leading-[1.1]">
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-balance text-white leading-[1.1]">
                       Find the best deals{' '}
                       <span className="relative inline-block">
                         <span className="bg-royal bg-clip-text text-transparent">
@@ -249,7 +271,7 @@ export default function Home() {
                       </span>
                     </h1>
 
-                    <p className="text-slate-400 text-base sm:text-lg mb-8 max-w-lg leading-relaxed">
+                    <p className="text-slate-200 text-base sm:text-lg mb-8 max-w-lg leading-relaxed">
                       Buy and sell vehicles, property, electronics, and more.
                       Powered by cutting-edge technology for a seamless experience.
                     </p>
@@ -277,7 +299,7 @@ export default function Home() {
                     </form>
 
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-6">
-                      <span className="text-sm text-slate-400 font-medium">Popular:</span>
+                      <span className="text-sm text-slate-300 font-medium">Popular:</span>
                       {['Toyota Corolla', 'iPhone 15', 'Land Nairobi', 'MacBook'].map(
                         (term) => (
                           <button
@@ -286,7 +308,7 @@ export default function Home() {
                               setSearchQuery(term === 'Land Nairobi' ? 'Land in Nairobi' : term)
                               setView('listings')
                             }}
-                            className="inline-flex items-center rounded-full border border-slate-200 bg-white/60 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold text-slate-500 hover:bg-white hover:border-royal/20 hover:text-royal transition-all shadow-sm"
+                            className="inline-flex items-center rounded-full border border-white/20 bg-white/15 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold text-slate-200 hover:bg-white/25 hover:border-white/30 hover:text-white transition-all shadow-sm"
                           >
                             {term}
                           </button>
@@ -304,7 +326,7 @@ export default function Home() {
                     transition={{ duration: 0.7, delay: 0.2 }}
                     className="hidden lg:block"
                   >
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       {[
                         { label: 'Active Listings', value: `${listings.length || 0}+`, icon: Package, color: 'text-royal', bg: 'bg-royal/5' },
                         { label: 'Categories', value: `${categories.filter(c => !c.parentId).length || 0}+`, icon: Sparkles, color: 'text-accent-orange', bg: 'bg-accent-orange/5' },
@@ -316,14 +338,14 @@ export default function Home() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.4 + i * 0.1 }}
-                          className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-premium hover:shadow-premium-lg transition-all"
+                          className="flex items-center gap-3 rounded-xl border border-slate-100 bg-white/90 backdrop-blur-sm p-3 shadow-premium hover:shadow-premium-lg transition-all"
                         >
-                          <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.bg}`}>
-                            <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                          <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.bg}`}>
+                            <stat.icon className={`h-4 w-4 ${stat.color}`} />
                           </div>
                           <div>
-                            <span className="text-xl font-bold text-navy leading-tight block">{stat.value}</span>
-                            <span className="text-xs text-slate-400 font-medium">{stat.label}</span>
+                            <span className="text-base font-bold text-navy leading-tight block">{stat.value}</span>
+                            <span className="text-[11px] text-slate-400 font-medium">{stat.label}</span>
                           </div>
                         </motion.div>
                       ))}
@@ -332,15 +354,15 @@ export default function Home() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.8 }}
-                        className="col-span-2 rounded-2xl bg-gradient-to-r from-royal to-electric p-5 shadow-xl"
+                        className="col-span-2 rounded-xl bg-gradient-to-r from-royal to-electric p-3 shadow-xl"
                       >
-                        <div className="flex items-center gap-4 text-white">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
-                            <BadgeCheck className="h-6 w-6" />
+                        <div className="flex items-center gap-3 text-white">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/20">
+                            <BadgeCheck className="h-4 w-4" />
                           </div>
                           <div>
-                            <p className="text-xl font-bold">250K+ Listings</p>
-                            <p className="text-sm text-white/70">40K Sellers &bull; 200 Categories</p>
+                            <p className="text-base font-bold">250K+ Listings</p>
+                            <p className="text-xs text-white/70">40K Sellers &bull; 200 Categories</p>
                           </div>
                         </div>
                       </motion.div>
