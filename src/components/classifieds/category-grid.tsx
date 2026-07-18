@@ -1,70 +1,29 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
-import {
-  Car,
-  Home,
-  Monitor,
-  Smartphone,
-  Shirt,
-  Briefcase,
-  Wrench,
-  TreePine,
-  Sofa,
-  Heart,
-  Dumbbell,
-  Building2,
-  Book,
-  Baby,
-  PawPrint,
-  Utensils,
-  Palette,
-  Plane,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
 import { useAppStore } from '@/lib/store'
 
-const iconMap: Record<string, React.ElementType> = {
-  car: Car,
-  home: Home,
-  monitor: Monitor,
-  smartphone: Smartphone,
-  shirt: Shirt,
-  briefcase: Briefcase,
-  wrench: Wrench,
-  trees: TreePine,
-  sofa: Sofa,
-  heart: Heart,
-  dumbbell: Dumbbell,
-  building: Building2,
-  book: Book,
-  baby: Baby,
-  'paw-print': PawPrint,
-  utensils: Utensils,
-  palette: Palette,
-  plane: Plane,
-}
-
-const categoryColors: Record<string, { bg: string; iconColor: string }> = {
-  vehicles: { bg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
-  property: { bg: 'bg-amber-100', iconColor: 'text-amber-600' },
-  electronics: { bg: 'bg-sky-100', iconColor: 'text-sky-600' },
-  'phones-tablets': { bg: 'bg-violet-100', iconColor: 'text-violet-600' },
-  fashion: { bg: 'bg-pink-100', iconColor: 'text-pink-600' },
-  jobs: { bg: 'bg-indigo-100', iconColor: 'text-indigo-600' },
-  services: { bg: 'bg-teal-100', iconColor: 'text-teal-600' },
-  agriculture: { bg: 'bg-lime-100', iconColor: 'text-lime-600' },
-  'furniture-home': { bg: 'bg-orange-100', iconColor: 'text-orange-600' },
-  'health-beauty': { bg: 'bg-rose-100', iconColor: 'text-rose-600' },
-  'sports-outdoors': { bg: 'bg-cyan-100', iconColor: 'text-cyan-600' },
-  'business-industrial': { bg: 'bg-slate-100', iconColor: 'text-slate-600' },
-  'books-media': { bg: 'bg-blue-100', iconColor: 'text-blue-600' },
-  'baby-kids': { bg: 'bg-yellow-100', iconColor: 'text-yellow-600' },
-  'pets-animals': { bg: 'bg-stone-100', iconColor: 'text-stone-600' },
-  'food-drinks': { bg: 'bg-orange-100', iconColor: 'text-orange-600' },
-  'hobbies-crafts': { bg: 'bg-purple-100', iconColor: 'text-purple-600' },
-  'travel-tourism': { bg: 'bg-red-100', iconColor: 'text-red-600' },
+const categoryImage: Record<string, string> = {
+  vehicles: 'vehicles.png',
+  property: 'property.png',
+  electronics: 'electronics.png',
+  'phones-tablets': 'phones.png',
+  fashion: 'fashion.png',
+  jobs: 'jobs.png',
+  services: 'service.png',
+  agriculture: 'agriculture.png',
+  'furniture-home': 'furniture.png',
+  'health-beauty': 'health.png',
+  'sports-outdoors': 'sports.png',
+  'business-industrial': 'business-industrial.png',
+  'books-media': 'books.png',
+  'pets-animals': 'pets.png',
+  'food-drinks': 'foods.png',
+  'hobbies-crafts': 'hobbies.png',
+  'travel-tourism': 'travel.png',
+  'baby-kids': 'health.png',
 }
 
 const containerVariants = {
@@ -98,43 +57,36 @@ export function CategoryGrid() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4"
+          className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-3 sm:gap-4"
         >
           {parentCategories.map((cat) => {
-            const Icon = iconMap[cat.icon] || Briefcase
-            const color = categoryColors[cat.slug] || { bg: 'bg-royal/10', iconColor: 'text-royal' }
+            const img = categoryImage[cat.slug]
             const count = cat._count?.listings || 0
 
             return (
               <motion.div key={cat.id} variants={itemVariants}>
                 <Link
                   href={`/c/${cat.slug}`}
-                  className={cn(
-                    'group relative flex flex-col items-center gap-3 rounded-2xl p-4 sm:p-5 transition-all duration-300 bg-white hover:shadow-xl hover:-translate-y-1 border border-slate-100',
-                  )}
+                  className="group relative flex flex-col items-center justify-end rounded-2xl overflow-hidden aspect-[4/5] transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
-                  <div
-                    className={cn(
-                      'relative flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl transition-all duration-300',
-                      cn(color.bg, 'group-hover:scale-110')
-                    )}
-                  >
-                    <Icon className={cn(
-                      'h-6 w-6 sm:h-7 sm:w-7 relative z-10 transition-transform duration-300',
-                      cn(color.iconColor, 'group-hover:scale-110')
-                    )} />
-                    {count > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-accent-orange text-white text-[9px] rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold leading-none px-1 shadow-sm">
-                        {count}
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-center">
-                    <p className={cn(
-                      'text-xs sm:text-sm font-semibold leading-tight transition-colors text-navy/80 group-hover:text-navy'
-                    )}>
+                  {img && (
+                    <Image
+                      src={`/categories/${img}`}
+                      alt={cat.name}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  <div className="relative z-10 flex flex-col items-center p-3 sm:p-4 pb-4 sm:pb-5">
+                    <p className="text-xs sm:text-sm font-bold text-white text-center leading-tight drop-shadow-sm">
                       {cat.name}
                     </p>
+                    {count > 0 && (
+                      <span className="mt-1 text-[10px] text-white/70">
+                        {count} listing{count !== 1 ? 's' : ''}
+                      </span>
+                    )}
                   </div>
                 </Link>
               </motion.div>

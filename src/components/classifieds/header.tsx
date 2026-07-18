@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useTheme } from 'next-themes'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -9,8 +8,7 @@ import {
   MapPin,
   Plus,
   Menu,
-  Sun,
-  Moon,
+
   Home,
   Car,
   Monitor,
@@ -28,9 +26,7 @@ import {
   LayoutDashboard,
   LogOut,
   User,
-  Phone,
-  Mail,
-  Globe,
+
   ChevronDown,
   MessageCircle,
   Bell,
@@ -74,7 +70,6 @@ const iconMap: Record<string, React.ElementType> = {
 }
 
 export function Header() {
-  const { theme, setTheme } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -120,45 +115,7 @@ export function Header() {
   }
 
   return (
-    <>
-      {/* Top Announcement Bar */}
-      <div className="hidden lg:flex bg-navy text-white/80 text-[11px]">
-        <div className="container mx-auto flex items-center justify-between px-4 lg:px-8 h-9">
-          <div className="flex items-center gap-4">
-            <a href="tel:+254712345678" className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Phone className="h-3 w-3" /> +254 712 345 678
-            </a>
-            <a href="mailto:support@chapke.co.ke" className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Mail className="h-3 w-3" /> support@chapke.co.ke
-            </a>
-            <Link href="/help" className="hover:text-white transition-colors">Help Center</Link>
-            <Link href="/help" className="hover:text-white transition-colors">Safety Tips</Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <button onClick={() => setShowPostAd(true)} className="flex items-center gap-1.5 text-accent-orange font-semibold hover:text-accent-orange/80 transition-colors">
-              <Plus className="h-3 w-3" /> Post Ad Free
-            </button>
-            <span className="text-white/30">|</span>
-            <div className="flex items-center gap-1.5">
-              <Globe className="h-3 w-3" />
-              <select className="bg-transparent text-white/80 text-[11px] outline-none hover:text-white cursor-pointer">
-                <option value="en">English</option>
-                <option value="sw">Kiswahili</option>
-              </select>
-            </div>
-            <span className="text-white/30">|</span>
-            <div className="flex items-center gap-1.5">
-              <span>KES</span>
-              <select className="bg-transparent text-white/80 text-[11px] outline-none hover:text-white cursor-pointer">
-                <option value="KES">KES</option>
-                <option value="USD">USD</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <header
+    <header
         className={cn(
           'sticky top-0 z-50 w-full transition-all duration-300',
           scrolled
@@ -252,27 +209,6 @@ export function Header() {
               </>
             )}
 
-            {/* Location Selector */}
-            <div className="hidden lg:block">
-              <Select
-                value={filters.location}
-                onValueChange={(val) => setFilters({ location: val })}
-              >
-                <SelectTrigger className="h-9 w-[130px] text-xs rounded-xl border-slate-200 bg-slate-50/80 hover:bg-white transition-all">
-                  <MapPin className="h-3 w-3 mr-1 text-royal" />
-                  <SelectValue placeholder="All Kenya" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="all">All Kenya</SelectItem>
-                  {locations.map((loc) => (
-                    <SelectItem key={loc.id} value={loc.slug}>
-                      {loc.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* Post Ad button */}
             <Button
               onClick={() => setShowPostAd(true)}
@@ -287,9 +223,30 @@ export function Header() {
             {mounted && (
               <>
                 {currentUser ? (
-                  <DropdownMenu>
+                  <>
+                  <Link
+                    href="/dashboard"
+                    className="sm:hidden flex items-center gap-2 h-9 px-2 rounded-xl hover:bg-slate-100 transition-all"
+                    >
+                      <div className="relative h-7 w-7 rounded-full overflow-hidden bg-royal">
+                        {currentUser.avatar ? (
+                          <Image
+                            src={currentUser.avatar}
+                            alt={currentUser.name}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-white text-[11px] font-bold">
+                            {currentUser.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                    <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 h-9 px-2 rounded-xl hover:bg-slate-100 transition-all">
+                      <button className="hidden sm:flex items-center gap-2 h-9 px-2 rounded-xl hover:bg-slate-100 transition-all">
                         <div className="relative h-7 w-7 rounded-full overflow-hidden bg-royal">
                           {currentUser.avatar ? (
                             <Image
@@ -334,8 +291,14 @@ export function Header() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  </>
                 ) : (
                   <div className="flex items-center gap-1">
+                    <Link href="/login" className="sm:hidden flex items-center gap-2 h-9 px-2 rounded-xl hover:bg-slate-100 transition-all">
+                      <div className="relative h-7 w-7 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-500 text-[11px] font-bold">
+                        <User className="h-3.5 w-3.5" />
+                      </div>
+                    </Link>
                     <Link href="/login">
                       <Button variant="ghost" size="sm" className="h-9 rounded-xl text-xs font-medium text-navy hover:bg-slate-100">
                         <LogIn className="h-3.5 w-3.5 mr-1" />
@@ -351,23 +314,6 @@ export function Header() {
                   </div>
                 )}
               </>
-            )}
-
-            {/* Dark mode toggle */}
-            {mounted && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-9 w-9 rounded-xl hover:bg-slate-100 transition-all"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              >
-                {theme === 'dark' ? (
-                  <Sun className="h-4 w-4 text-accent-orange" />
-                ) : (
-                  <Moon className="h-4 w-4 text-navy/60" />
-                )}
-                <span className="sr-only">Toggle theme</span>
-              </Button>
             )}
 
             {/* Mobile hamburger */}
@@ -590,6 +536,5 @@ export function Header() {
         </SheetContent>
       </Sheet>
     </header>
-    </>
   )
 }
