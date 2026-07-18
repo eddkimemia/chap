@@ -48,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     'jobs', 'services', 'agriculture', 'furniture-home', 'health-beauty',
     'sports-outdoors', 'business-industrial',
   ].map((slug) => ({
-    url: `${BASE_URL}/c/${slug}`,
+    url: `${BASE_URL}/category/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.7,

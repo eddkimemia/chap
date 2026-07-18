@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
       siteName: 'ChapKE',
     },
-    alternates: { canonical: `https://chapke.co.ke/c/${category.slug}` },
+    alternates: { canonical: `https://chapke.co.ke/category/${category.slug}` },
   }
 }
 
@@ -54,8 +54,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     : null
 
   const breadcrumbItems = parentCategory
-    ? [{ name: 'Home', url: 'https://chapke.co.ke' }, { name: parentCategory.name, url: `https://chapke.co.ke/c/${parentCategory.slug}` }, { name: category.name, url: `https://chapke.co.ke/c/${category.slug}` }]
-    : [{ name: 'Home', url: 'https://chapke.co.ke' }, { name: category.name, url: `https://chapke.co.ke/c/${category.slug}` }]
+    ? [{ name: 'Home', url: 'https://chapke.co.ke' }, { name: parentCategory.name, url: `https://chapke.co.ke/category/${parentCategory.slug}` }, { name: category.name, url: `https://chapke.co.ke/category/${category.slug}` }]
+    : [{ name: 'Home', url: 'https://chapke.co.ke' }, { name: category.name, url: `https://chapke.co.ke/category/${category.slug}` }]
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

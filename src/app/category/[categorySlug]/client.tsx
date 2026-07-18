@@ -97,7 +97,7 @@ export function CategoryBrowseClient({
         <ChevronDown className="h-3 w-3 -rotate-90" />
         {parentCategory && (
           <>
-            <Link href={`/c/${parentCategory.slug}`} className="hover:text-royal">{parentCategory.name}</Link>
+            <Link href={`/category/${parentCategory.slug}`} className="hover:text-royal">{parentCategory.name}</Link>
             <ChevronDown className="h-3 w-3 -rotate-90" />
           </>
         )}
@@ -116,7 +116,7 @@ export function CategoryBrowseClient({
           {category.children.map((child) => (
             <Link
               key={child.id}
-              href={`/c/${child.slug}`}
+              href={`/category/${child.slug}`}
               className="px-4 py-2 rounded-xl bg-muted hover:bg-royal/10 text-sm font-medium text-muted-foreground hover:text-royal transition-colors"
             >
               {child.name}

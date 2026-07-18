@@ -23,7 +23,7 @@ const categoryImage: Record<string, string> = {
   'food-drinks': 'foods.png',
   'hobbies-crafts': 'hobbies.png',
   'travel-tourism': 'travel.png',
-  'baby-kids': 'health.png',
+  'baby-kids': 'baby.png',
 }
 
 const containerVariants = {
@@ -66,7 +66,7 @@ export function CategoryGrid() {
             return (
               <motion.div key={cat.id} variants={itemVariants}>
                 <Link
-                  href={`/c/${cat.slug}`}
+                  href={`/category/${cat.slug}`}
                   className="group relative flex flex-col items-center justify-end rounded-2xl overflow-hidden aspect-[4/5] transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
                   {img && (
