@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAppStore } from '@/lib/store'
 import { apiFetch } from '@/lib/api-client'
 import { Eye, EyeOff, Mail, Phone, Lock, ArrowRight, Chrome, MessageSquare } from 'lucide-react'
@@ -106,8 +107,8 @@ export default function LoginPage() {
       <Card className="w-full max-w-md glass-card shadow-premium-xl relative z-10 rounded-3xl border-0">
         <CardContent className="p-8 sm:p-10">
           <div className="text-center mb-8">
-            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-royal text-white font-bold text-xl shadow-lg shadow-royal/20 mb-4">
-              C
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-lg mb-4 overflow-hidden">
+              <Image src="/logoicon.png" alt="ChapKE" width={40} height={40} className="object-contain" />
             </div>
             <h1 className="text-2xl font-bold text-navy tracking-tight">Welcome Back</h1>
             <p className="text-muted-foreground mt-1 text-sm">Sign in to ChapKE to continue</p>
