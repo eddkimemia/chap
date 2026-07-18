@@ -395,12 +395,11 @@ export default function Home() {
               </section>
             )}
 
-            {/* Why Choose Us */}
-            <WhyChooseUs />
-
             {/* Categories */}
             <CategoryGrid />
 
+             {/* Why Choose Us */}
+            <WhyChooseUs />
 
             {/* Latest Listings */}
             {homeLatest.length > 0 && (

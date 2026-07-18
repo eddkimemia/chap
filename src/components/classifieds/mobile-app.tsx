@@ -58,20 +58,16 @@ export function MobileApp() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative"
+            className="relative flex justify-center"
           >
-            <div className="relative mx-auto max-w-[300px]">
-              <div className="aspect-[9/19] bg-navy rounded-[3rem] border-4 border-slate-200 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/3 h-6 bg-slate-200 rounded-b-xl" />
-                <div className="h-full flex items-center justify-center bg-gradient-to-b from-royal/10 to-accent-orange/10">
-                  <div className="text-center p-6">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-royal text-white font-bold text-2xl mx-auto mb-4 shadow-lg shadow-royal/30">C</div>
-                    <p className="text-navy font-bold text-lg">ChapKE</p>
-                    <p className="text-slate-400 text-xs mt-1">Kenya&apos;s Marketplace</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Image
+              src="/phoneapp.png"
+              alt="ChapKE Mobile App"
+              width={320}
+              height={640}
+              className="object-contain drop-shadow-2xl"
+              priority
+            />
           </motion.div>
         </div>
       </div>

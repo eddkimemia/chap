@@ -58,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     where: { parentId: null },
     select: { slug: true },
   })).map((l) => ({
-    url: `${BASE_URL}/l/${l.slug}`,
+    url: `${BASE_URL}/location/${l.slug}`,
     lastModified: new Date(),
     changeFrequency: 'daily' as const,
     priority: 0.6,

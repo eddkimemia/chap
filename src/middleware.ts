@@ -53,7 +53,7 @@ function isPublicPath(pathname: string): boolean {
   }
   if (pathname.startsWith('/listing/')) return true
   if (pathname.startsWith('/category/')) return true
-  if (pathname.startsWith('/l/')) return true
+  if (pathname === '/location' || pathname.startsWith('/location/')) return true
   if (pathname.startsWith('/search')) return true
   if (pathname.startsWith('/blog/')) return true
   if (pathname.startsWith('/api/listings/')) return true

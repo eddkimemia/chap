@@ -39,9 +39,9 @@ export function Footer() {
             <ul className="space-y-2.5">
               <li><Link href="/search" className="text-sm text-white/50 hover:text-white transition-colors">Browse Listings</Link></li>
               <li><Link href="/search" className="text-sm text-white/50 hover:text-white transition-colors">All Categories</Link></li>
-              <li><Link href="/l/nairobi" className="text-sm text-white/50 hover:text-white transition-colors">Nairobi</Link></li>
-              <li><Link href="/l/mombasa" className="text-sm text-white/50 hover:text-white transition-colors">Mombasa</Link></li>
-              <li><Link href="/l/kisumu" className="text-sm text-white/50 hover:text-white transition-colors">Kisumu</Link></li>
+              <li><Link href="/location/nairobi" className="text-sm text-white/50 hover:text-white transition-colors">Nairobi</Link></li>
+              <li><Link href="/location/mombasa" className="text-sm text-white/50 hover:text-white transition-colors">Mombasa</Link></li>
+              <li><Link href="/location/kisumu" className="text-sm text-white/50 hover:text-white transition-colors">Kisumu</Link></li>
               <li><Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog & Guides</Link></li>
             </ul>
           </div>

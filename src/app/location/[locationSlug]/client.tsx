@@ -100,7 +100,7 @@ export function LocationBrowseClient({
   useEffect(() => {
     const p = new URLSearchParams()
     Object.entries(filters).forEach(([k, v]) => { if (v) p.set(k, v) })
-    router.replace(`/l/${location.slug}?${p.toString()}`, { scroll: false })
+    router.replace(`/location/${location.slug}?${p.toString()}`, { scroll: false })
   }, [filters, router, location.slug])
 
   const allLoaded = pagination.totalPages > 0 && parseInt(filters.page) >= pagination.totalPages
@@ -111,11 +111,11 @@ export function LocationBrowseClient({
       <nav className="mb-4 text-sm text-slate-500">
         <Link href="/" className="hover:text-royal">Home</Link>
         <span className="mx-2">/</span>
-        <Link href="/locations" className="hover:text-royal">Locations</Link>
+        <Link href="/location" className="hover:text-royal">Locations</Link>
         {parentLocation && (
           <>
             <span className="mx-2">/</span>
-            <Link href={`/l/${parentLocation.slug}`} className="hover:text-royal">{parentLocation.name}</Link>
+            <Link href={`/location/${parentLocation.slug}`} className="hover:text-royal">{parentLocation.name}</Link>
           </>
         )}
         <span className="mx-2">/</span>
@@ -132,7 +132,7 @@ export function LocationBrowseClient({
       {location.children && location.children.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-2">
           {location.children.map((child) => (
-            <Link key={child.id} href={`/l/${child.slug}`}>
+            <Link key={child.id} href={`/location/${child.slug}`}>
               <Badge variant="outline" className="rounded-full px-3 py-1 text-sm hover:bg-slate-100 cursor-pointer">
                 <MapPin className="h-3 w-3 mr-1" />
                 {child.name}

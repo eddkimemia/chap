@@ -517,19 +517,15 @@ export function Header() {
             <div className="my-3 border-t border-slate-100" />
             <p className="text-[11px] font-semibold text-muted-foreground px-3 mb-1 uppercase tracking-wider">Locations</p>
             {locations.map((loc) => (
-              <Button
+              <Link
                 key={loc.id}
-                variant="ghost"
-                size="sm"
-                className="justify-start gap-3 text-sm rounded-xl hover:bg-primary/5"
-                onClick={() => {
-                  setFilters({ location: loc.slug })
-                  setMobileOpen(false)
-                }}
+                href={`/location/${loc.slug}`}
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center gap-3 text-sm rounded-xl hover:bg-primary/5 px-3 h-10"
               >
                 <MapPin className="h-3.5 w-3.5 text-electric" />
                 {loc.name}
-              </Button>
+              </Link>
             ))}
           </nav>
         </SheetContent>
