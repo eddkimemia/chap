@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
   Search,
@@ -70,6 +71,7 @@ const iconMap: Record<string, React.ElementType> = {
 }
 
 export function Header() {
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -85,7 +87,6 @@ export function Header() {
     view,
     resetToHome,
     setShowPostAd,
-    setSelectedCategory,
     currentUser,
     logout,
   } = useAppStore()
@@ -105,7 +106,12 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      useAppStore.setState({ view: 'listings' })
+      const params = new URLSearchParams()
+      params.set('q', searchQuery.trim())
+      if (selectedCategory) params.set('category', selectedCategory)
+      router.push(`/search?${params.toString()}`)
+    } else if (selectedCategory) {
+      router.push(`/category/${selectedCategory}`)
     }
   }
 
@@ -126,10 +132,7 @@ export function Header() {
         <div className="container mx-auto flex h-16 items-center gap-3 px-4 lg:px-8">
           {/* Left: Logo + Back */}
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={resetToHome}
-              className="flex items-center gap-2 shrink-0 group"
-            >
+            <Link href="/" className="flex items-center gap-2 shrink-0 group">
               <img
                 src="/logoicon.png"
                 alt="ChapKE"
@@ -140,7 +143,7 @@ export function Header() {
                 alt="ChapKE"
                 className="hidden sm:block h-9 w-auto object-contain"
               />
-            </button>
+            </Link>
           </div>
 
           {/* Center: Enhanced Search bar */}
@@ -151,7 +154,11 @@ export function Header() {
             <div className="relative flex w-full">
               <Select
                 value={selectedCategory || undefined}
-                onValueChange={(val) => setSelectedCategory(val === 'all' ? '' : val)}
+                onValueChange={(val) => {
+                  if (val && val !== 'all') {
+                    router.push(`/category/${val}`)
+                  }
+                }}
               >
                 <SelectTrigger className="hidden md:flex h-10 sm:h-11 rounded-l-2xl rounded-r-none border-r-0 border-slate-200 bg-slate-50/80 text-xs w-[130px] lg:w-[150px] shrink-0">
                   <SelectValue placeholder="All Categories" />
@@ -299,16 +306,16 @@ export function Header() {
                         <User className="h-3.5 w-3.5" />
                       </div>
                     </Link>
-                    <Link href="/login">
+                    <Link href="/login" className="hidden sm:flex">
                       <Button variant="ghost" size="sm" className="h-9 rounded-xl text-xs font-medium text-navy hover:bg-slate-100">
                         <LogIn className="h-3.5 w-3.5 mr-1" />
-                        <span className="hidden sm:inline">Login</span>
+                        <span>Login</span>
                       </Button>
                     </Link>
-                    <Link href="/register">
+                    <Link href="/register" className="hidden sm:flex">
                       <Button size="sm" className="h-9 rounded-xl bg-royal text-white text-xs font-semibold shadow-lg shadow-royal/20 border-0">
                         <UserPlus className="h-3.5 w-3.5 mr-1" />
-                        <span className="hidden sm:inline">Register</span>
+                        <span>Register</span>
                       </Button>
                     </Link>
                   </div>
@@ -336,13 +343,9 @@ export function Header() {
               {parentCategories.slice(0, 10).map((cat) => {
                 const Icon = iconMap[cat.icon] || Briefcase
                 return (
-                  <button
+                  <Link
                     key={cat.id}
-                    onClick={() => {
-                      setSelectedCategory(cat.slug)
-                      useAppStore.setState({ view: 'listings' })
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    }}
+                    href={`/category/${cat.slug}`}
                     className={cn(
                       'flex items-center gap-1.5 px-3 py-2 text-[11px] font-medium rounded-lg transition-all whitespace-nowrap',
                       selectedCategory === cat.slug
@@ -352,17 +355,17 @@ export function Header() {
                   >
                     <Icon className="h-3.5 w-3.5" />
                     {cat.name}
-                  </button>
+                  </Link>
                 )
               })}
               <div className="w-px h-5 bg-slate-200 mx-1" />
-              <button
-                onClick={() => useAppStore.setState({ view: 'listings' })}
+              <Link
+                href="/search"
                 className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-medium text-royal hover:bg-royal/5 rounded-lg transition-all whitespace-nowrap"
               >
                 <List className="h-3.5 w-3.5" />
                 More Categories
-              </button>
+              </Link>
             </nav>
           </div>
         </div>
@@ -496,21 +499,17 @@ export function Header() {
               {parentCategories.map((cat) => {
                 const Icon = iconMap[cat.icon] || Briefcase
                 return (
-                  <Button
+                  <Link
                     key={cat.id}
-                    variant="ghost"
-                    size="sm"
-                    className="justify-start gap-3 text-sm h-10 rounded-xl hover:bg-primary/5"
-                    onClick={() => {
-                      setSelectedCategory(cat.slug)
-                      setMobileOpen(false)
-                    }}
+                    href={`/category/${cat.slug}`}
+                    onClick={() => setMobileOpen(false)}
+                    className="flex items-center gap-3 text-sm h-10 rounded-xl hover:bg-primary/5 px-3"
                   >
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/5">
                       <Icon className="h-3.5 w-3.5 text-royal" />
                     </div>
                     {cat.name}
-                  </Button>
+                  </Link>
                 )
               })}
             </div>

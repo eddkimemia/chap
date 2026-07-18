@@ -125,8 +125,8 @@ export default async function ListingPage({ params }: PageProps) {
 
   const breadcrumbItems = [
     { name: 'Home', url: '/' },
-    ...(parentCategory ? [{ name: parentCategory.name, url: `/?category=${parentCategory.slug}` }] : []),
-    { name: listing.category.name, url: `/?category=${listing.category.slug}` },
+    ...(parentCategory ? [{ name: parentCategory.name, url: `/category/${parentCategory.slug}` }] : []),
+    { name: listing.category.name, url: `/category/${listing.category.slug}` },
     { name: listing.title, url: `/listing/${listing.slug}` },
   ]
 
