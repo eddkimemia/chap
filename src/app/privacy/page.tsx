@@ -127,7 +127,7 @@ export default function PrivacyPage() {
               </ul>
               <p>
                 To exercise these rights, contact us at{' '}
-                <a href="mailto:privacy@chapke.co.ke" className="text-royal hover:underline">privacy@chapke.co.ke</a>.
+                <a href="mailto:privacy@chap.co.ke" className="text-royal hover:underline">privacy@chap.co.ke</a>.
               </p>
 
               <h2 className="text-2xl font-bold text-navy">7. Children&apos;s Privacy</h2>
@@ -148,7 +148,7 @@ export default function PrivacyPage() {
               <h2 className="text-2xl font-bold text-navy">10. Contact Us</h2>
               <p>
                 For questions about this Privacy Policy, contact our Data Protection Officer at{' '}
-                <a href="mailto:privacy@chapke.co.ke" className="text-royal hover:underline">privacy@chapke.co.ke</a>.
+                <a href="mailto:privacy@chap.co.ke" className="text-royal hover:underline">privacy@chap.co.ke</a>.
               </p>
               <p>
                 ChapKE Ltd.<br />

@@ -112,7 +112,7 @@ export default function AdminSeoPage() {
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-medium text-navy">Canonical URL</Label>
-              <Input value={settings.canonical_url} onChange={(e) => setSettings({ ...settings, canonical_url: e.target.value })} placeholder="https://chapke.com" className="rounded-xl h-10" />
+              <Input value={settings.canonical_url} onChange={(e) => setSettings({ ...settings, canonical_url: e.target.value })} placeholder="https://chap.co.ke" className="rounded-xl h-10" />
             </div>
           </CardContent>
         </Card>

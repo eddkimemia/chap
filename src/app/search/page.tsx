@@ -16,7 +16,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   return {
     title,
     description: `Search results for ${q || 'all listings'} on ChapKE. Find the best deals in Kenya.`,
-    alternates: { canonical: `https://chapke.co.ke/search${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+    alternates: { canonical: `https://chap.co.ke/search${q ? `?q=${encodeURIComponent(q)}` : ''}` },
   }
 }
 
@@ -32,8 +32,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
             '@context': 'https://schema.org',
             '@type': 'BreadcrumbList',
             itemListElement: [
-              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://chapke.co.ke' },
-              { '@type': 'ListItem', position: 2, name: 'Search', item: `https://chapke.co.ke/search${sp.q ? `?q=${encodeURIComponent(sp.q)}` : ''}` },
+              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://chap.co.ke' },
+              { '@type': 'ListItem', position: 2, name: 'Search', item: `https://chap.co.ke/search${sp.q ? `?q=${encodeURIComponent(sp.q)}` : ''}` },
             ],
           }),
         }}

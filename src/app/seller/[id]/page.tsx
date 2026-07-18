@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: user.avatar ? [{ url: user.avatar }] : [],
       type: 'profile',
       siteName: 'ChapKE',
-      url: `https://chapke.co.ke/seller/${id}`,
+      url: `https://chap.co.ke/seller/${id}`,
     },
     twitter: {
       card: 'summary',
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: description.slice(0, 200),
       images: user.avatar ? [user.avatar] : [],
     },
-    alternates: { canonical: `https://chapke.co.ke/seller/${id}` },
+    alternates: { canonical: `https://chap.co.ke/seller/${id}` },
   }
 }
 
@@ -53,7 +53,7 @@ export default async function SellerPage({ params }: PageProps) {
     name: user.name,
     image: user.avatar || undefined,
     description: user.bio || undefined,
-    url: `https://chapke.co.ke/seller/${id}`,
+    url: `https://chap.co.ke/seller/${id}`,
     ...(user.profile?.city ? { homeLocation: { '@type': 'Place', name: `${user.profile.city}, ${user.profile.country || 'Kenya'}` } } : {}),
   }
 

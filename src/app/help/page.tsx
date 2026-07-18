@@ -248,7 +248,7 @@ export default function HelpPage() {
                 </p>
                 <div className="space-y-5">
                   {[
-                    { icon: Mail, label: 'support@chapke.co.ke', desc: 'Email us anytime' },
+                    { icon: Mail, label: 'support@chap.co.ke', desc: 'Email us anytime' },
                     { icon: Phone, label: '+254 700 000 000', desc: 'Mon-Fri, 8am-6pm EAT' },
                     { icon: MessageCircle, label: 'Live Chat', desc: 'Instant responses' },
                   ].map((item) => (

@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: firstImage ? [{ url: firstImage }] : [],
       type: 'website',
       siteName: 'ChapKE',
-      url: `https://chapke.co.ke/listing/${listing.slug}`,
+      url: `https://chap.co.ke/listing/${listing.slug}`,
     },
     twitter: {
       card: 'summary_large_image',
@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: listing.description.slice(0, 200),
       images: firstImage ? [firstImage] : [],
     },
-    alternates: { canonical: `https://chapke.co.ke/listing/${listing.slug}` },
+    alternates: { canonical: `https://chap.co.ke/listing/${listing.slug}` },
   }
 }
 

@@ -86,8 +86,8 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: 'ChapKE',
-              url: 'https://chapke.co.ke',
-              logo: 'https://chapke.co.ke/chaplogo.png',
+              url: 'https://chap.co.ke',
+              logo: 'https://chap.co.ke/chaplogo.png',
               description:
                 "Kenya's premier digital marketplace for buying and selling vehicles, property, electronics, and more.",
               sameAs: [

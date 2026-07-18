@@ -142,7 +142,7 @@ export default function TermsPage() {
             <h2 className="text-2xl font-bold text-navy">15. Contact Us</h2>
             <p>
               If you have questions about these Terms, please contact us at{' '}
-              <a href="mailto:legal@chapke.co.ke" className="text-royal hover:underline">legal@chapke.co.ke</a> or visit our{' '}
+              <a href="mailto:legal@chap.co.ke" className="text-royal hover:underline">legal@chap.co.ke</a> or visit our{' '}
               <a href="/help" className="text-royal hover:underline">Help Center</a>.
             </p>
           </motion.div>

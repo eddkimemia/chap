@@ -132,7 +132,7 @@ export default function TwoFactorPage() {
               <Key className="h-4 w-4 text-royal mt-0.5 shrink-0" />
               <p className="text-xs text-muted-foreground">
                 Having trouble? Contact support at{' '}
-                <a href="mailto:support@chapke.co.ke" className="text-royal font-medium">support@chapke.co.ke</a>
+                <a href="mailto:support@chap.co.ke" className="text-royal font-medium">support@chap.co.ke</a>
               </p>
             </div>
           </div>

@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
       siteName: 'ChapKE',
     },
-    alternates: { canonical: `https://chapke.co.ke/l/${location.slug}` },
+    alternates: { canonical: `https://chap.co.ke/l/${location.slug}` },
   }
 }
 
@@ -54,8 +54,8 @@ export default async function LocationPage({ params, searchParams }: PageProps) 
     : null
 
   const breadcrumbItems = parentLocation
-    ? [{ name: 'Home', url: 'https://chapke.co.ke' }, { name: 'Locations', url: 'https://chapke.co.ke/locations' }, { name: parentLocation.name, url: `https://chapke.co.ke/l/${parentLocation.slug}` }, { name: location.name, url: `https://chapke.co.ke/l/${location.slug}` }]
-    : [{ name: 'Home', url: 'https://chapke.co.ke' }, { name: 'Locations', url: 'https://chapke.co.ke/locations' }, { name: location.name, url: `https://chapke.co.ke/l/${location.slug}` }]
+    ? [{ name: 'Home', url: 'https://chap.co.ke' }, { name: 'Locations', url: 'https://chap.co.ke/locations' }, { name: parentLocation.name, url: `https://chap.co.ke/l/${parentLocation.slug}` }, { name: location.name, url: `https://chap.co.ke/l/${location.slug}` }]
+    : [{ name: 'Home', url: 'https://chap.co.ke' }, { name: 'Locations', url: 'https://chap.co.ke/locations' }, { name: location.name, url: `https://chap.co.ke/l/${location.slug}` }]
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

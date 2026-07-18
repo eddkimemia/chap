@@ -12,7 +12,6 @@ import {
   Twitter,
   Instagram,
   ShieldCheck,
-  Users,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useAppStore } from '@/lib/store'
@@ -27,7 +26,7 @@ const iconMap: Record<string, React.ElementType> = {
 }
 
 export function Footer() {
-  const { categories, locations } = useAppStore()
+  const { categories } = useAppStore()
   const parentCategories = categories.filter((c) => !c.parentId)
 
   return (
@@ -38,11 +37,11 @@ export function Footer() {
           <div>
             <h3 className="font-bold mb-4 text-white/90 text-xs uppercase tracking-wider">Marketplace</h3>
             <ul className="space-y-2.5">
-              <li><button onClick={() => useAppStore.getState().resetToHome()} className="text-sm text-white/50 hover:text-white transition-colors">Browse Listings</button></li>
-              <li><button onClick={() => useAppStore.getState().setView('listings')} className="text-sm text-white/50 hover:text-white transition-colors">All Categories</button></li>
-              <li><button onClick={() => { useAppStore.getState().setView('listings'); useAppStore.getState().setFilters({ location: 'nairobi' }) }} className="text-sm text-white/50 hover:text-white transition-colors">Nairobi</button></li>
-              <li><button onClick={() => { useAppStore.getState().setView('listings'); useAppStore.getState().setFilters({ location: 'mombasa' }) }} className="text-sm text-white/50 hover:text-white transition-colors">Mombasa</button></li>
-              <li><button onClick={() => { useAppStore.getState().setView('listings'); useAppStore.getState().setFilters({ location: 'kisumu' }) }} className="text-sm text-white/50 hover:text-white transition-colors">Kisumu</button></li>
+              <li><Link href="/search" className="text-sm text-white/50 hover:text-white transition-colors">Browse Listings</Link></li>
+              <li><Link href="/search" className="text-sm text-white/50 hover:text-white transition-colors">All Categories</Link></li>
+              <li><Link href="/l/nairobi" className="text-sm text-white/50 hover:text-white transition-colors">Nairobi</Link></li>
+              <li><Link href="/l/mombasa" className="text-sm text-white/50 hover:text-white transition-colors">Mombasa</Link></li>
+              <li><Link href="/l/kisumu" className="text-sm text-white/50 hover:text-white transition-colors">Kisumu</Link></li>
               <li><Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog & Guides</Link></li>
             </ul>
           </div>
@@ -55,13 +54,10 @@ export function Footer() {
                 const Icon = iconMap[cat.icon] || Briefcase
                 return (
                   <li key={cat.id}>
-                    <button
-                      onClick={() => useAppStore.getState().setSelectedCategory(cat.slug)}
-                      className="flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors"
-                    >
+                    <Link href={`/category/${cat.slug}`} className="flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors">
                       <Icon className="h-3 w-3" />
                       {cat.name}
-                    </button>
+                    </Link>
                   </li>
                 )
               })}
@@ -72,11 +68,9 @@ export function Footer() {
           <div>
             <h3 className="font-bold mb-4 text-white/90 text-xs uppercase tracking-wider">Company</h3>
             <ul className="space-y-2.5">
-              {['About Us', 'Contact Us', 'Careers', 'Blog', 'Press Kit'].map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-white/50 hover:text-white transition-colors">{link}</a>
-                </li>
-              ))}
+              <li><Link href="/about" className="text-sm text-white/50 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link href="/contact" className="text-sm text-white/50 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link></li>
             </ul>
           </div>
 
@@ -84,11 +78,10 @@ export function Footer() {
           <div>
             <h3 className="font-bold mb-4 text-white/90 text-xs uppercase tracking-wider">Support</h3>
             <ul className="space-y-2.5">
-              {['Help Center', 'Safety Center', 'FAQ', 'Report Abuse', 'Contact Support'].map((link) => (
-                <li key={link}>
-                  <Link href={link === 'Help Center' ? '/help' : '#'} className="text-sm text-white/50 hover:text-white transition-colors">{link}</Link>
-                </li>
-              ))}
+              <li><Link href="/help" className="text-sm text-white/50 hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link href="/help" className="text-sm text-white/50 hover:text-white transition-colors">Safety Center</Link></li>
+              <li><Link href="/help" className="text-sm text-white/50 hover:text-white transition-colors">FAQ</Link></li>
+              <li><Link href="/contact" className="text-sm text-white/50 hover:text-white transition-colors">Contact Support</Link></li>
             </ul>
           </div>
 
@@ -96,11 +89,9 @@ export function Footer() {
           <div>
             <h3 className="font-bold mb-4 text-white/90 text-xs uppercase tracking-wider">Legal</h3>
             <ul className="space-y-2.5">
-              {['Privacy Policy', 'Terms of Service', 'Cookie Policy', 'Community Guidelines'].map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-white/50 hover:text-white transition-colors">{link}</a>
-                </li>
-              ))}
+              <li><Link href="/privacy" className="text-sm text-white/50 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-sm text-white/50 hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-sm text-white/50 hover:text-white transition-colors">Cookie Policy</Link></li>
             </ul>
           </div>
 
@@ -110,24 +101,23 @@ export function Footer() {
             <ul className="space-y-2.5">
               <li><button onClick={() => useAppStore.getState().setShowPostAd(true)} className="text-sm text-white/50 hover:text-white transition-colors">Post an Ad</button></li>
               <li><Link href="/dashboard/listings" className="text-sm text-white/50 hover:text-white transition-colors">Seller Dashboard</Link></li>
-              {['Pricing', 'Business Accounts', 'Advertising'].map((link) => (
-                <li key={link}><a href="#" className="text-sm text-white/50 hover:text-white transition-colors">{link}</a></li>
-              ))}
+              <li><Link href="/dashboard/orders" className="text-sm text-white/50 hover:text-white transition-colors">Premium Plans</Link></li>
             </ul>
           </div>
         </div>
 
-        {/* Social + Payment + App */}
+        {/* Social + Trust */}
         <div className="mt-12 pt-8 border-t border-white/10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
             <div className="flex gap-3">
-              {[{ Icon: Facebook, label: 'Facebook' }, { Icon: Twitter, label: 'Twitter' }, { Icon: Instagram, label: 'Instagram' }].map(({ Icon, label }) => (
-                <a key={label} href="#" className="h-10 w-10 rounded-xl glass-card flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all" aria-label={label}>
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
-              <a href="#" className="h-10 w-10 rounded-xl glass-card flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all" aria-label="TikTok">
-                <Smartphone className="h-4 w-4" />
+              <a href="https://facebook.com/chapke" target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-xl glass-card flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all" aria-label="Facebook">
+                <Facebook className="h-4 w-4" />
+              </a>
+              <a href="https://twitter.com/chapke" target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-xl glass-card flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all" aria-label="Twitter">
+                <Twitter className="h-4 w-4" />
+              </a>
+              <a href="https://instagram.com/chapke" target="_blank" rel="noopener noreferrer" className="h-10 w-10 rounded-xl glass-card flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-all" aria-label="Instagram">
+                <Instagram className="h-4 w-4" />
               </a>
             </div>
             <div className="flex items-center gap-2 text-xs text-white/40 justify-center">
@@ -148,12 +138,6 @@ export function Footer() {
         {/* Bottom */}
         <div className="mt-6 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-white/30">
           <p>© 2026 ChapKE. Kenya&apos;s #1 Digital Marketplace. All rights reserved.</p>
-          <div className="flex items-center gap-1.5">
-            <Users className="h-3.5 w-3.5" />
-            <span>Made with</span>
-            <span className="text-accent-orange">♥</span>
-            <span>in Kenya</span>
-          </div>
         </div>
       </div>
     </footer>

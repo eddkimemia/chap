@@ -62,8 +62,8 @@ export function generateOrganizationSchema() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'ChapKE',
-    url: 'https://chapke.com',
-    logo: 'https://chapke.com/chaplogo.png',
+    url: 'https://chap.co.ke',
+    logo: 'https://chap.co.ke/chaplogo.png',
     description: "Kenya's largest online marketplace. Buy and sell electronics, cars, fashion, collectibles, sporting goods, digital cameras, and everything else on ChapKE.",
     sameAs: [
       'https://twitter.com/chapke',
@@ -73,7 +73,7 @@ export function generateOrganizationSchema() {
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Customer Service',
-      email: 'support@chapke.com',
+      email: 'support@chap.co.ke',
       availableLanguage: ['English', 'Swahili'],
     },
     address: {

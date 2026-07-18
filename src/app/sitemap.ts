@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 import { db } from '@/lib/db'
 
-const BASE_URL = 'https://chapke.co.ke'
+const BASE_URL = 'https://chap.co.ke'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
