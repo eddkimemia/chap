@@ -39,6 +39,9 @@ const publicPaths = [
   '/icon-512.svg',
   '/icon-maskable.svg',
   '/logo.svg',
+  '/chaplogo.png',
+  '/logoicon.png',
+  '/fav.png',
   '/manifest.json',
   '/robots.txt',
   '/uploads',
@@ -126,6 +129,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|icon-192.svg|icon-512.svg|icon-maskable.svg|logo.svg|manifest.json|robots.txt|uploads).*)',
+    '/((?!_next/static|_next/image|favicon.ico|icon-192.svg|icon-512.svg|icon-maskable.svg|logo.svg|chaplogo.png|logoicon.png|fav.png|manifest.json|robots.txt|uploads).*)',
   ],
 }

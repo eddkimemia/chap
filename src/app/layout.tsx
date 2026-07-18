@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "ChapKE" }],
   icons: {
-    icon: "/logo.svg",
+    icon: "/fav.png",
   },
   manifest: "/manifest.json",
   appleWebApp: {
@@ -87,7 +87,7 @@ export default function RootLayout({
               '@type': 'Organization',
               name: 'ChapKE',
               url: 'https://chapke.co.ke',
-              logo: 'https://chapke.co.ke/logo.svg',
+              logo: 'https://chapke.co.ke/chaplogo.png',
               description:
                 "Kenya's premier digital marketplace for buying and selling vehicles, property, electronics, and more.",
               sameAs: [

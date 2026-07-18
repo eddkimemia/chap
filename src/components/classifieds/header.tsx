@@ -185,12 +185,16 @@ export function Header() {
               onClick={resetToHome}
               className="flex items-center gap-2 shrink-0 group"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-royal text-white font-bold text-sm shadow-lg shadow-royal/20 group-hover:shadow-royal/30 transition-shadow">
-                C
-              </div>
-              <span className="hidden sm:inline text-lg font-bold tracking-tight text-navy">
-                Chap<span className="text-royal">KE</span>
-              </span>
+              <img
+                src="/logoicon.png"
+                alt="ChapKE"
+                className="h-9 w-9 rounded-xl object-cover sm:hidden"
+              />
+              <img
+                src="/chaplogo.png"
+                alt="ChapKE"
+                className="hidden sm:block h-9 w-auto object-contain"
+              />
             </button>
           </div>
 
@@ -435,9 +439,7 @@ export function Header() {
         <SheetContent side="left" className="w-80 p-0 bg-white/95 backdrop-blur-xl">
           <SheetHeader className="p-4 pb-2">
             <SheetTitle className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-royal text-white font-bold text-sm shadow-lg shadow-royal/20">
-                C
-              </div>
+              <img src="/logoicon.png" alt="ChapKE" className="h-9 w-9 rounded-xl object-cover" />
               <span className="text-navy font-bold">Chap<span className="text-royal">KE</span></span>
             </SheetTitle>
           </SheetHeader>

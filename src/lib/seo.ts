@@ -63,7 +63,7 @@ export function generateOrganizationSchema() {
     '@type': 'Organization',
     name: 'ChapKE',
     url: 'https://chapke.com',
-    logo: 'https://chapke.com/logo.svg',
+    logo: 'https://chapke.com/chaplogo.png',
     description: "Kenya's largest online marketplace. Buy and sell electronics, cars, fashion, collectibles, sporting goods, digital cameras, and everything else on ChapKE.",
     sameAs: [
       'https://twitter.com/chapke',

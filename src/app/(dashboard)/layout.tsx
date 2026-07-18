@@ -96,9 +96,7 @@ function SidebarContent({ user, onLogout }: { user: User | null; onLogout: () =>
     <div className="flex h-full flex-col bg-navy">
       <div className="p-5">
         <Link href="/dashboard" className="flex items-center gap-2.5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-royal text-white font-bold text-base shadow-lg shadow-royal/30">
-            C
-          </div>
+          <img src="/logoicon.png" alt="ChapKE" className="h-10 w-10 rounded-xl object-cover" />
           <div>
             <span className="text-lg font-bold text-white tracking-tight">
               Chap<span className="text-electric-light">KE</span>
