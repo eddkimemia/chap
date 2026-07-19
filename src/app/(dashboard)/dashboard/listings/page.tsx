@@ -110,8 +110,10 @@ export default function ListingsPage() {
 
   const handleBoost = async (type: string, durationDays: number) => {
     try {
+      const opt = promoOptions.find(o => o.type === type)
+      const amount = opt?.price || 0
       const res = await apiFetch(`/api/listings/${boostDialog.listingId}/boost`, {
-        method: 'POST', body: JSON.stringify({ type, durationDays, amount: type === 'featured' ? 0 : 0 }),
+        method: 'POST', body: JSON.stringify({ type, durationDays, amount }),
       })
       if (res.ok) { toast.success(`Listing ${type === 'featured' ? 'featured' : 'boosted'} successfully!`); setBoostDialog({ open: false, listingId: '' }); fetchListings() }
       else { const d = await res.json(); throw new Error(d.error) }
@@ -139,9 +141,9 @@ export default function ListingsPage() {
   }
 
   const promoOptions = [
-    { type: 'featured', label: 'Feature Listing', desc: 'Featured badge + top placement', days: 7 },
-    { type: 'boost', label: 'Boost Listing', desc: 'Higher visibility in search', days: 7 },
-    { type: 'promote', label: 'Promote Listing', desc: 'Premium promotion package', days: 14 },
+    { type: 'featured', label: 'Feature Listing', desc: 'Featured badge + top placement', days: 7, price: 499 },
+    { type: 'boost', label: 'Boost Listing', desc: 'Higher visibility in search', days: 7, price: 299 },
+    { type: 'promote', label: 'Promote Listing', desc: 'Premium promotion package', days: 14, price: 999 },
   ]
 
   return (
@@ -361,7 +363,7 @@ export default function ListingsPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-bold text-royal">{opt.days} days</p>
-                    <p className="text-[10px] text-slate-400">Free trial</p>
+                    <p className="text-[10px] text-slate-400">KES {formatPrice(opt.price)}</p>
                   </div>
                 </div>
               </button>

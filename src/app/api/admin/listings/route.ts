@@ -92,7 +92,14 @@ export async function PUT(request: NextRequest) {
       }
       updateData.status = status
     }
-    if (typeof isFeatured === 'boolean') updateData.isFeatured = isFeatured
+    if (typeof isFeatured === 'boolean') {
+      updateData.isFeatured = isFeatured
+      if (isFeatured) {
+        updateData.featuredUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      } else {
+        updateData.featuredUntil = null
+      }
+    }
     if (typeof isPromoted === 'boolean') updateData.isPromoted = isPromoted
 
     const statusChanged = status && status !== listing.status

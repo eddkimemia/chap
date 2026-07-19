@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         break
       case 'feature':
         for (const id of ids) {
-      await db.listing.update({ where: { id }, data: { isFeatured: true } })
+      await db.listing.update({ where: { id }, data: { isFeatured: true, featuredUntil: new Date(Date.now() + 7 * 86400000) } })
       await db.boost.create({ data: { listingId: id, userId: user.id, type: 'featured', amount: 0, startDate: new Date(), endDate: new Date(Date.now() + 7 * 86400000), status: 'active' } })
         }
         result = { count: ids.length }

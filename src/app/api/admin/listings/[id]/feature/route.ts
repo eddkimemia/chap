@@ -18,9 +18,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 })
     }
 
+    const featuredUntil = isFeatured ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null
+
     const updated = await db.listing.update({
       where: { id },
-      data: { isFeatured },
+      data: { isFeatured, featuredUntil },
       select: {
         id: true,
         title: true,

@@ -40,6 +40,12 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
     const skip = (page - 1) * limit
 
+    // Expire past-due featured/boosted/promoted listings
+    const now = new Date()
+    await db.listing.updateMany({ where: { featuredUntil: { lt: now }, isFeatured: true }, data: { isFeatured: false, featuredUntil: null } })
+    await db.listing.updateMany({ where: { promotedUntil: { lt: now }, isPromoted: true }, data: { isPromoted: false, promotedUntil: null } })
+    await db.listing.updateMany({ where: { boostUntil: { lt: now }, boostCount: { gt: 0 } }, data: { boostCount: 0, boostUntil: null } })
+
     const user = await getCurrentUser(request)
     const where: Record<string, unknown> = {}
 
@@ -116,6 +122,7 @@ export async function GET(request: NextRequest) {
       categoryId: true,
       locationId: true,
       isFeatured: true,
+      isPromoted: true,
       isNegotiable: true,
       views: true,
       createdAt: true,

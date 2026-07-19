@@ -162,6 +162,11 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
                 Featured
               </Badge>
             )}
+            {listing.isPromoted && (
+              <Badge className="bg-accent-orange text-white border-none text-[10px] px-2 py-0.5 shadow-md font-semibold rounded-lg">
+                Promoted
+              </Badge>
+            )}
             <Badge
               variant={listing.condition === 'New' ? 'default' : 'secondary'}
               className={cn(

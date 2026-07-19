@@ -427,12 +427,6 @@ export default function Home() {
             {/* Browse by Location */}
             <BrowseLocations />
 
-            {/* Top Sellers */}
-            <TopSellers />
-
-            {/* Premium Businesses */}
-            <PremiumBusinesses />
-
             {/* Popular Brands */}
             <PopularBrands />
 

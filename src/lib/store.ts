@@ -25,6 +25,7 @@ export interface Listing {
   contactPhone: string;
   contactEmail: string;
   isFeatured: boolean;
+  isPromoted?: boolean;
   isNegotiable: boolean;
   views: number;
   createdAt: string;

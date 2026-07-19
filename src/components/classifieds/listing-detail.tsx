@@ -225,6 +225,11 @@ export function ListingDetail() {
                       Featured
                     </Badge>
                   )}
+                  {listing.isPromoted && (
+                    <Badge className="bg-accent-orange text-white border-none font-semibold rounded-xl px-3 py-1">
+                      Promoted
+                    </Badge>
+                  )}
                   <Badge variant="secondary" className="rounded-xl px-3 py-1 font-medium">
                     {listing.condition}
                   </Badge>

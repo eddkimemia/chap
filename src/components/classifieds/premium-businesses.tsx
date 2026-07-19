@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useAppStore } from '@/lib/store'
 import { Store, ArrowRight, MapPin } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Link from 'next/link'
@@ -12,25 +13,31 @@ export function PremiumBusinesses() {
   const { listings } = useAppStore()
 
   const businesses = useMemo(() => {
-    const map = new Map<string, { id: string; name: string; avatar: string | null; isVerified: boolean; count: number; location: string; description: string }>()
+    const map = new Map<string, { id: string; name: string; avatar: string | null; isVerified: boolean; isPremium: boolean; count: number; location: string; description: string }>()
     for (const l of listings) {
-      if (!l.user?.id || !l.user.isVerified) continue
+      if (!l.user?.id) continue
+      const isPremium = !!(l.isFeatured || l.isPromoted)
+      if (!l.user.isVerified && !isPremium) continue
       const existing = map.get(l.user.id)
       if (existing) {
         existing.count++
+        if (isPremium) existing.isPremium = true
       } else {
         map.set(l.user.id, {
           id: l.user.id,
           name: l.user.name || 'Unknown',
           avatar: l.user.avatar || null,
           isVerified: l.user.isVerified,
+          isPremium,
           count: 1,
           location: l.location.name,
-          description: `Trusted seller with verified listings on ChapKE`,
+          description: isPremium ? 'Premium business with featured listings on ChapKE' : 'Trusted seller with verified listings on ChapKE',
         })
       }
     }
-    return Array.from(map.values()).sort((a, b) => b.count - a.count).slice(0, 3)
+    return Array.from(map.values())
+      .sort((a, b) => Number(b.isPremium) - Number(a.isPremium) || b.count - a.count)
+      .slice(0, 3)
   }, [listings])
 
   if (!businesses.length) return null
@@ -74,7 +81,7 @@ export function PremiumBusinesses() {
                     </div>
                   </div>
                   <div className="pt-10 p-6">
-                    <h3 className="font-bold text-navy text-lg">{biz.name}</h3>
+                    <h3 className="font-bold text-navy text-lg">{biz.name} {biz.isPremium && <Badge className="bg-royal text-white border-none text-[9px] px-1.5 py-0 font-semibold ml-1">Premium</Badge>}</h3>
                     <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
                       <MapPin className="h-3 w-3 text-electric" /> {biz.location}
                     </p>

@@ -283,6 +283,8 @@ export function ProductDetailClient({
   const [submittingReview, setSubmittingReview] = useState(false)
   const [contactForm, setContactForm] = useState({ name: '', message: '' })
   const [sendingMessage, setSendingMessage] = useState(false)
+  const [offerDialog, setOfferDialog] = useState<{ open: boolean; amount: string }>({ open: false, amount: '' })
+  const [sendingOffer, setSendingOffer] = useState(false)
 
   const images = listing.images || []
   const videos = listing.videos || []
@@ -327,9 +329,42 @@ export function ProductDetailClient({
   }
 
   const handleMakeOffer = () => {
-    const phone = listing.contactPhone.replace(/[^0-9]/g, '')
-    const text = `Hi, I'd like to make an offer on: ${listing.title} - ${formatPrice(listing.price)}. My offer is: KES `
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
+    if (!currentUser) { toast.error('Please login to make an offer'); return }
+    setOfferDialog({ open: true, amount: '' })
+  }
+
+  const handleSendOffer = async () => {
+    if (!currentUser) { toast.error('Please login to make an offer'); return }
+    const amount = offerDialog.amount.trim()
+    if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
+      toast.error('Please enter a valid offer amount')
+      return
+    }
+    setSendingOffer(true)
+    try {
+      const content = `Hi, I'd like to make an offer of KES ${Number(amount).toLocaleString()} on "${listing.title}" (listed at ${formatPrice(listing.price)}).`
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiverId: listing.user.id,
+          listingId: listing.id,
+          content,
+          type: 'offer',
+        }),
+      })
+      if (res.ok) {
+        toast.success('Offer sent! The seller will be notified.')
+        setOfferDialog({ open: false, amount: '' })
+      } else {
+        const d = await res.json()
+        throw new Error(d.error || 'Failed to send offer')
+      }
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setSendingOffer(false)
+    }
   }
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -521,6 +556,7 @@ export function ProductDetailClient({
               </div>
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {listing.isFeatured && <Badge className="bg-royal text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Featured</Badge>}
+                {listing.isPromoted && <Badge className="bg-accent-orange text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Promoted</Badge>}
                 {listing.isUrgent && <Badge className="bg-red-500 text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg animate-pulse">Urgent</Badge>}
                 {listing.isNegotiable && <Badge variant="outline" className="border-accent-orange/30 text-accent-orange text-[10px] px-2 py-0.5 font-medium rounded-lg">Negotiable</Badge>}
                 {listing.condition && <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-medium rounded-lg">{listing.condition}</Badge>}
@@ -664,7 +700,7 @@ export function ProductDetailClient({
                         <Link href={`/dashboard/listings/${listing.id}/edit`}><Edit className="h-4 w-4" /> Edit Listing</Link>
                       </Button>
                       <Button className="w-full gap-2 rounded-xl h-11 font-semibold bg-accent-orange hover:bg-accent-orange/90 text-white shadow-lg shadow-accent-orange/20 transition-all border-0" asChild>
-                        <Link href={`/dashboard/listings/${listing.id}/boost`}><Zap className="h-4 w-4" /> Boost Listing</Link>
+                        <Link href={`/dashboard/listings`}><Zap className="h-4 w-4" /> Boost Listing</Link>
                       </Button>
                     </div>
                   ) : (
@@ -834,6 +870,7 @@ export function ProductDetailClient({
               </div>
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {listing.isFeatured && <Badge className="bg-royal text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Featured</Badge>}
+                {listing.isPromoted && <Badge className="bg-accent-orange text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Promoted</Badge>}
                 {listing.isUrgent && <Badge className="bg-red-500 text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg animate-pulse">Urgent</Badge>}
                 {listing.isNegotiable && <Badge variant="outline" className="border-accent-orange/30 text-accent-orange text-[10px] px-2 py-0.5 font-medium rounded-lg">Negotiable</Badge>}
                 {listing.condition && <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-medium rounded-lg">{listing.condition}</Badge>}
@@ -842,23 +879,6 @@ export function ProductDetailClient({
                 <span className="flex items-center gap-1"><MapPin className="h-3 w-3 text-electric" />{listing.location.name}</span>
                 <span className="flex items-center gap-1"><Clock className="h-3 w-3 text-accent-purple" />{timeAgo(listing.createdAt)}</span>
                 <span className="flex items-center gap-1"><Eye className="h-3 w-3 text-slate-400" />{listing.views} views</span>
-              </div>
-            </div>
-
-            {/* Safety Tips - in right column */}
-            <div className="flex items-start gap-3 rounded-2xl sm:rounded-3xl border border-amber-200/60 bg-amber-50 p-4 sm:p-5">
-              <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100">
-                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="font-semibold text-amber-800 text-sm mb-1">Safety Tips for Buyers</p>
-                <ul className="text-amber-700/80 text-xs sm:text-sm leading-relaxed space-y-1">
-                  <li>• Meet the seller in a safe, public place</li>
-                  <li>• Never pay in advance without seeing the item</li>
-                  <li>• Verify the item condition before making payment</li>
-                  <li>• Use ChapKE messaging to keep a record of communication</li>
-                  <li>• Trust your instincts — if it seems too good to be true, it probably is</li>
-                </ul>
               </div>
             </div>
 
@@ -908,6 +928,23 @@ export function ProductDetailClient({
 
               <div className="mt-3 flex items-center justify-center">
                 <ReportDialog listingId={listing.id} listingTitle={listing.title} />
+              </div>
+            </div>
+
+            {/* Safety Tips - in right column */}
+            <div className="flex items-start gap-3 rounded-2xl sm:rounded-3xl border border-amber-200/60 bg-amber-50 p-4 sm:p-5">
+              <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100">
+                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="font-semibold text-amber-800 text-sm mb-1">Safety Tips for Buyers</p>
+                <ul className="text-amber-700/80 text-xs sm:text-sm leading-relaxed space-y-1">
+                  <li>• Meet the seller in a safe, public place</li>
+                  <li>• Never pay in advance without seeing the item</li>
+                  <li>• Verify the item condition before making payment</li>
+                  <li>• Use ChapKE messaging to keep a record of communication</li>
+                  <li>• Trust your instincts — if it seems too good to be true, it probably is</li>
+                </ul>
               </div>
             </div>
 
@@ -1000,6 +1037,42 @@ export function ProductDetailClient({
       >
         <Heart className={cn('h-5 w-5', favorited && 'fill-current')} />
       </button>
+
+      {/* Make Offer Dialog */}
+      <Dialog open={offerDialog.open} onOpenChange={(o) => setOfferDialog((p) => ({ ...p, open: o }))}>
+        <DialogContent className="rounded-2xl sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Send className="h-5 w-5 text-royal" /> Make an Offer</DialogTitle>
+            <DialogDescription>
+              Send your offer to the seller for &ldquo;{listing.title.slice(0, 60)}&rdquo;
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <p className="text-[11px] text-slate-400 uppercase tracking-wider font-medium">Listed Price</p>
+              <p className="text-lg font-bold text-navy">{formatPrice(listing.price)}</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="offer-amount">Your Offer Amount (KES)</Label>
+              <Input
+                id="offer-amount"
+                type="number"
+                min="1"
+                placeholder="Enter your offer..."
+                value={offerDialog.amount}
+                onChange={(e) => setOfferDialog((p) => ({ ...p, amount: e.target.value }))}
+                className="h-12 text-lg font-bold text-center rounded-xl border-slate-200"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setOfferDialog({ open: false, amount: '' })} className="rounded-xl">Cancel</Button>
+            <Button onClick={handleSendOffer} disabled={sendingOffer} className="rounded-xl bg-royal hover:bg-royal/90 border-0 shadow-lg shadow-royal/20">
+              {sendingOffer ? 'Sending...' : 'Send Offer'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

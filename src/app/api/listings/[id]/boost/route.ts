@@ -35,6 +35,21 @@ export async function POST(
       data: { listingId: id, userId: user.id, type, amount, startDate: now, endDate, status: 'active' },
     })
 
+    if (amount > 0) {
+      await db.payment.create({
+        data: {
+          userId: user.id,
+          amount,
+          type: type === 'featured' ? 'featured' : type === 'promote' ? 'promotion' : 'boost',
+          provider: 'internal',
+          reference: `BOOST-${id}-${Date.now().toString(36)}`,
+          status: 'completed',
+          metadata: JSON.stringify({ listingId: id, type, durationDays, endDate }),
+          description: `${type} listing: ${listing.title}`,
+        },
+      })
+    }
+
     return NextResponse.json({ success: true, endDate })
   } catch (error) {
     if (error instanceof Error && error.message === 'Unauthorized') {

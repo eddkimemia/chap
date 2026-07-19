@@ -220,7 +220,7 @@ export function Header() {
             <Button
               onClick={() => setShowPostAd(true)}
               size="sm"
-              className="hidden sm:flex h-9 gap-1.5 rounded-xl bg-accent-orange text-white shadow-lg shadow-accent-orange/20 hover:shadow-accent-orange/30 transition-all border-0 font-semibold text-xs px-3"
+              className="hidden sm:flex h-9 gap-1.5 rounded-xl bg-red-500 text-white shadow-lg shadow-red-500/20 hover:bg-red-600 hover:shadow-red-500/30 transition-all border-0 font-semibold text-xs px-3"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Post Ad</span>
@@ -301,13 +301,13 @@ export function Header() {
                   </>
                 ) : (
                   <div className="flex items-center gap-1">
-                    <Link href="/login" className="sm:hidden flex items-center gap-2 h-9 px-2 rounded-xl hover:bg-slate-100 transition-all">
+                    <Link href="/login" className="sm:hidden flex items-center gap-2 h-9 px-2 rounded-xl hover:bg-royal/5 transition-all">
                       <div className="relative h-7 w-7 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-500 text-[11px] font-bold">
                         <User className="h-3.5 w-3.5" />
                       </div>
                     </Link>
                     <Link href="/login" className="hidden sm:flex">
-                      <Button variant="ghost" size="sm" className="h-9 rounded-xl text-xs font-medium text-navy hover:bg-slate-100">
+                      <Button variant="ghost" size="sm" className="h-9 rounded-xl text-xs font-medium text-navy hover:bg-royal/5">
                         <LogIn className="h-3.5 w-3.5 mr-1" />
                         <span>Login</span>
                       </Button>
