@@ -62,6 +62,7 @@ const config: Config = {
           light: "#60a5fa",
         },
         "accent-orange": "#f97316",
+        "accent-red": "#dc2626",
         "accent-purple": "#a78bfa",
         lavender: "#ede9fe",
         "sky-soft": "#e0f2fe",

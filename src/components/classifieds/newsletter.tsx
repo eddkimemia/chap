@@ -57,13 +57,13 @@ export function Newsletter() {
           </p>
           <form onSubmit={handleSubscribe} className="flex gap-3 max-w-md mx-auto">
             <div className="relative flex-1">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="h-12 pl-11 rounded-xl bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:bg-white/20 focus:border-white/30"
+                className="h-12 pl-11 rounded-xl bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-royal"
                 required
               />
             </div>

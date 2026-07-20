@@ -489,7 +489,7 @@ export default function Home() {
                   <p className="text-white/50 mb-8 text-lg leading-relaxed">
                     Post your ad for free and reach thousands of buyers across Kenya. It only takes a minute!
                   </p>
-                  <Button size="lg" className="h-14 px-10 text-base font-bold rounded-2xl bg-accent-orange shadow-xl shadow-accent-orange/25 hover:shadow-accent-orange/35 transition-all border-0" onClick={() => setShowPostAd(true)}>
+                  <Button size="lg" className="h-14 px-10 text-base font-bold rounded-2xl bg-red-500 shadow-lg shadow-red-500/20 hover:bg-red-600 hover:shadow-red-500/30 transition-all border-0" onClick={() => setShowPostAd(true)}>
                     Post Your Ad — It&apos;s Free!
                   </Button>
                 </motion.div>

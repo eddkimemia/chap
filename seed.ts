@@ -782,21 +782,127 @@ async function seed() {
   }
   console.log('  Created FAQs');
 
-  // Upsert blog post
-  await db.blogPost.upsert({
-    where: { slug: 'welcome-to-chapke' },
-    update: { updatedAt: new Date() },
-    create: {
-      title: 'Welcome to ChapKE - Kenya\'s Premier Marketplace', slug: 'welcome-to-chapke',
-      content: '# Welcome to ChapKE!\n\nChapKE is Kenya\'s most trusted digital marketplace. Whether you\'re buying or selling, we provide a safe, fast, and free platform to connect with thousands of Kenyans.\n\n## Why ChapKE?\n\n- **Free to list** - Post your first 5 ads for free\n- **Wide reach** - Reach buyers across all 47 counties\n- **Safe trading** - Verified sellers and safety tips\n- **Easy payments** - M-Pesa, Stripe, and more\n\n## Getting Started\n\n1. Create an account\n2. Post your first listing\n3. Connect with buyers\n4. Close the deal!\n\nStart selling on ChapKE today!',
-      excerpt: 'Discover ChapKE, Kenya\'s most trusted digital marketplace for buying and selling.',
-      authorName: 'ChapKE Team', category: 'Announcements', status: 'published',
-      publishedAt: new Date(),
-      seoTitle: 'Welcome to ChapKE - Kenya\'s Premier Marketplace',
-      seoDesc: 'Discover ChapKE, Kenya\'s most trusted digital marketplace for buying and selling vehicles, property, electronics, and more.',
+  // Create 10 blog posts
+  const blogPosts = [
+    {
+      title: 'How to Buy a Used Car in Kenya – A Complete Guide',
+      slug: 'how-to-buy-a-used-car-in-kenya',
+      content: `# How to Buy a Used Car in Kenya – A Complete Guide\n\nBuying a used car in Kenya can be both exciting and overwhelming. With thousands of listings on ChapKE, knowing what to look for will save you time and money.\n\n## Set Your Budget\n\nBefore you start browsing, determine your budget. Remember to factor in:\n- Insurance costs\n- Transfer fees at NTSA\n- Road worthiness inspection\n- Minor repairs and servicing\n\n## Research the Market\n\nBrowse ChapKE's vehicle section to compare prices across different makes and models. Popular choices in Kenya include:\n- Toyota (Vitz, Passo, Fielder)\n- Nissan (Note, Wingroad)\n- Subaru (Impreza, Forester)\n- Mazda (Demio, Axela)\n\n## Inspect the Car\n\nAlways inspect the car in person. Key things to check:\n- Engine condition and oil quality\n- Chassis number (matches logbook)\n- Tyre tread depth\n- Air conditioning functionality\n- Suspension and brakes\n\n## Verify Documents\n\nAsk for the original logbook and verify:  \n1. The chassis number matches the logbook  \n2. No outstanding loans on the vehicle  \n3. NTSA records are clean\n\n## Take a Test Drive\n\nA test drive reveals a lot about the car's condition. Listen for unusual engine noises, check gearbox smoothness, and test the brakes at different speeds.\n\n## Negotiate the Price\n\nUse your inspection findings to negotiate a fair price. Most sellers on ChapKE are open to negotiation, especially if you can pay in cash.\n\nWith these tips, you are ready to find your perfect car on ChapKE!`,
+      excerpt: 'A step-by-step guide to buying a used car in Kenya, from setting a budget to test driving and negotiating the best price.',
+      coverImage: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80',
+      authorName: 'James Mwangi', category: 'Vehicles', status: 'published',
+      tags: JSON.stringify(['cars', 'buying-guide', 'vehicles', 'kenya']),
+      seoTitle: 'How to Buy a Used Car in Kenya – Complete Guide 2026 | ChapKE',
+      seoDesc: 'Learn how to buy a used car in Kenya with our complete guide. Tips on budget, inspection, documents, test drives, and negotiation for the best deal.',
     },
-  });
-  console.log('  Upserted sample blog post');
+    {
+      title: 'Top 10 Tips for Selling Your Items Fast on ChapKE',
+      slug: 'tips-for-selling-fast-on-chapke',
+      content: `# Top 10 Tips for Selling Your Items Fast on ChapKE\n\nWant to sell your items quickly? Follow these proven tips to get your listings sold fast on ChapKE.\n\n## 1. Take Great Photos\n\nClear, well-lit photos from multiple angles get 3x more views. Use natural light and show the item from all sides.\n\n## 2. Write a Detailed Title\n\nInclude key details: brand, model, condition, and size. Example: "Samsung Galaxy S23 Ultra 256GB – Excellent Condition"\n\n## 3. Price It Right\n\nResearch similar listings on ChapKE to set a competitive price. Consider pricing 5-10% higher than your minimum to leave room for negotiation.\n\n## 4. Write a Complete Description\n\nAnswer every question a buyer might have. Include measurements, age, original price, and reason for selling.\n\n## 5. Use the Right Category\n\nList in the most specific category to reach the right buyers. A phone should go in "Phones & Tablets", not just "Electronics".\n\n## 6. Respond Quickly\n\nBuyers expect fast responses. Enable notifications and reply to inquiries within minutes to keep them engaged.\n\n## 7. Highlight Key Features\n\nUse bullet points to make important features easy to scan. Buyers decide in seconds whether to click.\n\n## 8. Offer Multiple Payment Options\n\nAccepting M-Pesa, bank transfer, and cash on delivery increases your pool of potential buyers.\n\n## 9. Share Your Listing\n\nShare your ChapKE listing on WhatsApp groups, Facebook, and Instagram for extra exposure.\n\n## 10. Keep Your Listing Updated\n\nIf an item doesn't sell, revise the price or refresh the photos. Sometimes a small change makes all the difference.`,
+      excerpt: 'Learn the top 10 proven strategies to sell your items faster on ChapKE, from taking great photos to pricing and promotion tips.',
+      coverImage: 'https://images.unsplash.com/photo-1553729459-afe8f2e2ed65?w=800&q=80',
+      authorName: 'ChapKE Team', category: 'Selling Tips', status: 'published',
+      tags: JSON.stringify(['selling', 'tips', 'marketplace', 'kenya']),
+      seoTitle: 'Top 10 Tips for Selling Items Fast on ChapKE Kenya | ChapKE Blog',
+      seoDesc: 'Sell your items faster on ChapKE with these 10 expert tips. From photography to pricing, learn how to attract buyers and close deals quickly.',
+    },
+    {
+      title: 'The Ultimate Guide to Renting an Apartment in Nairobi',
+      slug: 'guide-to-renting-in-nairobi',
+      content: `# The Ultimate Guide to Renting an Apartment in Nairobi\n\nFinding the right apartment in Nairobi can be challenging. This guide will walk you through everything you need to know.\n\n## Determine Your Budget\n\nA general rule is to spend no more than 30% of your monthly income on rent. In Nairobi:\n- Budget options (KSh 10,000-25,000/month)\n- Mid-range (KSh 25,000-60,000/month)\n- High-end (KSh 60,000+/month)\n\n## Choose the Right Neighborhood\n\nPopular residential areas include:\n- **Westlands** – Upscale, close to business district\n- **Kilimani** – Trendy, good for young professionals\n- **South B/C** – Quiet, family-friendly\n- **Eastlands** – Affordable, established community\n- **Ruiru / Thika** – Budget-friendly, growing rapidly\n\n## What to Look for During Viewing\n\n- Water pressure and drainage\n- Electrical condition\n- Security (gates, guards, lighting)\n- Parking availability\n- Proximity to matatu stops\n\n## Understand the Lease Agreement\n\nRead carefully before signing. Key clauses to check:\n- Deposit requirement (usually 2 months)\n- Notice period for moving out\n- Maintenance responsibilities\n- Rent increment terms\n\n## Questions to Ask the Landlord\n\nBefore committing, ask:\n1. Is water included in the rent?\n2. Are pets allowed?\n3. What is the policy on visitors?\n4. Who handles repairs?\n\nBrowse ChapKE's property section to find apartments for rent in your preferred neighborhood!`,
+      excerpt: 'Everything you need to know about renting an apartment in Nairobi, from budgeting and neighborhoods to lease agreements and viewing tips.',
+      coverImage: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80',
+      authorName: 'Grace Wanjiku', category: 'Property', status: 'published',
+      tags: JSON.stringify(['renting', 'nairobi', 'property', 'apartment']),
+      seoTitle: 'Ultimate Guide to Renting an Apartment in Nairobi 2026 | ChapKE',
+      seoDesc: 'Your complete guide to renting an apartment in Nairobi. Learn about budgets, neighborhoods, lease agreements, and what to check during property viewings.',
+    },
+    {
+      title: 'How to Spot Online Scams When Buying and Selling',
+      slug: 'how-to-spot-online-scams',
+      content: `# How to Spot Online Scams When Buying and Selling\n\nOnline marketplaces are convenient, but scammers are everywhere. Here is how to protect yourself on ChapKE and beyond.\n\n## Common Scam Signs\n\n- **Too good to be true** – A brand new iPhone for KSh 10,000? Walk away.\n- **Pressure tactics** – "Pay now or someone else will take it" is a red flag.\n- **No phone calls** – A seller who refuses to speak on the phone is suspicious.\n- **Fake payment confirmations** – Always verify M-Pesa or bank payments in your account.\n\n## For Buyers\n\n1. Insist on meeting in person for high-value items\n2. Inspect the item before making any payment\n3. Use public meeting places like shopping malls\n4. Never share your M-Pesa PIN or bank details\n\n## For Sellers\n\n1. Do not release items until payment is confirmed in your account\n2. Beware of overpayment scams (buyer sends extra and asks for refund)\n3. Verify the buyer's identity if possible\n4. Keep records of all transactions\n\n## Safe Trading on ChapKE\n\nChapKE has safety features to protect you:\n- Verified seller badges\n- Report listing button\n- Secure messaging system\n- Seller ratings and reviews\n\n## What to Do If Scammed\n\nIf you suspect a scam:\n1. Report the listing on ChapKE immediately\n2. Contact your bank or M-Pesa for a reversal\n3. File a report at the nearest police station\n4. Report to the Communications Authority of Kenya\n\nStay safe and happy trading!`,
+      excerpt: 'Learn how to identify and avoid online marketplace scams in Kenya. Essential safety tips for both buyers and sellers on ChapKE.',
+      coverImage: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80',
+      authorName: 'ChapKE Team', category: 'Safety', status: 'published',
+      tags: JSON.stringify(['safety', 'scams', 'buying', 'selling', 'kenya']),
+      seoTitle: 'How to Spot Online Scams When Buying and Selling in Kenya | ChapKE',
+      seoDesc: 'Learn how to identify and avoid online marketplace scams in Kenya. Essential safety tips for secure buying and selling on ChapKE.',
+    },
+    {
+      title: 'A Complete Guide to Starting a Small Business in Kenya',
+      slug: 'starting-a-small-business-in-kenya',
+      content: `# A Complete Guide to Starting a Small Business in Kenya\n\nKenya is a land of opportunity for entrepreneurs. Here is your step-by-step guide to launching a successful small business.\n\n## Step 1: Validate Your Idea\n\nBefore investing money, make sure there is demand:\n- Research your target market\n- Talk to potential customers\n- Analyze competitors on ChapKE\n- Test with a minimum viable product\n\n## Step 2: Register Your Business\n\nIn Kenya, you need to:\n1. Register a business name at eCitizen (KSh 950)\n2. Obtain a KRA PIN for tax compliance\n3. Register for NSSF and NHIF if hiring employees\n4. Get relevant permits from your county government\n\n## Step 3: Source Your Products\n\nFind reliable suppliers:\n- Use ChapKE Business listings to find wholesale suppliers\n- Visit industrial areas like Nairobi's Industrial Area\n- Consider importing from China or Dubai\n- Partner with local farmers or artisans\n\n## Step 4: Set Up Your Online Presence\n\nIn today's market, you must be online:\n- List your products on ChapKE for instant visibility\n- Create a simple website or social media pages\n- Use WhatsApp Business for customer communication\n- Set up M-Pesa till number for payments\n\n## Step 5: Market Your Business\n\nAffordable marketing strategies:\n- Share your ChapKE listings on WhatsApp and Facebook groups\n- Offer referral discounts to early customers\n- Partner with complementary businesses\n- Collect customer reviews and testimonials\n\n## Step 6: Manage Your Finances\n\nKeep your business financially healthy:\n- Separate personal and business accounts\n- Track all income and expenses\n- Set aside money for taxes\n- Reinvest profits for growth\n\nStarting a business is challenging but rewarding. Kenya's economy offers tremendous opportunities for those who persevere!`,
+      excerpt: 'A step-by-step guide to starting a small business in Kenya, from idea validation and registration to online marketing and financial management.',
+      coverImage: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&q=80',
+      authorName: 'Peter Kamau', category: 'Business', status: 'published',
+      tags: JSON.stringify(['business', 'entrepreneurship', 'kenya', 'startup']),
+      seoTitle: 'Complete Guide to Starting a Small Business in Kenya 2026 | ChapKE',
+      seoDesc: 'Learn how to start a small business in Kenya with our step-by-step guide. From registration to marketing, get expert advice for entrepreneurs.',
+    },
+    {
+      title: 'Everything You Need to Know About Car Insurance in Kenya',
+      slug: 'car-insurance-kenya-guide',
+      content: `# Everything You Need to Know About Car Insurance in Kenya\n\nCar insurance is mandatory in Kenya. Whether buying a new or used car, understanding your insurance options will save you money and headaches.\n\n## Types of Car Insurance\n\n**Third Party Only** – The minimum legal requirement. Covers damage to other people's vehicles and property but not your own.\n\n**Third Party, Fire & Theft** – Covers third-party damage plus fire damage and theft of your vehicle.\n\n**Comprehensive** – The most extensive coverage. Covers your vehicle, third-party, fire, theft, and sometimes personal accident.\n\n## How Much Does Insurance Cost?\n\nPremiums depend on:\n- Vehicle value (higher value = higher premium)\n- Age of the car (older cars may have higher rates)\n- Your driving history\n- Location (Nairobi premiums are typically higher)\n- Security features (tracker, alarm)\n\n## Tips for Finding Affordable Insurance\n\n1. Compare quotes from at least 3 insurance companies\n2. Consider a higher excess (deductible) to lower premiums\n3. Install a vehicle tracking device for discounts\n4. Bundle insurance policies for multi-vehicle discounts\n5. Maintain a clean driving record\n\n## Making a Claim\n\nIf you are in an accident:\n1. Do not admit fault at the scene\n2. Take photos of the damage\n3. Get a police abstract (required for claims)\n4. Contact your insurance provider within 24 hours\n5. Visit a recommended garage for assessment\n\n## Top Insurance Companies in Kenya\n\n- APA Insurance\n- Jubilee Insurance\n- CIC Insurance\n- Britam\n- UAP Old Mutual\n\nDrive safely and stay protected on Kenyan roads!`,
+      excerpt: 'A comprehensive guide to car insurance in Kenya covering types of coverage, costs, tips for affordable premiums, and how to file a claim.',
+      coverImage: 'https://images.unsplash.com/photo-1530046339160-ce3e530c7d2f?w=800&q=80',
+      authorName: 'James Mwangi', category: 'Vehicles', status: 'published',
+      tags: JSON.stringify(['car-insurance', 'vehicles', 'kenya', 'guide']),
+      seoTitle: 'Car Insurance in Kenya – Complete Guide 2026 | ChapKE Blog',
+      seoDesc: 'Everything you need to know about car insurance in Kenya. Compare comprehensive, third-party, and fire & theft coverage options and save money.',
+    },
+    {
+      title: 'How to Take Great Product Photos for Your Listings',
+      slug: 'product-photography-tips',
+      content: `# How to Take Great Product Photos for Your Listings\n\nGreat photos can increase your listing views by 3x or more. Here is how to take professional-looking product photos with just your phone.\n\n## Use Natural Light\n\nNatural lighting is your best friend:\n- Shoot near a window during daytime\n- Avoid direct sunlight (creates harsh shadows)\n- Cloudy days provide soft, diffused light\n- Use a white reflector (or cardboard) to bounce light\n\n## Clean Your Background\n\nA cluttered background distracts from your item:\n- Use a plain white wall or a clean table\n- A white or black poster board works perfectly\n- For small items, use a clean countertop\n- Remove personal items from the frame\n\n## Shoot from Multiple Angles\n\nShow every important detail:\n- Front, back, left, and right sides\n- Close-ups of any defects or wear\n- Brand labels and tags\n- Accessories included in the sale\n- The item in use (for context)\n\n## Camera Settings for Best Results\n\nMost smartphones can take excellent photos:\n- Clean your lens with a soft cloth\n- Tap to focus on the item\n- Use the highest resolution setting\n- Turn on HDR mode for balanced exposure\n- Avoid digital zoom (move closer instead)\n\n## Edit for Perfection\n\nBasic edits make a big difference:\n- Crop to remove empty space\n- Adjust brightness and contrast\n- Straighten crooked angles\n- Use free apps like Snapseed or Canva\n\n## Common Mistakes to Avoid\n\n- Blurry photos (hold steady or use a tripod)\n- Watermarks or dates on photos\n- Dark, underexposed images\n- Including yourself or others in reflections\n- Using stock photos instead of real images\n\nFollow these tips and your ChapKE listings will stand out from the competition!`,
+      excerpt: 'Learn how to take stunning product photos with your smartphone. Boost your ChapKE listing views with these simple photography tips.',
+      coverImage: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800&q=80',
+      authorName: 'ChapKE Team', category: 'Selling Tips', status: 'published',
+      tags: JSON.stringify(['photography', 'selling', 'tips', 'product-photos']),
+      seoTitle: 'How to Take Great Product Photos for Your ChapKE Listings | ChapKE',
+      seoDesc: 'Learn how to take professional product photos with your smartphone. Simple tips for lighting, backgrounds, angles, and editing to sell faster.',
+    },
+    {
+      title: 'The Best Neighborhoods to Live in Nairobi in 2026',
+      slug: 'best-neighborhoods-nairobi-2026',
+      content: `# The Best Neighborhoods to Live in Nairobi in 2026\n\nNairobi continues to grow and evolve. Here are the best neighborhoods to consider for your next move in 2026.\n\n## 1. Kilimani\n\n**Best for:** Young professionals and families  \n**Average 2BR rent:** KSh 45,000-80,000  \nKilimani offers a perfect blend of tranquility and convenience. It is close to the CBD, has excellent schools, and a vibrant social scene.\n\n## 2. Kitisuru\n\n**Best for:** Families seeking space  \n**Average 2BR rent:** KSh 50,000-90,000  \nKitisuru offers larger compounds, greener surroundings, and proximity to international schools. Popular with diplomats and executives.\n\n## 3. South B / South C\n\n**Best for:** Families, established communities  \n**Average 2BR rent:** KSh 25,000-50,000  \nThese established neighborhoods offer spacious apartments, good security, and easy access to the CBD and Jomo Kenyatta International Airport.\n\n## 4. Westlands\n\n**Best for:** Nightlife and entertainment  \n**Average 2BR rent:** KSh 60,000-120,000  \nWestlands is the entertainment hub of Nairobi with restaurants, clubs, and shopping malls. Ideal for those who enjoy city living.\n\n## 5. Ruaka\n\n**Best for:** Affordable modern living  \n**Average 2BR rent:** KSh 20,000-40,000  \nRuaka has seen massive development with modern apartments at affordable prices. Growing rapidly with new malls and schools.\n\n## 6. Langata\n\n**Best for:** Nature lovers  \n**Average 2BR rent:** KSh 30,000-60,000  \nHome to Nairobi National Park, Lang'ata offers a quieter lifestyle with access to nature. Great for families who love outdoor activities.\n\n## Factors to Consider\n\nWhen choosing a neighborhood, think about:\n- Commute time to work or school\n- Security situation\n- Access to public transport\n- Availability of water and utilities\n- Proximity to shopping and healthcare\n\nBrowse ChapKE's property section to find available rentals in these neighborhoods!`,
+      excerpt: 'Discover the best neighborhoods to live in Nairobi in 2026. Compare Kilimani, Westlands, Ruaka, and more based on lifestyle and budget.',
+      coverImage: 'https://images.unsplash.com/photo-1580584127374-3f5e1b47c7e5?w=800&q=80',
+      authorName: 'Grace Wanjiku', category: 'Property', status: 'published',
+      tags: JSON.stringify(['nairobi', 'neighborhoods', 'property', 'living']),
+      seoTitle: 'Best Neighborhoods to Live in Nairobi 2026 | ChapKE Property Guide',
+      seoDesc: 'Discover the best neighborhoods in Nairobi for 2026. Compare Kilimani, Westlands, Ruaka, Kitisuru, and more for your next rental or home.',
+    },
+    {
+      title: 'A Guide to Negotiating Prices Like a Pro',
+      slug: 'negotiating-prices-guide',
+      content: `# A Guide to Negotiating Prices Like a Pro\n\nNegotiation is an essential skill when buying and selling on ChapKE. Here is how to get the best deal without offending anyone.\n\n## For Buyers: How to Negotiate\n\n### Do Your Research\n\nBefore making an offer, know the market value:\n- Compare similar listings on ChapKE\n- Check the item's retail price\n- Factor in age and condition\n- Consider any repairs needed\n\n### Make a Reasonable Offer\n\nStart at about 70-80% of the asking price for most items. Very low offers can offend sellers and end negotiations before they start.\n\n### Be Polite and Professional\n\nA friendly message goes a long way:\n> "Hi, I am interested in your [item]. Would you consider KSh [amount]? I can pick it up today."\n\n### Highlight Your Strengths\n\nMention why the seller should accept your offer:\n- "I can pay cash today"\n- "I will pick it up myself"\n- "No need to deliver"\n\n## For Sellers: How to Handle Negotiations\n\n### Price Strategically\n\nList your item 10-15% above your minimum acceptable price to leave room for negotiation.\n\n### Know Your Bottom Line\n\nDecide the lowest price you will accept before negotiations begin. Do not go below it.\n\n### Use Scarcity\n\nMention that other buyers are interested (if true). This creates urgency.\n\n### Bundle Deals\n\nIf a buyer wants a discount, offer to include accessories or offer free delivery instead.\n\n## What NOT to Do\n\n- Do not get emotional about the price\n- Do not insult the other party's item\n- Do not make offers you cannot honor\n- Do not disappear after reaching an agreement\n\nMaster these techniques and you will save thousands on ChapKE!`,
+      excerpt: 'Master the art of negotiation on ChapKE. Learn how to make offers, handle counteroffers, and close deals like a pro.',
+      coverImage: 'https://images.unsplash.com/photo-1559526324-593bc073d938?w=800&q=80',
+      authorName: 'Peter Kamau', category: 'Buying Tips', status: 'published',
+      tags: JSON.stringify(['negotiation', 'buying', 'selling', 'tips']),
+      seoTitle: 'How to Negotiate Prices Like a Pro on ChapKE | ChapKE Guide',
+      seoDesc: 'Learn how to negotiate prices effectively on ChapKE. Expert tips for buyers and sellers to get the best deals on Kenya premier marketplace.',
+    },
+    {
+      title: 'How to Write a Listing That Sells – Tips and Examples',
+      slug: 'write-a-listing-that-sells',
+      content: `# How to Write a Listing That Sells – Tips and Examples\n\nYour listing title and description are your sales pitch. Here is how to write listings that attract buyers and close deals.\n\n## Writing the Perfect Title\n\nYour title is the first thing buyers see. Make it count:\n\n**Good:** "Samsung Galaxy S23 Ultra"  \n**Great:** "Samsung Galaxy S23 Ultra 256GB – Phantom Black – Excellent Condition – Box & Charger Included"\n\nTips for great titles:\n- Include brand and model\n- Mention key specs (size, color, storage)\n- Add condition (New, Like New, Good)\n- Keep under 80 characters\n- Avoid ALL CAPS and special characters\n\n## Writing a Compelling Description\n\nStructure your description for easy reading:\n\n### Opening Sentence\nStart with the most compelling feature. Example: "This Toyota Vitz 2018 has only 40,000km and comes with a full service history."\n\n### Key Details (Bullet Points)\nUse bullet points for easy scanning:\n- Brand and model\n- Year of manufacture\n- Mileage / usage\n- Condition details\n- Inclusions (charger, case, warranty)\n- Reason for selling\n\n### Condition Transparency\nBe honest about any defects. Mentioning them upfront builds trust and reduces questions.\n\n### Call to Action\nEnd with a clear next step: "Call or WhatsApp 0712 345 678 for viewing. Cash on delivery available."\n\n## Example: Good vs Great\n\n**Good Description:**  \n"Selling my phone. It is in good condition. Price is negotiable. Call me."\n\n**Great Description:**  \n"iPhone 13 Pro Max 256GB in Sierra Blue. Used for 6 months, always in a case with a screen protector. Battery health at 98%. Includes original box, charger, and a Spigen case. Selling because I upgraded to the new model. Viewing in Westlands. Call or WhatsApp 0712 345 678."\n\n## Quick Checklist\n\nBefore publishing, check that your listing has:\n- [ ] Clear, accurate title\n- [ ] Complete description\n- [ ] Multiple photos\n- [ ] Fair price\n- [ ] Correct category\n- [ ] Contact information\n\nWrite better listings, sell faster on ChapKE!`,
+      excerpt: 'Learn how to write ChapKE listings that sell. Includes examples of good vs great titles and descriptions to attract more buyers.',
+      coverImage: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80',
+      authorName: 'ChapKE Team', category: 'Selling Tips', status: 'published',
+      tags: JSON.stringify(['writing', 'listings', 'selling', 'tips', 'examples']),
+      seoTitle: 'How to Write a ChapKE Listing That Sells – Tips & Examples | ChapKE',
+      seoDesc: 'Learn how to write compelling listings on ChapKE that attract buyers and close deals. Includes examples of good vs great titles and descriptions.',
+    },
+  ];
+  for (const post of blogPosts) {
+    await db.blogPost.upsert({
+      where: { slug: post.slug },
+      update: { updatedAt: new Date() },
+      create: { ...post, publishedAt: new Date() },
+    });
+    console.log(`  Created blog post: ${post.title}`);
+  }
 
   console.log('✅ Seeding complete!');
 }

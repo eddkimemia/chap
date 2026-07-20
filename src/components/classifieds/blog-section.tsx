@@ -11,7 +11,7 @@ interface BlogPost {
   slug: string
   title: string
   excerpt: string
-  image: string | null
+  coverImage: string | null
   createdAt: string
   category: string
 }
@@ -21,7 +21,7 @@ export function BlogSection() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/blog?status=published&limit=4')
+    fetch('/api/blog?status=published&limit=10')
       .then(r => r.json())
       .then(data => setPosts(data.posts || []))
       .catch(() => {})
@@ -46,9 +46,9 @@ export function BlogSection() {
           </Button>
         </motion.div>
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent -mx-4 px-4 snap-x snap-mandatory">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="rounded-2xl overflow-hidden border border-slate-100">
+              <div key={i} className="w-[320px] shrink-0 snap-start rounded-2xl overflow-hidden border border-slate-100">
                 <Skeleton className="aspect-[16/9] w-full" />
                 <div className="p-5 space-y-3">
                   <Skeleton className="h-4 w-20" />
@@ -59,20 +59,21 @@ export function BlogSection() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {posts.slice(0, 4).map((post, i) => (
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent -mx-4 px-4 snap-x snap-mandatory">
+            {posts.map((post, i) => (
               <motion.div
                 key={post.slug}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
+                className="w-[320px] shrink-0 snap-start"
               >
                 <Link href={`/blog/${post.slug}`} className="block group">
                   <div className="rounded-2xl overflow-hidden border border-slate-100 bg-white hover:shadow-premium-lg transition-all hover:-translate-y-1">
                     <div className="aspect-[16/9] bg-slate-100 relative overflow-hidden">
-                      {post.image ? (
-                        <img src={post.image} alt={post.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      {post.coverImage ? (
+                        <img src={post.coverImage} alt={post.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
                         <div className="h-full flex items-center justify-center text-slate-300 font-bold text-2xl">
                           {post.title.charAt(0)}

@@ -527,7 +527,7 @@ export default function NewListingPage() {
           <Button
             onClick={handleSubmit}
             disabled={loading}
-            className="rounded-2xl bg-accent-orange text-white shadow-lg shadow-accent-orange/20 transition-all border-0 font-semibold"
+            className="rounded-2xl bg-accent-red text-white shadow-lg shadow-accent-red/20 transition-all border-0 font-semibold"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             Post Listing

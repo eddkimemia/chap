@@ -49,10 +49,22 @@ export default async function LocationPage() {
         ? await db.listing.groupBy({ by: ['locationId'], where: { locationId: { in: subIds }, status: 'active' }, _count: true })
         : []
       const subCountMap = new Map(subCounts.map((s) => [s.locationId, s._count]))
+      const topCategoryRows = await db.listing.groupBy({
+        by: ['categoryId'],
+        where: { locationId: loc.id, status: 'active' },
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } },
+        take: 3,
+      })
+      const categoryIds = topCategoryRows.map((r) => r.categoryId)
+      const topCategories = categoryIds.length > 0
+        ? await db.category.findMany({ where: { id: { in: categoryIds } }, select: { name: true, slug: true } })
+        : []
       return {
         ...loc,
         count,
         children: loc.children.map((c) => ({ ...c, count: subCountMap.get(c.id) || 0 })),
+        topCategories,
       }
     }),
   )
@@ -121,7 +133,7 @@ export default async function LocationPage() {
           </section>
         )}
 
-        {/* All locations */}
+        {/* Explore Locations - Horizontal Scroll */}
         <section className="py-12">
           <div className="container mx-auto px-4 lg:px-8">
             <div className="flex items-center gap-3 mb-8">
@@ -130,36 +142,44 @@ export default async function LocationPage() {
               </div>
               <div>
                 <p className="text-xs font-semibold text-electric tracking-wider uppercase">Browse by</p>
-                <h1 className="text-2xl sm:text-3xl font-bold text-navy">All Locations</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-navy">Explore Locations</h1>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent -mx-4 px-4 snap-x snap-mandatory">
               {locationsWithCounts.map((loc) => (
                 <Link
                   key={loc.id}
                   href={`/location/${loc.slug}`}
-                  className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-navy to-navy/90 text-white p-6 hover:shadow-premium-xl transition-all hover:-translate-y-1"
+                  className="group relative w-[280px] sm:w-[300px] shrink-0 snap-start rounded-2xl overflow-hidden bg-white border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
                 >
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/4" />
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-3">
-                      <MapPin className="h-6 w-6 text-electric-light" />
-                      <ChevronRight className="h-4 w-4 text-white/30 group-hover:text-white/70 group-hover:translate-x-0.5 transition-all" />
+                  <div className="flex items-center justify-between px-4 pt-4 pb-3 bg-gradient-to-r from-red-500 to-blue-600">
+                    <div>
+                      <h2 className="text-lg font-bold text-white">{loc.name}</h2>
+                      <p className="text-sm text-white/60 mt-0.5">
+                        {loc.count.toLocaleString()} listing{loc.count !== 1 ? 's' : ''}
+                      </p>
                     </div>
-                    <h2 className="font-bold text-lg mb-1">{loc.name}</h2>
-                    <p className="text-sm text-white/60 mb-3">{loc.count.toLocaleString()} listing{loc.count !== 1 ? 's' : ''}</p>
-                    {loc.children.length > 0 && (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 group-hover:bg-white/20 transition-colors">
+                      <ChevronRight className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                  <div className="px-4 py-3 bg-white">
+                    {loc.topCategories.length > 0 && (
                       <div className="flex flex-wrap gap-1.5">
-                        {loc.children.slice(0, 4).map((child) => (
-                          <span key={child.id} className="text-[11px] bg-white/10 text-white/70 px-2 py-0.5 rounded-full">
-                            {child.name} {child.count > 0 && `(${child.count})`}
+                        {loc.topCategories.map((cat) => (
+                          <span key={cat.slug} className="text-[11px] bg-slate-50 text-slate-500 border border-slate-100 px-2 py-0.5 rounded-full">
+                            {cat.name}
                           </span>
                         ))}
-                        {loc.children.length > 4 && (
-                          <span className="text-[11px] text-white/40">+{loc.children.length - 4} more</span>
-                        )}
+                        <span className="text-[11px] text-royal font-medium">{loc.count}+ listings</span>
                       </div>
+                    )}
+                    {loc.children.length > 0 && (
+                      <p className="text-xs text-slate-400 mt-2">
+                        {loc.children.slice(0, 3).map((c) => c.name).join(', ')}
+                        {loc.children.length > 3 && ` +${loc.children.length - 3} more`}
+                      </p>
                     )}
                   </div>
                 </Link>

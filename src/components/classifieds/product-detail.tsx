@@ -699,7 +699,7 @@ export function ProductDetailClient({
                       <Button className="w-full gap-2 rounded-xl h-11 font-semibold border-slate-200 text-navy hover:bg-slate-50 transition-all" variant="outline" asChild>
                         <Link href={`/dashboard/listings/${listing.id}/edit`}><Edit className="h-4 w-4" /> Edit Listing</Link>
                       </Button>
-                      <Button className="w-full gap-2 rounded-xl h-11 font-semibold bg-accent-orange hover:bg-accent-orange/90 text-white shadow-lg shadow-accent-orange/20 transition-all border-0" asChild>
+                      <Button className="w-full gap-2 rounded-xl h-11 font-semibold bg-accent-red hover:bg-accent-red/90 text-white shadow-lg shadow-accent-red/20 transition-all border-0" asChild>
                         <Link href={`/dashboard/listings`}><Zap className="h-4 w-4" /> Boost Listing</Link>
                       </Button>
                     </div>

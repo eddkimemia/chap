@@ -1,14 +1,16 @@
 'use client'
 
 import { Home, Search, Plus, Heart, User } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
 
 export function MobileNav() {
-  const { view, setShowPostAd, resetToHome, favorites } = useAppStore()
+  const router = useRouter()
+  const { view, setShowPostAd, resetToHome, favorites, currentUser } = useAppStore()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden border-t border-slate-100 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 safe-area-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.04)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden border-t border-slate-100 bg-white safe-area-bottom shadow-[0_-4px_20px_rgba(0,0,0,0.04)]">
       <div className="flex items-center justify-around h-16 px-2">
         <NavButton
           icon={Home}
@@ -40,7 +42,7 @@ export function MobileNav() {
           icon={User}
           label="Profile"
           active={false}
-          onClick={() => setShowPostAd(true)}
+          onClick={() => router.push(currentUser ? '/dashboard' : '/login')}
         />
       </div>
     </nav>
@@ -65,14 +67,14 @@ function NavButton({
       onClick={onClick}
       className={cn(
         'flex flex-col items-center justify-center gap-0.5 min-w-[48px] min-h-[44px] relative transition-all duration-200 rounded-xl',
-        active ? 'text-royal' : 'text-slate-400'
+        active ? 'text-red-500' : 'text-royal'
       )}
       aria-label={label}
     >
       <div className="relative">
         <Icon className={cn('h-5 w-5 transition-transform duration-200', active && 'scale-110')} />
         {badge !== undefined && (
-          <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent-orange text-[9px] font-bold text-white px-1 shadow-sm">
+          <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-royal text-[9px] font-bold text-white px-1 shadow-sm">
             {badge > 9 ? '9+' : badge}
           </span>
         )}
@@ -81,7 +83,7 @@ function NavButton({
         {label}
       </span>
       {active && (
-        <span className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-royal" />
+        <span className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-red-500" />
       )}
     </button>
   )

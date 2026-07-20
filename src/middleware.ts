@@ -48,6 +48,7 @@ const publicPaths = [
 ]
 
 function isPublicPath(pathname: string): boolean {
+  if (pathname === '/admin/login') return true
   if (publicPaths.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
     return true
   }
@@ -95,12 +96,13 @@ export async function middleware(request: NextRequest) {
 
   if (isPublicPath(pathname)) {
     // Redirect authenticated users away from login/register to prevent flash
-    if (pathname === '/login' || pathname === '/register') {
+    if (pathname === '/login' || pathname === '/register' || pathname === '/admin/login') {
       const token = getSessionTokenFromRequest(request)
       if (token) {
         const user = await validateSession(token)
         if (user) {
-          return NextResponse.redirect(new URL('/dashboard', request.url))
+          const dest = pathname === '/admin/login' ? '/admin' : '/dashboard'
+          return NextResponse.redirect(new URL(dest, request.url))
         }
       }
     }
