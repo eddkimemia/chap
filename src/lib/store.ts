@@ -61,6 +61,7 @@ export interface User {
   avatar: string | null;
   role: string;
   isVerified: boolean;
+  username?: string;
 }
 
 export type ViewType = "home" | "listings" | "detail" | "favorites";

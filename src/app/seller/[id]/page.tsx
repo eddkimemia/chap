@@ -7,13 +7,21 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+async function resolveUser(idOrUsername: string) {
+  const byId = await db.user.findUnique({ where: { id: idOrUsername } })
+  if (byId) return { user: byId, field: 'id' as const }
+  const byUsername = await db.user.findUnique({ where: { username: idOrUsername } })
+  if (byUsername) return { user: byUsername, field: 'username' as const }
+  return null
+}
+
+const userSelect = { name: true, avatar: true, bio: true, username: true, createdAt: true, profile: { select: { city: true, country: true } } }
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
-  const user = await db.user.findUnique({
-    where: { id },
-    select: { name: true, avatar: true, bio: true, createdAt: true, profile: { select: { city: true, country: true } } },
-  })
-  if (!user) return { title: 'Seller Not Found - ChapKE' }
+  const resolved = await resolveUser(id)
+  if (!resolved) return { title: 'Seller Not Found - ChapKE' }
+  const user = resolved.user
 
   const cityPart = user.profile?.city ? ` in ${user.profile.city}, ${user.profile.country || 'Kenya'}` : ''
   const description = `${user.name} — seller on ChapKE${cityPart}. ${user.bio ? user.bio.slice(0, 120) : 'Browse their listings and reviews.'}`
@@ -27,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: user.avatar ? [{ url: user.avatar }] : [],
       type: 'profile',
       siteName: 'ChapKE',
-      url: `https://chap.co.ke/seller/${id}`,
+      url: `https://chap.co.ke/seller/${user.username || id}`,
     },
     twitter: {
       card: 'summary',
@@ -35,17 +43,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: description.slice(0, 200),
       images: user.avatar ? [user.avatar] : [],
     },
-    alternates: { canonical: `https://chap.co.ke/seller/${id}` },
+    alternates: { canonical: `https://chap.co.ke/seller/${user.username || id}` },
   }
 }
 
 export default async function SellerPage({ params }: PageProps) {
   const { id } = await params
-  const user = await db.user.findUnique({
-    where: { id },
-    select: { name: true, avatar: true, bio: true, createdAt: true, profile: { select: { city: true, country: true } } },
-  })
-  if (!user) notFound()
+  const resolved = await resolveUser(id)
+  if (!resolved) notFound()
+  const user = resolved.user
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -53,14 +59,14 @@ export default async function SellerPage({ params }: PageProps) {
     name: user.name,
     image: user.avatar || undefined,
     description: user.bio || undefined,
-    url: `https://chap.co.ke/seller/${id}`,
+    url: `https://chap.co.ke/seller/${user.username || id}`,
     ...(user.profile?.city ? { homeLocation: { '@type': 'Place', name: `${user.profile.city}, ${user.profile.country || 'Kenya'}` } } : {}),
   }
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <SellerProfileClient sellerId={id} />
+      <SellerProfileClient sellerId={user.id} />
     </>
   )
 }

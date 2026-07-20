@@ -33,7 +33,7 @@ export default function SettingsPage() {
   const [verifying, setVerifying] = useState(false)
   const [sendingCode, setSendingCode] = useState(false)
 
-  const [profile, setProfile] = useState({ name: '', bio: '', avatar: '', phone: '', email: '' })
+  const [profile, setProfile] = useState({ name: '', bio: '', avatar: '', phone: '', email: '', username: '' })
   const [profileExtra, setProfileExtra] = useState({ city: '', country: 'Kenya', address: '', website: '' })
   const [business, setBusiness] = useState({
     companyName: '', description: '', industry: '', taxId: '', registrationNo: '',
@@ -59,7 +59,7 @@ export default function SettingsPage() {
       if (!u) return
       setUser(u)
       setCurrentUser(u)
-      setProfile({ name: u.name || '', bio: u.bio || '', avatar: u.avatar || '', phone: u.phone || '', email: u.email || '' })
+      setProfile({ name: u.name || '', bio: u.bio || '', avatar: u.avatar || '', phone: u.phone || '', email: u.email || '', username: u.username || '' })
       setProfileExtra({ city: u.profile?.city || '', country: u.profile?.country || 'Kenya', address: u.profile?.address || '', website: u.profile?.website || '' })
       if (busData?.businessProfile) {
         const b = busData.businessProfile
@@ -293,6 +293,14 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label className="text-navy font-medium">Full Name</Label>
                   <Input value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} className="h-11 rounded-xl bg-white border-slate-200" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-navy font-medium">Username</Label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
+                    <Input value={profile.username} onChange={(e) => setProfile((p) => ({ ...p, username: e.target.value.replace(/[^a-z0-9_-]/g, '').toLowerCase() }))} placeholder="username" className="h-11 rounded-xl bg-white border-slate-200 pl-8" />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">URL: chap.co.ke/seller/{profile.username || 'username'}</p>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-navy font-medium">Email</Label>

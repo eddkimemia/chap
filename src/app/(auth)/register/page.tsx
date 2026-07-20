@@ -78,7 +78,7 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-royal/5 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-accent-orange/5 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-accent-red/5 blur-3xl" />
       </div>
 
       <Card className="w-full max-w-md glass-card shadow-premium-xl relative z-10 rounded-3xl border-0">

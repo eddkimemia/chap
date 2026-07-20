@@ -7,7 +7,7 @@ import { Package, Users, Store, MapPin, TrendingUp } from 'lucide-react'
 const stats = [
   { label: 'Total Listings', value: 250000, icon: Package, suffix: '+', color: 'text-royal', bg: 'bg-royal/5' },
   { label: 'Registered Users', value: 150000, icon: Users, suffix: '+', color: 'text-emerald-500', bg: 'bg-emerald-50' },
-  { label: 'Active Businesses', value: 40000, icon: Store, suffix: '+', color: 'text-accent-orange', bg: 'bg-accent-orange/5' },
+  { label: 'Active Businesses', value: 40000, icon: Store, suffix: '+', color: 'text-accent-red', bg: 'bg-accent-red/5' },
   { label: 'Cities Covered', value: 47, icon: MapPin, suffix: '', color: 'text-electric', bg: 'bg-electric/5' },
   { label: 'Transactions', value: 50000, icon: TrendingUp, suffix: '+', color: 'text-accent-purple', bg: 'bg-accent-purple/5' },
 ]
@@ -48,7 +48,7 @@ export function MarketplaceStats() {
     <section className="py-20 bg-navy text-white relative overflow-hidden">
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 w-72 h-72 bg-royal rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-10 w-72 h-72 bg-accent-orange rounded-full blur-3xl" />
+        <div className="absolute bottom-10 right-10 w-72 h-72 bg-accent-red rounded-full blur-3xl" />
       </div>
       <div className="container mx-auto px-4 lg:px-8 relative">
         <motion.div

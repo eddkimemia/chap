@@ -44,7 +44,7 @@ export default function AdminAnalyticsPage() {
 
   const statCards = [
     { title: 'Total Users', value: data?.users.total ?? 0, sub: `${data?.users.activeLast30d ?? 0} active in 30d`, icon: Users, color: 'bg-royal' },
-    { title: 'Total Listings', value: data?.listings.total ?? 0, sub: `${data?.listings.active ?? 0} active`, icon: List, color: 'bg-accent-orange' },
+    { title: 'Total Listings', value: data?.listings.total ?? 0, sub: `${data?.listings.active ?? 0} active`, icon: List, color: 'bg-accent-red' },
     { title: 'Revenue (KES)', value: `KES ${(data?.revenue.total ?? 0).toLocaleString()}`, sub: `KES ${(data?.revenue.monthly30d ?? 0).toLocaleString()} this month`, icon: DollarSign, color: 'bg-emerald-500' },
     { title: 'Reports', value: data?.reports.total ?? 0, sub: `${data?.reports.pending ?? 0} pending`, icon: AlertTriangle, color: 'bg-red-500' },
     { title: 'Messaging', value: data?.messaging.messages ?? 0, sub: `${data?.messaging.conversations ?? 0} conversations`, icon: MessageSquare, color: 'bg-accent-purple' },
@@ -138,7 +138,7 @@ export default function AdminAnalyticsPage() {
                 {[
                   { label: 'Active Users Rate', value: data ? `${Math.round((data.users.activeLast30d / Math.max(data.users.total, 1)) * 100)}%` : '0%', color: 'bg-royal' },
                   { label: 'Active Listings Rate', value: data ? `${Math.round((data.listings.active / Math.max(data.listings.total, 1)) * 100)}%` : '0%', color: 'bg-emerald-500' },
-                  { label: 'Resolved Reports', value: data ? `${Math.round(((data.reports.total - data.reports.pending) / Math.max(data.reports.total, 1)) * 100)}%` : '0%', color: 'bg-accent-orange' },
+                  { label: 'Resolved Reports', value: data ? `${Math.round(((data.reports.total - data.reports.pending) / Math.max(data.reports.total, 1)) * 100)}%` : '0%', color: 'bg-accent-red' },
                 ].map((item) => (
                   <div key={item.label}>
                     <div className="flex justify-between text-xs mb-1"><span className="text-navy font-medium">{item.label}</span><span className="text-muted-foreground font-semibold">{item.value}</span></div>
@@ -152,7 +152,7 @@ export default function AdminAnalyticsPage() {
                     <p className="text-xs text-muted-foreground">Conversations</p>
                     <p className="text-lg font-bold text-navy">{data?.messaging.conversations?.toLocaleString() || 0}</p>
                   </div>
-                  <div className="bg-accent-orange/5 rounded-xl p-3 text-center">
+                  <div className="bg-accent-red/5 rounded-xl p-3 text-center">
                     <p className="text-xs text-muted-foreground">Messages</p>
                     <p className="text-lg font-bold text-navy">{data?.messaging.messages?.toLocaleString() || 0}</p>
                   </div>

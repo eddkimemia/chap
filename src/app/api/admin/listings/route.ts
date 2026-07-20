@@ -11,6 +11,9 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || ''
     const category = searchParams.get('category') || ''
     const userId = searchParams.get('userId') || ''
+    const userName = searchParams.get('userName') || ''
+    const startDate = searchParams.get('startDate') || ''
+    const endDate = searchParams.get('endDate') || ''
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
     const skip = (page - 1) * limit
@@ -26,6 +29,19 @@ export async function GET(request: NextRequest) {
 
     if (status) where.status = status
     if (userId) where.userId = userId
+    if (userName) {
+      where.user = { name: { contains: userName } }
+    }
+    if (startDate || endDate) {
+      const createdAt: Record<string, Date> = {}
+      if (startDate) createdAt.gte = new Date(startDate)
+      if (endDate) {
+        const end = new Date(endDate)
+        end.setHours(23, 59, 59, 999)
+        createdAt.lte = end
+      }
+      where.createdAt = createdAt
+    }
     if (category) {
       const cat = await db.category.findFirst({ where: { slug: category } })
       if (cat) where.categoryId = cat.id

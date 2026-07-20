@@ -16,7 +16,7 @@ const trendColors: Record<string, string> = {
   vehicles: 'bg-emerald-50 text-emerald-600', property: 'bg-amber-50 text-amber-600',
   jobs: 'bg-indigo-50 text-indigo-600', electronics: 'bg-sky-50 text-sky-600',
   'phones-tablets': 'bg-violet-50 text-violet-600', fashion: 'bg-pink-50 text-pink-600',
-  'furniture-home': 'bg-orange-50 text-orange-600', agriculture: 'bg-lime-50 text-lime-600',
+  'furniture-home': 'bg-red-50 text-red-600', agriculture: 'bg-lime-50 text-lime-600',
   services: 'bg-teal-50 text-teal-600', 'pets-animals': 'bg-stone-50 text-stone-600',
   'business-industrial': 'bg-slate-50 text-slate-600', 'food-drinks': 'bg-rose-50 text-rose-600',
 }
@@ -50,11 +50,11 @@ export function TrendingCategories() {
           viewport={{ once: true }}
           className="flex items-center gap-3 mb-8"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-orange/5">
-            <ShoppingBag className="h-5 w-5 text-accent-orange" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-red/5">
+            <ShoppingBag className="h-5 w-5 text-accent-red" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-accent-orange tracking-wider uppercase">Trending Now</p>
+            <p className="text-xs font-semibold text-accent-red tracking-wider uppercase">Trending Now</p>
             <h2 className="text-2xl sm:text-3xl font-bold text-navy">Popular Categories</h2>
           </div>
         </motion.div>

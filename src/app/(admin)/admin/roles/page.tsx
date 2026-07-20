@@ -44,7 +44,7 @@ const modules = [
 export default function AdminRolesPage() {
   const [roles, setRoles] = useState({
     admin: { label: 'Administrator', color: 'bg-red-500', permissions: defaultPermissions },
-    moderator: { label: 'Moderator', color: 'bg-accent-orange', permissions: Object.fromEntries(Object.entries(defaultPermissions).map(([key, perms]) => [key, Object.fromEntries(Object.entries(perms).map(([p, v]) => [p, key === 'settings' || key === 'seo' || key === 'plans' ? false : v]))])) },
+    moderator: { label: 'Moderator', color: 'bg-accent-red', permissions: Object.fromEntries(Object.entries(defaultPermissions).map(([key, perms]) => [key, Object.fromEntries(Object.entries(perms).map(([p, v]) => [p, key === 'settings' || key === 'seo' || key === 'plans' ? false : v]))])) },
     support: { label: 'Support Agent', color: 'bg-royal', permissions: Object.fromEntries(Object.entries(defaultPermissions).map(([key, perms]) => [key, Object.fromEntries(Object.entries(perms).map(([p, v]) => [p, key === 'users' || key === 'listings' || key === 'reports' || key === 'cms' || key === 'blog' ? v : false]))])) },
   })
 

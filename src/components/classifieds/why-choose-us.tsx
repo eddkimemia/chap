@@ -20,7 +20,7 @@ const features = [
     icon: Search,
     title: 'Smart Search',
     description: 'Advanced filters and AI-powered recommendations help you find exactly what you need.',
-    color: 'text-accent-orange', bg: 'bg-accent-orange/5',
+    color: 'text-accent-red', bg: 'bg-accent-red/5',
   },
   {
     icon: ShieldCheck,

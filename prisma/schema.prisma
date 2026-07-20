@@ -13,6 +13,7 @@ model User {
   id              String    @id @default(cuid())
   email           String?   @unique
   phone           String?   @unique
+  username        String?   @unique
   passwordHash    String?
   name            String
   avatar          String    @default("")
@@ -26,7 +27,10 @@ model User {
   isActive        Boolean   @default(true)
   isSuspended     Boolean   @default(false)
   suspendedReason String?
+  isBanned        Boolean   @default(false)
+  bannedReason    String?
   lastLoginAt     DateTime?
+  notes           String    @default("")
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -136,7 +140,7 @@ model Listing {
   originalPrice   Float?
   currency        String   @default("KES")
   condition       String   @default("Used")
-  status          String   @default("active") // draft, pending, active, sold, expired, suspended, archived
+  status          String   @default("pending") // draft, pending, active, sold, expired, suspended, archived
   isFeatured      Boolean  @default(false)
   isNegotiable    Boolean  @default(false)
   isPromoted      Boolean  @default(false)

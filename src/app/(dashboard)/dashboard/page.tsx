@@ -68,7 +68,7 @@ export default function DashboardPage() {
     { label: 'Messages', value: String(stats.totalMessages), sub: `${stats.unreadMessages} unread`, icon: MessageSquare, color: 'text-accent-purple', bg: 'bg-accent-purple/5' },
     { label: 'Favorites', value: String(stats.totalFavorites), sub: `${stats.totalReviews} reviews`, icon: Heart, color: 'text-red-500', bg: 'bg-red-50' },
     { label: 'Sales', value: String(stats.totalSales), sub: `${stats.avgRating.toFixed(1)} avg rating`, icon: TrendingUp, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { label: 'Profile Views', value: stats.profileViews.toLocaleString(), sub: `${stats.totalLeads} leads`, icon: UserCheck, color: 'text-accent-orange', bg: 'bg-accent-orange/5' },
+    { label: 'Profile Views', value: stats.profileViews.toLocaleString(), sub: `${stats.totalLeads} leads`, icon: UserCheck, color: 'text-accent-red', bg: 'bg-accent-red/5' },
   ] : []
 
   const statusColors: Record<string, string> = {
@@ -85,7 +85,7 @@ export default function DashboardPage() {
     { label: 'My Listings', icon: List, href: '/dashboard/listings', color: 'bg-electric text-white', desc: 'Manage your listings' },
     { label: 'Messages', icon: MessageSquare, href: '/dashboard/messages', color: 'bg-accent-purple text-white', desc: `${stats?.unreadMessages || 0} unread` },
     { label: 'Analytics', icon: BarChart3, href: '/dashboard/analytics', color: 'bg-emerald-500 text-white', desc: 'View performance' },
-    { label: 'Profile', icon: Building2, href: '/dashboard/settings', color: 'bg-accent-orange text-white', desc: 'Edit your profile' },
+    { label: 'Profile', icon: Building2, href: '/dashboard/settings', color: 'bg-accent-red text-white', desc: 'Edit your profile' },
     { label: 'Help Center', icon: HelpCircle, href: '/dashboard/support', color: 'bg-slate-600 text-white', desc: 'Get support' },
   ]
 
@@ -101,6 +101,15 @@ export default function DashboardPage() {
             <p className="text-white/60 mt-1.5 text-sm sm:text-base max-w-xl">
               Here&apos;s what&apos;s happening with your marketplace today.
             </p>
+            <div className="flex items-center gap-3 mt-3">
+              <Link href={`/seller/${currentUser?.username || currentUser?.id}`} className="text-xs text-white/40 hover:text-white/70 transition-colors font-mono">
+                @{currentUser?.username || 'username'}
+              </Link>
+              <span className="text-white/20">·</span>
+              <Link href="/dashboard/settings" className="text-xs text-white/40 hover:text-white/70 transition-colors">
+                Edit profile
+              </Link>
+            </div>
           </div>
           <Button size="lg" className="rounded-2xl bg-white text-navy hover:bg-white/90 hover:shadow-xl hover:shadow-white/20 border-0 h-14 px-8 gap-3 text-base font-bold shrink-0 shadow-lg shadow-black/10" asChild>
             <Link href="/dashboard/listings/new">
@@ -257,7 +266,7 @@ export default function DashboardPage() {
           <Card className="rounded-2xl border-0 shadow-premium">
             <CardHeader className="pb-3">
               <CardTitle className="text-base font-bold text-navy flex items-center gap-2">
-                <Zap className="h-4 w-4 text-accent-orange" /> Quick Actions
+                <Zap className="h-4 w-4 text-accent-red" /> Quick Actions
               </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-2">
@@ -276,7 +285,7 @@ export default function DashboardPage() {
           <Card className="rounded-2xl border-0 shadow-premium">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-base font-bold text-navy flex items-center gap-2">
-                <Bell className="h-4 w-4 text-accent-orange" /> Notifications
+                <Bell className="h-4 w-4 text-accent-red" /> Notifications
               </CardTitle>
               <Link href="/dashboard/notifications" className="text-xs text-royal font-semibold hover:underline">View All</Link>
             </CardHeader>

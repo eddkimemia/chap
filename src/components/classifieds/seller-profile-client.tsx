@@ -38,6 +38,7 @@ interface ReviewData {
 interface SellerData {
   id: string
   name: string
+  username?: string
   avatar: string | null
   bio: string | null
   role: string
@@ -172,6 +173,9 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
                     <ShieldCheck className="h-5 w-5 text-royal" />
                   )}
                 </div>
+                {seller.username && (
+                  <p className="text-sm text-slate-400 font-mono mt-0.5">@{seller.username}</p>
+                )}
                 {seller.profile?.city && (
                   <p className="flex items-center justify-center gap-1 text-sm text-slate-500 mt-1">
                     <MapPin className="h-3.5 w-3.5" />

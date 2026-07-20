@@ -252,7 +252,7 @@ export default function Home() {
                       transition={{ delay: 0.1, duration: 0.5 }}
                       className="mb-6 inline-flex items-center gap-2 rounded-full border border-royal/10 bg-white/60 backdrop-blur-sm px-5 py-2 text-sm font-semibold text-royal shadow-sm"
                     >
-                      <Sparkles className="h-4 w-4 text-accent-orange" />
+                      <Sparkles className="h-4 w-4 text-accent-red" />
                       Kenya&apos;s Premier Digital Marketplace
                     </motion.div>
 
@@ -329,7 +329,7 @@ export default function Home() {
                     <div className="grid grid-cols-2 gap-3">
                       {[
                         { label: 'Active Listings', value: `${listings.length || 0}+`, icon: Package, color: 'text-royal', bg: 'bg-royal/5' },
-                        { label: 'Categories', value: `${categories.filter(c => !c.parentId).length || 0}+`, icon: Sparkles, color: 'text-accent-orange', bg: 'bg-accent-orange/5' },
+                        { label: 'Categories', value: `${categories.filter(c => !c.parentId).length || 0}+`, icon: Sparkles, color: 'text-accent-red', bg: 'bg-accent-red/5' },
                         { label: 'Locations', value: `${locations.length || 0}+`, icon: MapPin, color: 'text-electric', bg: 'bg-electric/5' },
                         { label: 'Active Sellers', value: '5K+', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                       ].map((stat, i) => (
@@ -482,7 +482,7 @@ export default function Home() {
                   className="mx-auto max-w-lg text-center"
                 >
                   <div className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 px-5 py-2 text-sm font-semibold text-white/90 mb-6">
-                    <Heart className="h-4 w-4 text-accent-orange" />
+                    <Heart className="h-4 w-4 text-accent-red" />
                     Join thousands of Kenyan buyers &amp; sellers
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">Have something to sell?</h2>

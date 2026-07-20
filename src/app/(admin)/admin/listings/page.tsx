@@ -12,6 +12,9 @@ import {
   Eye,
   ExternalLink,
   Filter,
+  Calendar,
+  User,
+  X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -70,15 +73,23 @@ export default function AdminListingsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [userName, setUserName] = useState('')
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
 
   useEffect(() => {
     fetchListings()
-  }, [statusFilter, search])
+  }, [statusFilter, search, userName, startDate, endDate])
 
   const fetchListings = async () => {
     setLoading(true)
     try {
-      const params = new URLSearchParams({ status: statusFilter, search })
+      const params = new URLSearchParams()
+      if (statusFilter !== 'all') params.set('status', statusFilter)
+      if (search) params.set('search', search)
+      if (userName) params.set('userName', userName)
+      if (startDate) params.set('startDate', startDate)
+      if (endDate) params.set('endDate', endDate)
       const res = await apiFetch(`/api/admin/listings?${params}`)
       if (res.ok) {
       const data = await res.json()
@@ -148,33 +159,83 @@ export default function AdminListingsPage() {
         <p className="text-sm text-muted-foreground mt-1">Review and manage all listings on the platform</p>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search listings..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-11 rounded-2xl h-11 bg-white border-slate-200"
+              />
+            </div>
+            <Button type="submit" className="rounded-2xl bg-royal text-white border-0">
+              Search
+            </Button>
+          </form>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-[180px] rounded-2xl h-11 bg-white border-slate-200">
+              <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-2xl">
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="suspended">Suspended</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search listings..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Filter by seller name..."
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
               className="pl-11 rounded-2xl h-11 bg-white border-slate-200"
             />
+            {userName && (
+              <button onClick={() => setUserName('')} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-navy">
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          <Button type="submit" className="rounded-2xl bg-royal text-white border-0">
-            Search
-          </Button>
-        </form>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px] rounded-2xl h-11 bg-white border-slate-200">
-            <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="rounded-2xl">
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="suspended">Suspended</SelectItem>
-          </SelectContent>
-        </Select>
+          <div className="relative">
+            <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="pl-11 rounded-2xl h-11 bg-white border-slate-200 w-full sm:w-[180px]"
+              placeholder="From"
+            />
+          </div>
+          <div className="relative">
+            <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="pl-11 rounded-2xl h-11 bg-white border-slate-200 w-full sm:w-[180px]"
+              placeholder="To"
+            />
+          </div>
+          {(userName || startDate || endDate) && (
+            <Button
+              variant="outline"
+              onClick={() => { setUserName(''); setStartDate(''); setEndDate('') }}
+              className="rounded-2xl h-11"
+            >
+              <X className="h-4 w-4 mr-1" /> Clear
+            </Button>
+          )}
+        </div>
       </div>
 
       <Card className="rounded-2xl border-0 shadow-premium overflow-hidden">

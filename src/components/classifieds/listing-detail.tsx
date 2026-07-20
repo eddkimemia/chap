@@ -226,7 +226,7 @@ export function ListingDetail() {
                     </Badge>
                   )}
                   {listing.isPromoted && (
-                    <Badge className="bg-accent-orange text-white border-none font-semibold rounded-xl px-3 py-1">
+                    <Badge className="bg-accent-red text-white border-none font-semibold rounded-xl px-3 py-1">
                       Promoted
                     </Badge>
                   )}
@@ -234,7 +234,7 @@ export function ListingDetail() {
                     {listing.condition}
                   </Badge>
                   {listing.isNegotiable && (
-                    <Badge variant="outline" className="border-accent-orange/30 text-accent-orange rounded-xl px-3 py-1 font-medium">
+                    <Badge variant="outline" className="border-accent-red/30 text-accent-red rounded-xl px-3 py-1 font-medium">
                       Negotiable
                     </Badge>
                   )}
@@ -301,8 +301,8 @@ export function ListingDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 text-sm p-4 rounded-2xl bg-white border border-slate-100 shadow-sm">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-orange/5">
-                      <Eye className="h-4 w-4 text-accent-orange" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-red/5">
+                      <Eye className="h-4 w-4 text-accent-red" />
                     </div>
                     <div>
                       <p className="text-[11px] text-slate-400 font-medium">Views</p>

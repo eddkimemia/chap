@@ -349,7 +349,7 @@ export default function ListingsPage() {
       <Dialog open={boostDialog.open} onOpenChange={(o) => setBoostDialog((p) => ({ ...p, open: o }))}>
         <DialogContent className="rounded-2xl sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-accent-orange" /> Promote Listing</DialogTitle>
+            <DialogTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-accent-red" /> Promote Listing</DialogTitle>
             <DialogDescription>Boost your listing&apos;s visibility and reach more buyers.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">

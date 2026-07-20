@@ -421,7 +421,7 @@ export function Header() {
             </Button>
             <Button
               variant="ghost"
-              className="justify-start gap-3 rounded-xl hover:bg-accent-orange/5 hover:text-accent-orange"
+              className="justify-start gap-3 rounded-xl hover:bg-accent-red/5 hover:text-accent-red"
               onClick={() => {
                 setShowPostAd(true)
                 setMobileOpen(false)

@@ -424,7 +424,7 @@ export function ProductDetailClient({
     { label: 'Location', value: listing.location.name, icon: <MapPin className="h-4 w-4 text-electric" /> },
     { label: 'Listed', value: timeAgo(listing.createdAt), icon: <Calendar className="h-4 w-4 text-accent-purple" /> },
     { label: 'Listing ID', value: `#${listing.id.slice(-8).toUpperCase()}`, icon: <Hash className="h-4 w-4 text-slate-400" /> },
-    { label: 'Views', value: `${listing.views}`, icon: <Eye className="h-4 w-4 text-accent-orange" /> },
+    { label: 'Views', value: `${listing.views}`, icon: <Eye className="h-4 w-4 text-accent-red" /> },
   ]
 
   return (
@@ -556,9 +556,9 @@ export function ProductDetailClient({
               </div>
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {listing.isFeatured && <Badge className="bg-royal text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Featured</Badge>}
-                {listing.isPromoted && <Badge className="bg-accent-orange text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Promoted</Badge>}
+                {listing.isPromoted && <Badge className="bg-accent-red text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Promoted</Badge>}
                 {listing.isUrgent && <Badge className="bg-red-500 text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg animate-pulse">Urgent</Badge>}
-                {listing.isNegotiable && <Badge variant="outline" className="border-accent-orange/30 text-accent-orange text-[10px] px-2 py-0.5 font-medium rounded-lg">Negotiable</Badge>}
+                {listing.isNegotiable && <Badge variant="outline" className="border-accent-red/30 text-accent-red text-[10px] px-2 py-0.5 font-medium rounded-lg">Negotiable</Badge>}
                 {listing.condition && <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-medium rounded-lg">{listing.condition}</Badge>}
               </div>
               <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
@@ -737,7 +737,7 @@ export function ProductDetailClient({
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <RefreshCw className="h-5 w-5 text-accent-orange shrink-0 mt-0.5" />
+                  <RefreshCw className="h-5 w-5 text-accent-red shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold text-navy">Returns &amp; Warranty</p>
                     <p className="text-xs text-slate-500 mt-0.5">Return policies vary by seller. Please discuss warranty and return terms with the seller before purchasing.</p>
@@ -842,6 +842,20 @@ export function ProductDetailClient({
               </div>
             </div>
 
+            {/* Featured Products from same category */}
+            {similarListings.filter(l => l.isFeatured).length > 0 && (
+              <div className="pt-2">
+                <h2 className="text-lg sm:text-xl font-bold text-navy mb-4 flex items-center gap-2">
+                  <Star className="h-5 w-5 text-amber-400 fill-amber-400" /> Featured in {listing.category.name}
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {similarListings.filter(l => l.isFeatured).map((item) => (
+                    <SimilarCard key={item.id} item={item} />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Similar Listings */}
             {similarListings.length > 0 && (
               <div className="pt-2">
@@ -853,6 +867,24 @@ export function ProductDetailClient({
                 </div>
               </div>
             )}
+
+            {/* Suggested Products */}
+            {(() => {
+              const suggested = similarListings.filter(l => !l.isFeatured)
+              if (suggested.length === 0) return null
+              return (
+                <div className="pt-2 pb-4">
+                  <h2 className="text-lg sm:text-xl font-bold text-navy mb-4 flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-accent-red" /> You Might Also Like
+                  </h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+                    {suggested.slice().sort(() => Math.random() - 0.5).map((item) => (
+                      <SimilarCard key={item.id} item={item} />
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
           </div>
 
           {/* Right Column: Sticky Sidebar */}
@@ -870,9 +902,9 @@ export function ProductDetailClient({
               </div>
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {listing.isFeatured && <Badge className="bg-royal text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Featured</Badge>}
-                {listing.isPromoted && <Badge className="bg-accent-orange text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Promoted</Badge>}
+                {listing.isPromoted && <Badge className="bg-accent-red text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg">Promoted</Badge>}
                 {listing.isUrgent && <Badge className="bg-red-500 text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg animate-pulse">Urgent</Badge>}
-                {listing.isNegotiable && <Badge variant="outline" className="border-accent-orange/30 text-accent-orange text-[10px] px-2 py-0.5 font-medium rounded-lg">Negotiable</Badge>}
+                {listing.isNegotiable && <Badge variant="outline" className="border-accent-red/30 text-accent-red text-[10px] px-2 py-0.5 font-medium rounded-lg">Negotiable</Badge>}
                 {listing.condition && <Badge variant="secondary" className="text-[10px] px-2 py-0.5 font-medium rounded-lg">{listing.condition}</Badge>}
               </div>
               <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">

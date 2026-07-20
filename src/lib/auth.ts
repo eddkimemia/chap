@@ -168,6 +168,7 @@ export async function validateSession(token: string) {
           email: true,
           phone: true,
           name: true,
+          username: true,
           avatar: true,
           role: true,
           isVerified: true,

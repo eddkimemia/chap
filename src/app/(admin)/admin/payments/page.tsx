@@ -93,7 +93,7 @@ export default function AdminPaymentsPage() {
   const statCards = [
     { title: 'Total Revenue', value: `KES ${(stats?.totalRevenue ?? 0).toLocaleString()}`, icon: DollarSign, color: 'bg-emerald-500' },
     { title: 'This Month', value: `KES ${(stats?.monthlyRevenue ?? 0).toLocaleString()}`, icon: TrendingUp, color: 'bg-royal' },
-    { title: 'Transactions', value: (stats?.totalTransactions ?? 0).toLocaleString(), icon: CreditCard, color: 'bg-accent-orange' },
+    { title: 'Transactions', value: (stats?.totalTransactions ?? 0).toLocaleString(), icon: CreditCard, color: 'bg-accent-red' },
     { title: 'Avg. Transaction', value: `KES ${(stats?.averageTransaction ?? 0).toLocaleString()}`, icon: DollarSign, color: 'bg-accent-purple' },
   ]
 

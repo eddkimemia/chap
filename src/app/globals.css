@@ -46,7 +46,7 @@
   --color-royal: #2563eb;
   --color-electric: #3b82f6;
   --color-electric-light: #60a5fa;
-  --color-accent-orange: #f97316;
+  --color-accent-red: #FB0C21;
   --color-accent-purple: #a78bfa;
   --color-lavender: #ede9fe;
   --color-sky-soft: #e0f2fe;
@@ -66,14 +66,14 @@
   --secondary-foreground: #0c4a6e;
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
-  --accent: #f97316;
+  --accent: #FB0C21;
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --border: #e2e8f0;
   --input: #e2e8f0;
   --ring: #2563eb;
   --chart-1: #2563eb;
-  --chart-2: #f97316;
+  --chart-2: #FB0C21;
   --chart-3: #a78bfa;
   --chart-4: #3b82f6;
   --chart-5: #06b6d4;

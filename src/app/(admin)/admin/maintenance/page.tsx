@@ -38,7 +38,7 @@ export default function AdminMaintenancePage() {
   const stats = [
     { label: 'Database Size', value: '12.4 MB', icon: Database, color: 'text-royal' },
     { label: 'Total Records', value: '8,342', icon: Server, color: 'text-emerald-600' },
-    { label: 'Cache Size', value: '2.1 MB', icon: HardDrive, color: 'text-accent-orange' },
+    { label: 'Cache Size', value: '2.1 MB', icon: HardDrive, color: 'text-accent-red' },
     { label: 'Uptime', value: '14d 6h 32m', icon: Activity, color: 'text-accent-purple' },
   ]
 

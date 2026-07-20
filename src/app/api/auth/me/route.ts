@@ -50,12 +50,23 @@ export async function PUT(request: NextRequest) {
     if (!fullUser) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
     const body = await request.json()
-    const { name, bio, avatar, city, country, address, website, phone, email } = body
+    const { name, bio, avatar, city, country, address, website, phone, email, username } = body
 
     const updateData: Record<string, unknown> = {}
     if (name !== undefined) updateData.name = name
     if (bio !== undefined) updateData.bio = bio
     if (avatar !== undefined) updateData.avatar = avatar
+    if (username !== undefined) {
+      const cleaned = username.toLowerCase().replace(/[^a-z0-9_-]/g, '')
+      if (cleaned.length < 3) {
+        return NextResponse.json({ error: 'Username must be at least 3 characters' }, { status: 400 })
+      }
+      const existing = await db.user.findUnique({ where: { username: cleaned } })
+      if (existing && existing.id !== user.id) {
+        return NextResponse.json({ error: 'Username already taken' }, { status: 409 })
+      }
+      updateData.username = cleaned
+    }
 
     let pendingVerification: string | null = null
     let maskedDestination: string | null = null

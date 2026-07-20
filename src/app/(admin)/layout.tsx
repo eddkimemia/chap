@@ -6,20 +6,12 @@ import Link from 'next/link'
 import {
   Users,
   FileText,
-  AlertTriangle,
   CreditCard,
   FolderTree,
   MapPin,
   CreditCard as CreditCardIcon,
   Megaphone,
-  BarChart3,
-  BookOpen,
   PenTool,
-  Globe,
-  Settings2,
-  UserCog,
-  ClipboardList,
-  Database,
   LayoutDashboard,
   LogOut,
   Menu,
@@ -42,20 +34,12 @@ const adminNav = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/listings', label: 'Listings', icon: FileText },
-  { href: '/admin/reports', label: 'Reports', icon: AlertTriangle },
   { href: '/admin/payments', label: 'Payments', icon: CreditCard },
   { href: '/admin/categories', label: 'Categories', icon: FolderTree },
   { href: '/admin/locations', label: 'Locations', icon: MapPin },
   { href: '/admin/plans', label: 'Plans', icon: CreditCardIcon },
   { href: '/admin/advertisements', label: 'Adverts', icon: Megaphone },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/admin/cms', label: 'CMS Pages', icon: BookOpen },
   { href: '/admin/blog', label: 'Blog', icon: PenTool },
-  { href: '/admin/seo', label: 'SEO', icon: Globe },
-  { href: '/admin/settings', label: 'Settings', icon: Settings2 },
-  { href: '/admin/roles', label: 'Roles', icon: UserCog },
-  { href: '/admin/audit-logs', label: 'Audit Logs', icon: ClipboardList },
-  { href: '/admin/maintenance', label: 'Maintenance', icon: Database },
 ]
 
 function AdminSidebar({ user, onLogout }: { user: User | null; onLogout: () => void }) {
@@ -212,7 +196,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="min-h-full p-4 sm:p-6 lg:p-8 lg:pl-0">
+        <div className="min-h-full p-4 sm:p-6 lg:p-8 lg:pl-0" style={{ zoom: 0.88 }}>
           {children}
         </div>
       </main>
