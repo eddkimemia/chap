@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
     }
 
     const { name, email, phone, password, username } = parsed.data
+    const role = body.role === 'business' ? 'business' : 'user'
+    const companyName = role === 'business' ? (body.companyName || name) : undefined
+    const industry = role === 'business' ? (body.industry || '') : undefined
     const normalizedPhone = phone ? normalizeKenyanPhone(phone) : null
     const cleanedUsername = username.toLowerCase().replace(/[^a-z0-9_-]/g, '')
 
@@ -67,6 +70,12 @@ export async function POST(request: NextRequest) {
         phone: normalizedPhone,
         passwordHash,
         username: cleanedUsername,
+        role,
+        ...(role === 'business' ? {
+          businessProfile: {
+            create: { companyName, industry },
+          },
+        } : {}),
       },
       select: {
         id: true,

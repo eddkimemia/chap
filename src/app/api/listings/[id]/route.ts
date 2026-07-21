@@ -83,6 +83,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    let tagData: { tagId: string }[] | undefined
+    if (body.tags) {
+      tagData = await Promise.all(body.tags.map(async (tagName: string) => {
+        const tag = await db.tag.upsert({ where: { name: tagName }, update: {}, create: { name: tagName } })
+        return { tagId: tag.id }
+      }))
+    }
+
     const updated = await db.listing.update({
       where: { id },
       data: {
@@ -95,8 +103,14 @@ export async function PUT(
         contactName: body.contactName ?? undefined,
         contactPhone: body.contactPhone ?? undefined,
         contactEmail: body.contactEmail ?? undefined,
-        customFields: body.customFields ? JSON.stringify(body.customFields) : undefined,
-        tags: body.tags ? JSON.stringify(body.tags) : undefined,
+        customFields: body.customFields ? {
+          deleteMany: {},
+          create: Object.entries(body.customFields).map(([name, value]) => ({ name, value: String(value) })),
+        } : undefined,
+        listingTags: tagData ? {
+          deleteMany: {},
+          create: tagData,
+        } : undefined,
       },
       include: {
         category: { select: { id: true, name: true, slug: true } },

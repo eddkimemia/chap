@@ -86,7 +86,7 @@ export default function SupportPage() {
   useEffect(() => {
     apiFetch('/api/support/tickets').then((r) => r.ok && r.json()).then((d) => {
       if (d) setTickets(d.tickets || d)
-    }).catch(() => {}).finally(() => setTicketsLoading(false))
+    }).catch((error) => console.error('Failed to fetch tickets:', error)).finally(() => setTicketsLoading(false))
   }, [])
 
   const filteredFaqs = faqs.filter((f) =>

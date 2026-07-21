@@ -8,7 +8,8 @@ async function getSubscribers(): Promise<string[]> {
     const fs = await import('fs/promises')
     const raw = await fs.readFile(SUBSCRIBERS_PATH, 'utf-8')
     return JSON.parse(raw) as string[]
-  } catch {
+  } catch (error) {
+    console.error('Newsletter get subscribers error:', error)
     return []
   }
 }

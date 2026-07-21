@@ -26,17 +26,23 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth(request)
     const body = await request.json()
 
-    const { name, query } = body
+    const { name, search, categoryId, locationId, minPrice, maxPrice, condition, sort } = body
 
-    if (!name || !query) {
-      return NextResponse.json({ error: 'name and query are required' }, { status: 400 })
+    if (!name) {
+      return NextResponse.json({ error: 'name is required' }, { status: 400 })
     }
 
     const savedSearch = await db.savedSearch.create({
       data: {
         userId: user.id,
         name,
-        query: typeof query === 'string' ? query : JSON.stringify(query),
+        search: search || '',
+        categoryId: categoryId || null,
+        locationId: locationId || null,
+        minPrice: minPrice ? Number(minPrice) : null,
+        maxPrice: maxPrice ? Number(maxPrice) : null,
+        condition: condition || null,
+        sort: sort || 'newest',
       },
     })
 

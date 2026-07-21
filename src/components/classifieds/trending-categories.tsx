@@ -8,7 +8,7 @@ import { Car, Home, Briefcase, Monitor, Smartphone, Shirt, Sofa, TreePine, Wrenc
 const trendIconMap: Record<string, React.ElementType> = {
   vehicles: Car, property: Home, jobs: Briefcase, electronics: Monitor,
   'phones-tablets': Smartphone, fashion: Shirt, 'furniture-home': Sofa,
-  agriculture: TreePine, services: Wrench, 'pets-animals': Dog,
+  'agriculture-food': TreePine, services: Wrench, 'pets-animals': Dog,
   'business-industrial': Building2, 'food-drinks': ShoppingBag,
 }
 
@@ -16,7 +16,7 @@ const trendColors: Record<string, string> = {
   vehicles: 'bg-emerald-50 text-emerald-600', property: 'bg-amber-50 text-amber-600',
   jobs: 'bg-indigo-50 text-indigo-600', electronics: 'bg-sky-50 text-sky-600',
   'phones-tablets': 'bg-violet-50 text-violet-600', fashion: 'bg-pink-50 text-pink-600',
-  'furniture-home': 'bg-red-50 text-red-600', agriculture: 'bg-lime-50 text-lime-600',
+  'furniture-home': 'bg-red-50 text-red-600', 'agriculture-food': 'bg-lime-50 text-lime-600',
   services: 'bg-teal-50 text-teal-600', 'pets-animals': 'bg-stone-50 text-stone-600',
   'business-industrial': 'bg-slate-50 text-slate-600', 'food-drinks': 'bg-rose-50 text-rose-600',
 }

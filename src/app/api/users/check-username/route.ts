@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
     const cleaned = username.toLowerCase().replace(/[^a-z0-9_-]/g, '')
     const existing = await db.user.findUnique({ where: { username: cleaned } })
     return NextResponse.json({ available: !existing })
-  } catch {
+  } catch (error) {
+    console.error('Check username error:', error)
     return NextResponse.json({ available: false })
   }
 }

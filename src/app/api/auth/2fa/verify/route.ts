@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { createSession, applySessionCookie } from '@/lib/auth'
+import { createSession, applySessionCookie, hashOtp } from '@/lib/auth'
 import { twoFactorSchema } from '@/lib/validators'
 
 export async function POST(request: NextRequest) {
@@ -27,10 +27,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Session expired. Please login again.' }, { status: 400 })
     }
 
+    const codeHash = await hashOtp(code)
     const otp = await db.twoFactorSession.findFirst({
       where: {
         userId: session.userId,
-        code,
+        code: codeHash,
         type: '2fa',
         used: false,
         expiresAt: { gt: new Date() },

@@ -21,13 +21,21 @@ import { toast } from 'sonner'
 import { apiFetch } from '@/lib/api-client'
 import { useAppStore } from '@/lib/store'
 
+interface SettingsUser {
+  id: string; name: string; email: string; phone: string; username: string;
+  avatar: string; bio: string; role: string; isVerified: boolean;
+  profile?: { address?: string; city?: string; country?: string };
+  businessProfile?: { companyName?: string; industry?: string; taxId?: string; isVerified?: boolean };
+  [key: string]: unknown;
+}
+
 export default function SettingsPage() {
   const { setCurrentUser, logout } = useAppStore()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<SettingsUser | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
-  const [verification, setVerification] = useState<any>(null)
+  const [verification, setVerification] = useState<{ verification: { status: string; reviewNote?: string } } | null>(null)
   const [verifyDialog, setVerifyDialog] = useState<{ type: 'email' | 'phone'; masked: string } | null>(null)
   const [verifyCode, setVerifyCode] = useState('')
   const [verifying, setVerifying] = useState(false)
@@ -63,7 +71,7 @@ export default function SettingsPage() {
       setCurrentUser(u)
       setProfile({ name: u.name || '', bio: u.bio || '', avatar: u.avatar || '', phone: u.phone || '', email: u.email || '', username: u.username || '' })
       setProfileExtra({ city: u.profile?.city || '', country: u.profile?.country || 'Kenya', address: u.profile?.address || '' })
-      try { const sl = JSON.parse(u.profile?.socialLinks || '{}'); setSocialLinks({ facebook: sl.facebook || '', twitter: sl.twitter || '', instagram: sl.instagram || '', linkedin: sl.linkedin || '' }) } catch {} 
+      try { const sl = JSON.parse(u.profile?.socialLinks || '{}'); setSocialLinks({ facebook: sl.facebook || '', twitter: sl.twitter || '', instagram: sl.instagram || '', linkedin: sl.linkedin || '' }) } catch (error) { console.error('Failed to parse social links:', error) } 
       if (busData?.businessProfile) {
         const b = busData.businessProfile
         setBusiness({
@@ -71,6 +79,9 @@ export default function SettingsPage() {
           taxId: b.taxId || '', registrationNo: b.registrationNo || '', website: b.website || '',
           employeeCount: b.employeeCount || '', foundedYear: b.foundedYear?.toString() || '', address: b.address || '',
         })
+        if (b.socialLinks) {
+          try { const sl = JSON.parse(typeof b.socialLinks === 'string' ? b.socialLinks : '{}'); setSocialLinks((prev) => ({ ...prev, ...sl })) } catch {}
+        }
       }
       if (notifData?.preferences) {
         setNotifications((prev) => ({ ...prev, ...notifData.preferences }))
@@ -92,6 +103,12 @@ export default function SettingsPage() {
         const data = await res.json()
         setUser(data.user)
         setCurrentUser(data.user)
+        if (data.user?.role === 'business') {
+          await apiFetch('/api/business-profile', {
+            method: 'PUT',
+            body: JSON.stringify({ socialLinks }),
+          })
+        }
         if (data.pendingVerification && data.maskedDestination) {
           setVerifyDialog({ type: data.pendingVerification, masked: data.maskedDestination })
           setVerifyCode('')
@@ -125,7 +142,7 @@ export default function SettingsPage() {
           setCurrentUser(data.user)
           setProfile({ name: data.user.name || '', bio: data.user.bio || '', avatar: data.user.avatar || '', phone: data.user.phone || '', email: data.user.email || '', username: data.user.username || '' })
           setProfileExtra({ city: data.user.profile?.city || '', country: data.user.profile?.country || 'Kenya', address: data.user.profile?.address || '' })
-          try { const sl = JSON.parse(data.user.profile?.socialLinks || '{}'); setSocialLinks({ facebook: sl.facebook || '', twitter: sl.twitter || '', instagram: sl.instagram || '', linkedin: sl.linkedin || '' }) } catch {} 
+          try { const sl = JSON.parse(data.user.profile?.socialLinks || '{}'); setSocialLinks({ facebook: sl.facebook || '', twitter: sl.twitter || '', instagram: sl.instagram || '', linkedin: sl.linkedin || '' }) } catch (error) { console.error('Failed to parse social links:', error) } 
         }
       } else {
         const d = await res.json().catch(() => ({}))
@@ -153,7 +170,7 @@ export default function SettingsPage() {
     try {
       const res = await apiFetch('/api/business-profile', {
         method: 'PUT',
-        body: JSON.stringify(business),
+        body: JSON.stringify({ ...business, socialLinks }),
       })
       if (res.ok) {
         const userRes = await apiFetch('/api/auth/me')
@@ -176,7 +193,7 @@ export default function SettingsPage() {
 
     setSaving('kyc')
     try {
-      const saves = []
+      const saves: Promise<Response>[] = []
       saves.push(
         apiFetch('/api/auth/me', {
           method: 'PUT',
@@ -186,7 +203,7 @@ export default function SettingsPage() {
       saves.push(
         apiFetch('/api/business-profile', {
           method: 'PUT',
-          body: JSON.stringify(business),
+          body: JSON.stringify({ ...business, socialLinks }),
         })
       )
       const results = await Promise.allSettled(saves)
@@ -202,7 +219,7 @@ export default function SettingsPage() {
       })
       if (res.ok) {
         const data = await res.json()
-        setVerification((prev: any) => ({ ...prev, verification: data.verification }))
+        setVerification((prev: { verification: { status: string; reviewNote?: string } } | null) => ({ ...prev, verification: data.verification }))
         const userRes = await apiFetch('/api/auth/me')
         if (userRes.ok) {
           const userData = await userRes.json()
@@ -298,7 +315,7 @@ export default function SettingsPage() {
         ].map((s) => {
           const isCurrentTab = activeTab === s.tab
           return (
-            <button key={s.step} onClick={() => setActiveTab(s.tab as any)} className={`p-4 rounded-xl border text-left transition-all ${isCurrentTab ? 'bg-royal/5 border-royal/30 shadow-sm' : s.done ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200 hover:border-slate-300'}`}>
+            <button key={s.step} onClick={() => setActiveTab(s.tab as 'profile' | 'business' | 'kyc' | 'notifications' | 'security')} className={`p-4 rounded-xl border text-left transition-all ${isCurrentTab ? 'bg-royal/5 border-royal/30 shadow-sm' : s.done ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200 hover:border-slate-300'}`}>
               <div className="flex items-center gap-3 mb-1">
                 <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${s.done ? 'bg-emerald-500 text-white' : isCurrentTab ? 'bg-royal text-white' : 'bg-slate-300 text-white'}`}>
                   {s.done ? <CheckCircle2 className="h-4 w-4" /> : s.step}
@@ -407,7 +424,7 @@ export default function SettingsPage() {
                   ].map((s) => (
                     <div key={s.key} className="space-y-2">
                       <Label className="text-navy font-medium">{s.label}</Label>
-                      <Input value={(socialLinks as any)[s.key]} onChange={(e) => setSocialLinks((p) => ({ ...p, [s.key]: e.target.value }))} placeholder={s.placeholder} className="h-11 rounded-xl bg-white border-slate-200" />
+                      <Input value={(socialLinks as Record<string, string>)[s.key]} onChange={(e) => setSocialLinks((p) => ({ ...p, [s.key]: e.target.value }))} placeholder={s.placeholder} className="h-11 rounded-xl bg-white border-slate-200" />
                     </div>
                   ))}
                 </div>
@@ -538,9 +555,9 @@ export default function SettingsPage() {
                 ].map((doc) => (
                   <div key={doc.key} className="space-y-2">
                     <Label className="text-navy font-medium">{doc.label} <span className="text-red-400">*</span></Label>
-                    <label className={`flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-colors ${(kyc as any)[doc.key] ? 'border-emerald-300 bg-emerald-50' : ''}`}>
-                      {(kyc as any)[doc.key] ? (
-                        <img src={(kyc as any)[doc.key]} alt={doc.label} className="h-full w-full object-contain rounded-lg" />
+                    <label className={`flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-colors ${kyc[doc.key as keyof typeof kyc] ? 'border-emerald-300 bg-emerald-50' : ''}`}>
+                      {kyc[doc.key as keyof typeof kyc] ? (
+                        <img src={kyc[doc.key as keyof typeof kyc] as string} alt={doc.label} className="h-full w-full object-contain rounded-lg" />
                       ) : (
                         <><Upload className="h-6 w-6 text-slate-300 mb-1" /><span className="text-[10px] text-slate-400">{doc.desc}</span></>
                       )}
@@ -604,7 +621,7 @@ export default function SettingsPage() {
                       <p className="text-sm font-medium text-navy">{item.label}</p>
                       <p className="text-xs text-muted-foreground">{item.desc}</p>
                     </div>
-                    <Switch checked={(notifications as any)[item.key]} onCheckedChange={(v) => setNotifications((n) => ({ ...n, [item.key]: v }))} />
+                    <Switch checked={notifications[item.key as keyof typeof notifications]} onCheckedChange={(v) => setNotifications((n) => ({ ...n, [item.key]: v }))} />
                   </div>
                 ))}
               </div>
@@ -622,7 +639,7 @@ export default function SettingsPage() {
                       <p className="text-sm font-medium text-navy">{item.label}</p>
                       <p className="text-xs text-muted-foreground">{item.desc}</p>
                     </div>
-                    <Switch checked={(notifications as any)[item.key]} onCheckedChange={(v) => setNotifications((n) => ({ ...n, [item.key]: v }))} />
+                    <Switch checked={notifications[item.key as keyof typeof notifications]} onCheckedChange={(v) => setNotifications((n) => ({ ...n, [item.key]: v }))} />
                   </div>
                 ))}
               </div>
@@ -640,7 +657,7 @@ export default function SettingsPage() {
                       <p className="text-sm font-medium text-navy">{item.label}</p>
                       <p className="text-xs text-muted-foreground">{item.desc}</p>
                     </div>
-                    <Switch checked={(notifications as any)[item.key]} onCheckedChange={(v) => setNotifications((n) => ({ ...n, [item.key]: v }))} />
+                    <Switch checked={notifications[item.key as keyof typeof notifications]} onCheckedChange={(v) => setNotifications((n) => ({ ...n, [item.key]: v }))} />
                   </div>
                 ))}
               </div>

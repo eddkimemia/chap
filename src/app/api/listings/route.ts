@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
     if (sort === 'price-asc') sortField = { price: 'asc' }
     if (sort === 'price-desc') sortField = { price: 'desc' }
     if (sort === 'popular') sortField = { views: 'desc' }
-    const orderBy: Record<string, string>[] = [{ isFeatured: 'desc' }, sortField]
+    const orderBy: Record<string, string>[] = [sortField]
 
     const selectFields: Record<string, unknown> = {
       id: true,
@@ -128,11 +128,9 @@ export async function GET(request: NextRequest) {
       views: true,
       createdAt: true,
       updatedAt: true,
-      customFields: true,
-      tags: true,
       status: true,
       displayId: true,
-      user: { select: { id: true, name: true, avatar: true, isVerified: true, username: true } },
+      user: { select: { id: true, name: true, avatar: true, isVerified: true, username: true, role: true } },
       category: { select: { id: true, name: true, slug: true, parentId: true } },
       location: { select: { id: true, name: true, slug: true } },
       images: { orderBy: { order: 'asc' } },
@@ -207,8 +205,9 @@ export async function POST(request: NextRequest) {
     })
     const plan = activeSub?.plan ?? { maxListings: 5, maxImages: 5 }
 
+    const maxListings = plan.maxListings === -1 ? Infinity : plan.maxListings
     const userListingCount = await db.listing.count({ where: { userId: user.id, status: { not: 'sold' } } })
-    if (userListingCount >= plan.maxListings) {
+    if (userListingCount >= maxListings) {
       return NextResponse.json(
         { error: `You have reached the maximum of ${plan.maxListings} active listings on your current plan. Upgrade to list more.` },
         { status: 403 }
@@ -226,8 +225,6 @@ export async function POST(request: NextRequest) {
       contactPhone,
       contactEmail,
       isNegotiable,
-      customFields,
-      tags,
       status,
       images: imageUrls,
     } = body
@@ -261,6 +258,14 @@ export async function POST(request: NextRequest) {
       } catch { parsedImages = [] }
     }
 
+    const maxImages = plan.maxImages === -1 ? Infinity : plan.maxImages
+    if (parsedImages.length > maxImages) {
+      return NextResponse.json(
+        { error: `You can only upload ${plan.maxImages} images per listing on your current plan. Upgrade to upload more.` },
+        { status: 403 }
+      )
+    }
+
     const displayId = await nextDisplayId(db)
 
     const listing = await db.listing.create({
@@ -279,8 +284,15 @@ export async function POST(request: NextRequest) {
         contactPhone,
         contactEmail: contactEmail || '',
         isNegotiable: isNegotiable || false,
-        customFields: customFields ? JSON.stringify(customFields) : '{}',
-        tags: tags ? JSON.stringify(tags) : '[]',
+        customFields: body.customFields ? {
+          create: Object.entries(body.customFields).map(([name, value]) => ({ name, value: String(value) })),
+        } : undefined,
+        listingTags: body.tags ? {
+          create: await Promise.all(body.tags.map(async (tagName: string) => {
+            const tag = await db.tag.upsert({ where: { name: tagName }, update: {}, create: { name: tagName } })
+            return { tagId: tag.id }
+          })),
+        } : undefined,
         publishedAt: new Date(),
         images: parsedImages.length > 0 ? {
           create: parsedImages.map((url: string, i: number) => ({ url, order: i })),
@@ -293,7 +305,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    autoFlag(title, description || '', user.id, listing.id).catch(() => {})
+    autoFlag(title, description || '', user.id, listing.id).catch((error) => console.error('Auto-flag error:', error))
 
     return NextResponse.json(listing, { status: 201 })
   } catch (error) {

@@ -147,7 +147,7 @@ export async function PUT(request: NextRequest) {
             type: 'system',
             title: 'Listing Approved',
             body: `Your listing "${listing.title}" has been approved and is now live.`,
-            data: JSON.stringify({ listingId, slug: listing.slug }),
+            listingId,
           },
         })
       } else if (status === 'suspended') {
@@ -157,7 +157,7 @@ export async function PUT(request: NextRequest) {
             type: 'system',
             title: 'Listing Suspended',
             body: `Your listing "${listing.title}" has been suspended. Please check your email for details.`,
-            data: JSON.stringify({ listingId, slug: listing.slug }),
+            listingId,
           },
         })
       }

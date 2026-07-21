@@ -90,7 +90,7 @@ export default function AdminVerificationsPage() {
         const data = await res.json()
         setRecords(data.verifications || [])
       }
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch verifications:', error) } finally { setLoading(false) }
   }
 
   const openReview = (record: VerificationRecord, action: 'approved' | 'rejected') => {

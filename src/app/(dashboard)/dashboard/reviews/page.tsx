@@ -87,7 +87,7 @@ export default function ReviewsPage() {
       })
       if (res.ok) { toast.success('Reply posted'); setReplyDialog({ open: false, reviewId: '' }); setReplyText(''); fetchReviews() }
       else { const d = await res.json(); throw new Error(d.error) }
-    } catch (err: any) { toast.error(err.message) } finally { setSending(false) }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') } finally { setSending(false) }
   }
 
   const handleReportReview = async (reviewId: string) => {
@@ -95,7 +95,7 @@ export default function ReviewsPage() {
       const res = await apiFetch('/api/reports', { method: 'POST', body: JSON.stringify({ type: 'review', targetId: reviewId, reason: 'Inappropriate content' }) })
       if (res.ok) toast.success('Review reported')
       else { const d = await res.json(); throw new Error(d.error) }
-    } catch (err: any) { toast.error(err.message) }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') }
   }
 
   return (

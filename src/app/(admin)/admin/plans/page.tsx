@@ -33,7 +33,7 @@ export default function AdminPlansPage() {
     try {
       const res = await apiFetch('/api/admin/plans')
       if (res.ok) setPlans(await res.json())
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch plans:', error) } finally { setLoading(false) }
   }
 
   const savePlan = async () => {

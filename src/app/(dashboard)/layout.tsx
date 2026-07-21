@@ -18,6 +18,7 @@ import {
   BarChart3,
   Crown,
   HelpCircle,
+  Store,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -34,6 +35,7 @@ interface User {
   phone?: string
   avatar?: string
   role: string
+  username?: string
 }
 
 const mainNav = [
@@ -48,6 +50,23 @@ const mainNav = [
   { href: '/dashboard/support', label: 'Help & Support', icon: HelpCircle },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ]
+
+function ShopLink({ user }: { user: User | null }) {
+  if (!user || user.role !== 'business' || !user.username) return null
+  return (
+    <div className="px-3 pb-2">
+      <Link
+        href={`/shop/${user.username}`}
+        target="_blank"
+        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition-all"
+      >
+        <Store className="h-[18px] w-[18px]" />
+        My Shop
+        <ChevronRight className="ml-auto h-4 w-4 text-white/20" />
+      </Link>
+    </div>
+  )
+}
 
 function SidebarContent({ user, onLogout }: { user: User | null; onLogout: () => void }) {
   const pathname = usePathname()
@@ -81,6 +100,8 @@ function SidebarContent({ user, onLogout }: { user: User | null; onLogout: () =>
       )}
 
       <ScrollArea className="flex-1 px-3">
+        <ShopLink user={user} />
+
         <nav className="space-y-1">
           {mainNav.map((item) => {
       const isActive = pathname === item.href
@@ -146,7 +167,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           router.push('/login?redirect=' + encodeURIComponent(window.location.pathname))
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Failed to fetch current user:', error)
         if (!cancelled) router.push('/login')
       })
 

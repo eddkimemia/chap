@@ -23,7 +23,7 @@ interface Listing {
   id: string; slug: string; title: string; description: string; price: number
   currency: string; condition: string; categoryId: string; locationId: string
   isFeatured: boolean; isNegotiable: boolean; views: number; status?: string
-  createdAt: string; updatedAt: string; customFields?: string; tags?: string
+  createdAt: string; updatedAt: string
   category: { id: string; name: string; slug: string; parentId: string | null }
   location: { id: string; name: string; slug: string }
   images: { id: string; url: string; alt: string; order: number }[]
@@ -71,7 +71,7 @@ export function SearchPageClient({ initialParams }: { initialParams: SearchParam
         }
         setPagination(data.pagination || { page: 1, total: 0, totalPages: 0 })
       }
-    } catch {} finally {
+    } catch (error) { console.error('Failed to fetch listings:', error) } finally {
       setLoading(false)
       setLoadingMore(false)
     }
@@ -112,8 +112,35 @@ export function SearchPageClient({ initialParams }: { initialParams: SearchParam
   const activeFilterCount = [filters.category, filters.location, filters.minPrice, filters.maxPrice, filters.condition].filter(Boolean).length
   const allLoaded = pagination.totalPages > 0 && parseInt(filters.page) >= pagination.totalPages
 
+  const activeCat = filters.category
+    ? categories.find((c) => c.slug === filters.category) ||
+      categories.flatMap((c) => c.children || []).find((c) => c.slug === filters.category)
+    : null
+  const activeCatParent = activeCat && !categories.find((c) => c.slug === filters.category)
+    ? categories.find((c) => c.children?.some((ch) => ch.slug === filters.category))
+    : null
+
   return (
     <div className="container mx-auto px-4 lg:px-8 py-6">
+      {/* Breadcrumb */}
+      <nav className="mb-4 text-sm text-slate-500">
+        <Link href="/" className="hover:text-royal">Home</Link>
+        <span className="mx-2">/</span>
+        {activeCatParent && (
+          <>
+            <Link href={`/category/${activeCatParent.slug}`} className="hover:text-royal">{activeCatParent.name}</Link>
+            <span className="mx-2">/</span>
+          </>
+        )}
+        {activeCat && (
+          <>
+            <Link href={`/category/${activeCat.slug}`} className="hover:text-royal">{activeCat.name}</Link>
+            <span className="mx-2">/</span>
+          </>
+        )}
+        <span className="text-slate-800 font-medium">Search</span>
+      </nav>
+
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-navy">
           {filters.q ? `Results for "${filters.q}"` : 'Browse All Listings'}

@@ -30,7 +30,7 @@ export default function AdminSeoPage() {
       const data = await res.json()
         setSettings((prev) => ({ ...prev, ...data }))
       }
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch SEO settings:', error) } finally { setLoading(false) }
   }
 
   const saveSettings = async () => {

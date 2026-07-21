@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         price: Number(price),
         currency: currency || 'KES',
         interval: interval || 'monthly',
-        features: features || '{}',
+        planFeatures: features ? { create: (Array.isArray(features) ? features : []).map((f: string) => ({ feature: f })) } : undefined,
         maxListings: maxListings ?? 5,
         maxImages: maxImages ?? 5,
         maxVideos: maxVideos ?? 0,

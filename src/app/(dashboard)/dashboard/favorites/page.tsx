@@ -32,7 +32,8 @@ interface SavedSeller {
 
 interface SavedSearch {
   id: string; query: string; category?: string; location?: string
-  minPrice?: number; maxPrice?: number; alertsEnabled: boolean; createdAt: string
+  minPrice?: number; maxPrice?: number; condition?: string; sort?: string
+  alertsEnabled: boolean; createdAt: string
 }
 
 interface PriceAlert {

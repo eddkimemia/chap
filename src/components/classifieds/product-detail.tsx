@@ -56,10 +56,9 @@ interface BreadcrumbItem {
 
 interface ProductDetailProps {
   listing: Listing & {
-    user: { id: string; name: string; avatar: string | null; isVerified: boolean; createdAt: string; role: string; bio: string | null }
+    user: { id: string; name: string; avatar: string | null; isVerified: boolean; createdAt: string; role: string; bio: string | null; username?: string }
     videos: { id: string; url: string; thumbnail: string; duration: number }[]
     documents: { id: string; url: string; name: string; type: string }[]
-    customFields?: string; tags?: string
   }
   sellerListings: MiniListing[]
   reviews: ReviewData[]
@@ -159,8 +158,8 @@ function ReportDialog({ listingId, listingTitle }: { listingId: string; listingT
       toast.success('Report submitted. Our team will review it within 24 hours.')
       setOpen(false)
       setReason('')
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setSubmitting(false)
     }
@@ -293,13 +292,8 @@ export function ProductDetailClient({
   const hasImages = images.length > 0
   const favorited = isFavorite(listing.id)
 
-  const customFields: Record<string, string> = (() => {
-    try { return JSON.parse(listing.customFields || '{}') } catch { return {} }
-  })()
-
-  const tags: string[] = (() => {
-    try { return JSON.parse(listing.tags || '[]') } catch { return [] }
-  })()
+  const customFields = (listing as any).customFields || []
+  const tags = ((listing as any).listingTags || []).map((lt: any) => lt.tag?.name).filter(Boolean) as string[]
 
   const displayedReviews = showAllReviews ? reviewList : reviewList.slice(0, 3)
   const avgRating = sellerStats?.avgRating ?? (reviewList.length > 0 ? reviewList.reduce((s, r) => s + r.rating, 0) / reviewList.length : 0)
@@ -342,7 +336,7 @@ export function ProductDetailClient({
 
   const handleShare = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: listing.title, text: `${listing.title} - ${formatPrice(listing.price)}`, url: window.location.href }) } catch {}
+      try { await navigator.share({ title: listing.title, text: `${listing.title} - ${formatPrice(listing.price)}`, url: window.location.href }) } catch (error) { console.error('Share failed:', error) }
     } else { handleCopyLink() }
   }
 
@@ -378,8 +372,8 @@ export function ProductDetailClient({
         const d = await res.json()
         throw new Error(d.error || 'Failed to send offer')
       }
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setSendingOffer(false)
     }
@@ -453,7 +447,7 @@ export function ProductDetailClient({
 
       <div className="container mx-auto px-4 lg:px-8 py-4 sm:py-6 max-w-7xl">
         {/* Pending approval banner */}
-        {(listing as any).status === 'pending' && isOwner && (
+        {(listing as unknown as { status: string }).status === 'pending' && isOwner && (
           <div className="mb-4 sm:mb-6 flex items-center gap-3 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200">
             <Clock className="h-5 w-5 text-amber-600 shrink-0" />
             <div>
@@ -1012,7 +1006,7 @@ export function ProductDetailClient({
               <div className="bg-white rounded-3xl p-5 shadow-premium border border-slate-100">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold text-navy text-sm">More from {listing.user.name.split(' ')[0]}</h3>
-                  <Link href={`/seller/${listing.user.username || listing.user.id}`} className="text-xs text-royal font-semibold hover:underline">View All</Link>
+                  <Link href={listing.user.role === 'business' ? `/shop/${listing.user.username || listing.user.id}` : `/seller/${listing.user.username || listing.user.id}`} className="text-xs text-royal font-semibold hover:underline">View All</Link>
                 </div>
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin">
                   {sellerListings.map((item) => (

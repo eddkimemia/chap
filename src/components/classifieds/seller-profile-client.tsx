@@ -9,11 +9,10 @@ import { Footer } from '@/components/classifieds/footer'
 import { MobileNav } from '@/components/classifieds/mobile-nav'
 import {
   MapPin,
-  Calendar,
   Star,
   ShieldCheck,
   MessageSquare,
-  UserPlus,
+  Phone,
   Package,
   Clock,
   ChevronLeft,
@@ -41,6 +40,7 @@ interface SellerData {
   id: string
   name: string
   username?: string
+  phone: string | null
   avatar: string | null
   bio: string | null
   role: string
@@ -78,8 +78,7 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
   const [listingsLoading, setListingsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'listings' | 'reviews'>('listings')
   const [featuredFilter, setFeaturedFilter] = useState(false)
-  const [isFollowing, setIsFollowing] = useState(false)
-  const { categories, currentUser } = useAppStore()
+  const { currentUser } = useAppStore()
 
   const fetchListings = () => {
     setListingsLoading(true)
@@ -205,30 +204,18 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                <div className="text-center p-3 rounded-xl bg-royal/5">
-                  <p className="text-lg font-bold text-navy">{seller._count.listings}</p>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider">Listings</p>
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="text-center p-4 rounded-xl bg-royal/5">
+                  <p className="text-xl font-bold text-navy">{seller._count.listings}</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mt-0.5">Listings</p>
                 </div>
-                <div className="text-center p-3 rounded-xl bg-emerald-50">
-                  <p className="text-lg font-bold text-navy">
+                <div className="text-center p-4 rounded-xl bg-emerald-50">
+                  <p className="text-xl font-bold text-navy">
                     {seller.sellerStats?.avgRating ? seller.sellerStats.avgRating.toFixed(1) : '—'}
                   </p>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider">Rating</p>
-                </div>
-                <div className="text-center p-3 rounded-xl bg-accent-purple/10">
-                  <p className="text-lg font-bold text-navy">{seller.sellerStats?.totalSales || 0}</p>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider">Sales</p>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider mt-0.5">Rating</p>
                 </div>
               </div>
-
-              {/* Bio */}
-              {seller.bio && (
-                <div className="mb-6">
-                  <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">About</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">{seller.bio}</p>
-                </div>
-              )}
 
               {/* Social Links */}
               {(seller.profile?.website || (seller.profile?.socialLinks && seller.profile.socialLinks !== '{}')) && (
@@ -272,17 +259,11 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
                             </a>
                           ) : null
                         )
-                      } catch { return null }
+                      } catch (error) { console.error('Failed to parse social links:', error); return null }
                     })()}
                   </div>
                 </div>
               )}
-
-              {/* Member Since */}
-              <div className="flex items-center gap-2 text-sm text-slate-500 mb-6">
-                <Calendar className="h-4 w-4" />
-                <span>Member since {new Date(seller.createdAt).toLocaleDateString('en-KE', { month: 'long', year: 'numeric' })}</span>
-              </div>
 
               {/* Action Buttons */}
               <div className="space-y-3">
@@ -312,32 +293,30 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
                   <MessageSquare className="h-4 w-4 mr-2" />
                   Message Seller
                 </Button>
-                <Button
-                  variant="outline"
-                  className={`w-full rounded-xl border-slate-200 hover:bg-slate-50 ${isFollowing ? 'border-royal/30 text-royal bg-royal/5' : ''}`}
-                  onClick={async () => {
-                    if (!currentUser) {
-                      toast.error('Please login to follow sellers')
-                      router.push('/login')
-                      return
-                    }
-                    setIsFollowing(!isFollowing)
-                    toast.success(isFollowing ? 'Unfollowed' : 'Following seller')
-                  }}
-                >
-                  <UserPlus className={`h-4 w-4 mr-2 ${isFollowing ? 'fill-royal' : ''}`} />
-                  {isFollowing ? 'Following' : 'Follow'}
-                </Button>
+                {seller.phone && (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-xl border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+                      onClick={() => {
+                        const phone = seller.phone!.replace(/[^0-9]/g, '')
+                        const text = `Hi, I found your profile on ChapKE and I'm interested in your listings.`
+                        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
+                      }}
+                    >
+                      <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+                      WhatsApp
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-xl border-slate-200"
+                      asChild
+                    >
+                      <a href={`tel:${seller.phone}`}><Phone className="h-4 w-4 mr-2" /> Call</a>
+                    </Button>
+                  </>
+                )}
               </div>
-
-              {/* Response Info */}
-              {seller.sellerStats?.responseTime && (
-                <div className="mt-4 p-3 rounded-xl bg-emerald-50 text-center">
-                  <p className="text-xs text-emerald-600 font-medium">
-                    Usually responds in {seller.sellerStats.responseTime}
-                  </p>
-                </div>
-              )}
             </div>
           </motion.div>
 

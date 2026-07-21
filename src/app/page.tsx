@@ -14,6 +14,7 @@ import { ListingGrid } from '@/components/classifieds/listing-grid'
 import { ListingDetail } from '@/components/classifieds/listing-detail'
 import { PostAdDialog } from '@/components/classifieds/post-ad-dialog'
 import { SearchFilters } from '@/components/classifieds/search-filters'
+import { CategoriesBar } from '@/components/classifieds/categories-bar'
 import { Footer } from '@/components/classifieds/footer'
 import { MobileNav } from '@/components/classifieds/mobile-nav'
 import { WhyChooseUs } from '@/components/classifieds/why-choose-us'
@@ -205,6 +206,7 @@ export default function Home() {
 
         {view === 'listings' && (
           <>
+            <CategoriesBar />
             <SearchFilters />
             <ListingGrid listings={filteredListings} title="Search Results" />
           </>

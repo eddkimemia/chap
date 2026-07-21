@@ -13,7 +13,7 @@ const categoryImage: Record<string, string> = {
   fashion: 'fashion.png',
   jobs: 'jobs.png',
   services: 'service.png',
-  agriculture: 'agriculture.png',
+  'agriculture-food': 'agriculture.png',
   'furniture-home': 'furniture.png',
   'health-beauty': 'health.png',
   'sports-outdoors': 'sports.png',
@@ -21,7 +21,7 @@ const categoryImage: Record<string, string> = {
   'books-media': 'books.png',
   'pets-animals': 'pets.png',
   'food-drinks': 'foods.png',
-  'hobbies-crafts': 'hobbies.png',
+  'hobbies-arts': 'hobbies.png',
   'travel-tourism': 'travel.png',
   'baby-kids': 'baby.png',
 }

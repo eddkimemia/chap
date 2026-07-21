@@ -108,7 +108,7 @@ export async function POST(
         type: 'message',
         title: 'New message',
         body: content.substring(0, 100),
-        data: JSON.stringify({ conversationId, senderId: user.id }),
+        conversationId, senderId: user.id,
       },
     })
 

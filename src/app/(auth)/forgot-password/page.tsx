@@ -41,8 +41,8 @@ export default function ForgotPasswordPage() {
       if (data.userId) setUserId(data.userId)
       toast.success('Reset code sent! Check your device.')
       setStep('verify')
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'An error occurred')
     } finally { setLoading(false) }
   }
 
@@ -69,8 +69,8 @@ export default function ForgotPasswordPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to reset password')
       toast.success('Password reset successfully!')
       router.push('/login')
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'An error occurred')
     } finally { setLoading(false) }
   }
 

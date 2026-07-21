@@ -10,7 +10,18 @@ import {
   Loader2,
   Tag,
   Sparkles,
+  Car, Building2, Monitor, Smartphone, Shirt, Briefcase, Wrench,
+  TreePine, Sofa, Heart, Dumbbell, ShoppingBag, BookOpen, Baby,
+  PawPrint, UtensilsCrossed, Palette, Plane,
 } from 'lucide-react'
+
+const iconMap: Record<string, React.ElementType> = {
+  car: Car, home: Building2, monitor: Monitor, smartphone: Smartphone,
+  shirt: Shirt, briefcase: Briefcase, wrench: Wrench, trees: TreePine,
+  sofa: Sofa, heart: Heart, dumbbell: Dumbbell, building: Building2,
+  book: BookOpen, baby: Baby, 'paw-print': PawPrint, utensils: UtensilsCrossed,
+  palette: Palette, plane: Plane,
+}
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -50,6 +61,8 @@ interface Location {
   id: string
   name: string
   slug: string
+  level?: number
+  parentId?: string | null
 }
 
 interface ImagePreview {
@@ -65,6 +78,7 @@ export default function SellPage() {
   const [locations, setLocations] = useState<Location[]>([])
   const [images, setImages] = useState<ImagePreview[]>([])
   const [dragOver, setDragOver] = useState(false)
+  const [maxImages, setMaxImages] = useState(10)
 
   const [form, setForm] = useState({
     title: '',
@@ -73,35 +87,50 @@ export default function SellPage() {
     categoryId: '',
     subcategoryId: '',
     locationId: '',
+    areaId: '',
     condition: 'Used',
     isNegotiable: false,
-    tags: [] as string[],
   })
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, locRes] = await Promise.all([
+        const [catRes, locRes, subRes] = await Promise.all([
           apiFetch('/api/categories'),
           apiFetch('/api/locations'),
+          apiFetch('/api/subscriptions'),
         ])
         if (catRes.ok) setCategories(await catRes.json())
         if (locRes.ok) setLocations(await locRes.json())
-      } catch {}
+        if (subRes.ok) {
+          const subs = await subRes.json()
+          const active = Array.isArray(subs) ? subs.find((s: { status: string }) => s.status === 'active') : null
+          const planMax = active?.plan?.maxImages
+          setMaxImages(planMax === -1 ? 999 : planMax || 10)
+        }
+      } catch (error) {
+        console.error('Failed to fetch sell page data:', error)
+      }
     }
     fetchData()
   }, [])
 
-  const updateForm = (field: string, value: any) => setForm((prev) => ({ ...prev, [field]: value }))
+  const updateForm = (field: string, value: string | number | boolean | string[]) => setForm((prev) => ({ ...prev, [field]: value }))
 
   const parentCategories = categories.filter((c) => !c.parentId)
   const selectedParent = parentCategories.find((c) => c.id === form.categoryId)
-  const subcategories = categories.filter((c) => c.parentId === form.categoryId)
+  const subcategories = selectedParent?.children || []
+
+  const counties = locations.filter((l) => l.level === 1)
+  const hasHierarchy = counties.length > 0
+  const flatLocations = !hasHierarchy ? locations : []
+  const selectedCounty = counties.find((c) => c.id === form.locationId)
+  const areas = selectedCounty ? locations.filter((l) => l.parentId === selectedCounty.id) : []
 
   const handleImageUpload = (files: FileList | null) => {
     if (!files) return
     const newImages: ImagePreview[] = []
-    Array.from(files).slice(0, 10 - images.length).forEach((file) => {
+    Array.from(files).slice(0, maxImages - images.length).forEach((file) => {
       if (file.type.startsWith('image/')) {
         newImages.push({ file, url: URL.createObjectURL(file) })
       }
@@ -136,9 +165,13 @@ export default function SellPage() {
       const uploaded = await Promise.all(images.map((img) => uploadImage(img.file)))
 
       const catSlugMap: Record<string, string> = {}
-      categories.forEach((c) => { catSlugMap[c.id] = c.slug })
+      categories.forEach((c) => {
+        catSlugMap[c.id] = c.slug
+        c.children?.forEach((ch) => { catSlugMap[ch.id] = ch.slug })
+      })
       const locSlugMap: Record<string, string> = {}
       locations.forEach((l) => { locSlugMap[l.id] = l.slug })
+      const selectedLocationId = form.areaId || form.locationId
 
       const res = await apiFetch('/api/listings', {
         method: 'POST',
@@ -148,7 +181,7 @@ export default function SellPage() {
           description: form.description,
           price: parseFloat(form.price || '0'),
           categorySlug: catSlugMap[form.subcategoryId || form.categoryId] || form.subcategoryId || form.categoryId,
-          locationSlug: locSlugMap[form.locationId] || form.locationId,
+          locationSlug: locSlugMap[selectedLocationId] || selectedLocationId,
           condition: form.condition,
           contactName: currentUser?.name || '',
           contactPhone: currentUser?.phone || '',
@@ -163,8 +196,8 @@ export default function SellPage() {
 
       toast.success('Listing submitted for review! It will be published once approved.')
       router.push('/dashboard/listings')
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
     }
@@ -252,23 +285,64 @@ export default function SellPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-navy font-medium text-sm">
-                  Location <span className="text-red-400">*</span>
-                </Label>
-                <Select value={form.locationId} onValueChange={(v) => updateForm('locationId', v)}>
-                  <SelectTrigger className="rounded-xl h-12 bg-white border-slate-200 focus:border-royal/40 focus:ring-royal/10">
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    {locations.map((loc) => (
-                      <SelectItem key={loc.id} value={loc.id}>
-                        {loc.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {hasHierarchy ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-navy font-medium text-sm">
+                      County <span className="text-red-400">*</span>
+                    </Label>
+                    <Select value={form.locationId} onValueChange={(v) => { updateForm('locationId', v); updateForm('areaId', '') }}>
+                      <SelectTrigger className="rounded-xl h-12 bg-white border-slate-200 focus:border-royal/40 focus:ring-royal/10">
+                        <SelectValue placeholder="Select county" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        {counties.map((loc) => (
+                          <SelectItem key={loc.id} value={loc.id}>
+                            {loc.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-navy font-medium text-sm">Area / Town (optional)</Label>
+                    <Select
+                      value={form.areaId}
+                      onValueChange={(v) => updateForm('areaId', v)}
+                      disabled={!form.locationId || areas.length === 0}
+                    >
+                      <SelectTrigger className="rounded-xl h-12 bg-white border-slate-200 focus:border-royal/40 focus:ring-royal/10">
+                        <SelectValue placeholder={form.locationId ? 'Select area' : 'Pick county first'} />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-xl">
+                        {areas.map((loc) => (
+                          <SelectItem key={loc.id} value={loc.id}>
+                            {loc.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label className="text-navy font-medium text-sm">
+                    Location <span className="text-red-400">*</span>
+                  </Label>
+                  <Select value={form.locationId} onValueChange={(v) => updateForm('locationId', v)}>
+                    <SelectTrigger className="rounded-xl h-12 bg-white border-slate-200 focus:border-royal/40 focus:ring-royal/10">
+                      <SelectValue placeholder="Select location" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      {flatLocations.map((loc) => (
+                        <SelectItem key={loc.id} value={loc.id}>
+                          {loc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <label className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100/70 transition-colors cursor-pointer border border-slate-100">
                 <Checkbox
@@ -301,7 +375,7 @@ export default function SellPage() {
                     {parentCategories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id}>
                         <span className="flex items-center gap-2">
-                          <span className="text-lg">{cat.icon || '📦'}</span>
+                          {(() => { const Icon = iconMap[cat.icon] || ShoppingBag; return <Icon className="h-5 w-5" />; })()}
                           <span>{cat.name}</span>
                           {cat._count && (
                             <span className="text-[10px] text-slate-400 ml-auto">({cat._count.listings})</span>

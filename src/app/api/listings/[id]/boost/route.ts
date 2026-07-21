@@ -13,10 +13,28 @@ export async function POST(
     const type = body.type || 'boost'
     const durationDays = body.durationDays || 7
     const amount = body.amount || 0
+    const paymentId = body.paymentId || null
 
     const listing = await db.listing.findUnique({ where: { id } })
     if (!listing) return NextResponse.json({ error: 'Listing not found' }, { status: 404 })
     if (listing.userId !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    if (amount > 0) {
+      if (!paymentId) {
+        return NextResponse.json({ error: 'paymentId is required when amount > 0' }, { status: 400 })
+      }
+
+      const payment = await db.payment.findUnique({ where: { id: paymentId } })
+      if (!payment) {
+        return NextResponse.json({ error: 'Payment not found' }, { status: 404 })
+      }
+      if (payment.userId !== user.id) {
+        return NextResponse.json({ error: 'Payment does not belong to this user' }, { status: 403 })
+      }
+      if (payment.status !== 'completed') {
+        return NextResponse.json({ error: 'Payment is not completed' }, { status: 400 })
+      }
+    }
 
     const now = new Date()
     const endDate = new Date(now.getTime() + durationDays * 86400000)
@@ -34,21 +52,6 @@ export async function POST(
     await db.boost.create({
       data: { listingId: id, userId: user.id, type, amount, startDate: now, endDate, status: 'active' },
     })
-
-    if (amount > 0) {
-      await db.payment.create({
-        data: {
-          userId: user.id,
-          amount,
-          type: type === 'featured' ? 'featured' : type === 'promote' ? 'promotion' : 'boost',
-          provider: 'internal',
-          reference: `BOOST-${id}-${Date.now().toString(36)}`,
-          status: 'completed',
-          metadata: JSON.stringify({ listingId: id, type, durationDays, endDate }),
-          description: `${type} listing: ${listing.title}`,
-        },
-      })
-    }
 
     return NextResponse.json({ success: true, endDate })
   } catch (error) {

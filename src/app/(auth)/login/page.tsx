@@ -37,7 +37,7 @@ export default function LoginPage() {
           router.replace('/dashboard')
         }
       })
-      .catch(() => {})
+      .catch(() => { /* not authenticated — expected */ })
   }, [router, setCurrentUser, clearLegacyAuthStorage])
 
   const [identifier, setIdentifier] = useState('')

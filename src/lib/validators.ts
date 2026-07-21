@@ -44,7 +44,6 @@ export const listingSchema = z.object({
     .string()
     .regex(/^(\+?[1-9]\d{6,14}|0\d{9})$/, 'Invalid phone number'),
   contactEmail: z.string().email('Invalid email').optional().or(z.literal('')),
-  tags: z.array(z.string()).optional(),
   images: z
     .array(
       z.object({

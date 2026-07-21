@@ -44,7 +44,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         },
       })
 
-      if (status === 'active' || status === 'suspended') {
+      if ((status === 'active' || status === 'suspended') && listing.user.email) {
         await db.notification.create({
           data: {
             userId: listing.userId,
@@ -53,7 +53,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             body: status === 'active'
               ? `Your listing "${listing.title}" has been approved and is now live.`
               : `Your listing "${listing.title}" has been suspended.`,
-            data: JSON.stringify({ listingId: id, slug: listing.slug }),
+            listingId: id,
           },
         })
 

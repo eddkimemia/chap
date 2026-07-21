@@ -8,7 +8,14 @@ export async function GET(request: NextRequest) {
     const banners = await db.banner.findMany({ orderBy: { order: 'asc' } })
     return NextResponse.json(banners)
   } catch (error) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (error instanceof Error && error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+    console.error('Banners error:', error)
+    return NextResponse.json({ error: 'Failed to fetch banners' }, { status: 500 })
   }
 }
 

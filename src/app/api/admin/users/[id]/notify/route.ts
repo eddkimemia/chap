@@ -23,7 +23,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         type: 'system',
         title,
         body,
-        data: JSON.stringify({ sentBy: admin.id }),
+        senderId: admin.id,
       },
     })
 

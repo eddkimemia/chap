@@ -30,7 +30,7 @@ export default function AdminAnalyticsPage() {
       try {
       const res = await apiFetch('/api/admin/analytics')
         if (res.ok) setData(await res.json())
-      } catch {} finally { setLoading(false) }
+      } catch (error) { console.error('Failed to fetch analytics:', error) } finally { setLoading(false) }
     }
     fetchData()
   }, [])

@@ -106,6 +106,13 @@ export function generateOTP(): string {
   return String(otp % 1000000).padStart(6, '0')
 }
 
+export async function hashOtp(code: string): Promise<string> {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(code)
+  const hash = await crypto.subtle.digest('SHA-256', data)
+  return toBase64(hash)
+}
+
 export async function createSession(
   userId: string,
   ip?: string,

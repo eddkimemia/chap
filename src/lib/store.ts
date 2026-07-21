@@ -31,11 +31,8 @@ export interface Listing {
   views: number;
   createdAt: string;
   updatedAt: string;
-  customFields?: string;
-  tags?: string;
   displayId?: string;
-  user?: { id: string; name: string; avatar: string; isVerified: boolean; phone?: string | null; username?: string };
-  status?: string;
+  user?: { id: string; name: string; avatar: string; isVerified: boolean; phone?: string | null; username?: string; role?: string };
   isUrgent?: boolean;
 }
 
@@ -53,6 +50,8 @@ export interface Location {
   id: string;
   name: string;
   slug: string;
+  level?: number;
+  parentId?: string | null;
 }
 
 export interface User {

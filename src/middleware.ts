@@ -56,6 +56,7 @@ function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/category/')) return true
   if (pathname === '/location' || pathname.startsWith('/location/')) return true
   if (pathname.startsWith('/search')) return true
+  if (pathname === '/shop' || pathname.startsWith('/shop/')) return true
   if (pathname.startsWith('/blog/')) return true
   if (pathname.startsWith('/api/listings/')) return true
   if (pathname.startsWith('/api/categories/')) return true
@@ -64,6 +65,7 @@ function isPublicPath(pathname: string): boolean {
   if (pathname.startsWith('/api/faqs/')) return true
   if (pathname.startsWith('/api/reviews/')) return true
   if (pathname.startsWith('/api/plans/')) return true
+  if (pathname.startsWith('/api/shop/')) return true
   return false
 }
 

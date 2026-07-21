@@ -8,7 +8,14 @@ export async function GET(request: NextRequest) {
     const pages = await db.cmsPage.findMany({ orderBy: { createdAt: 'desc' } })
     return NextResponse.json(pages)
   } catch (error) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (error instanceof Error && error.message === 'Unauthorized') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    if (error instanceof Error && error.message === 'Forbidden') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+    console.error('CMS error:', error)
+    return NextResponse.json({ error: 'Failed to fetch CMS pages' }, { status: 500 })
   }
 }
 

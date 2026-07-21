@@ -21,7 +21,7 @@ const categoryColors: Record<string, { bg: string; border: string; text: string;
   fashion: { bg: 'bg-pink-100', border: 'border-l-pink-500', text: 'text-pink-700', placeholderBg: 'bg-pink-50', placeholderText: 'text-pink-300' },
   jobs: { bg: 'bg-indigo-100', border: 'border-l-indigo-500', text: 'text-indigo-700', placeholderBg: 'bg-indigo-50', placeholderText: 'text-indigo-300' },
   services: { bg: 'bg-teal-100', border: 'border-l-teal-500', text: 'text-teal-700', placeholderBg: 'bg-teal-50', placeholderText: 'text-teal-300' },
-  agriculture: { bg: 'bg-lime-100', border: 'border-l-lime-500', text: 'text-lime-700', placeholderBg: 'bg-lime-50', placeholderText: 'text-lime-300' },
+  'agriculture-food': { bg: 'bg-lime-100', border: 'border-l-lime-500', text: 'text-lime-700', placeholderBg: 'bg-lime-50', placeholderText: 'text-lime-300' },
   'furniture-home': { bg: 'bg-red-100', border: 'border-l-red-500', text: 'text-red-700', placeholderBg: 'bg-red-50', placeholderText: 'text-red-300' },
   'health-beauty': { bg: 'bg-rose-100', border: 'border-l-rose-500', text: 'text-rose-700', placeholderBg: 'bg-rose-50', placeholderText: 'text-rose-300' },
   'sports-outdoors': { bg: 'bg-cyan-100', border: 'border-l-cyan-500', text: 'text-cyan-700', placeholderBg: 'bg-cyan-50', placeholderText: 'text-cyan-300' },
@@ -30,7 +30,7 @@ const categoryColors: Record<string, { bg: string; border: string; text: string;
   'baby-kids': { bg: 'bg-yellow-100', border: 'border-l-yellow-500', text: 'text-yellow-700', placeholderBg: 'bg-yellow-50', placeholderText: 'text-yellow-300' },
   'pets-animals': { bg: 'bg-stone-100', border: 'border-l-stone-500', text: 'text-stone-700', placeholderBg: 'bg-stone-50', placeholderText: 'text-stone-300' },
   'food-drinks': { bg: 'bg-red-100', border: 'border-l-red-500', text: 'text-red-700', placeholderBg: 'bg-red-50', placeholderText: 'text-red-300' },
-  'hobbies-crafts': { bg: 'bg-fuchsia-100', border: 'border-l-fuchsia-500', text: 'text-fuchsia-700', placeholderBg: 'bg-fuchsia-50', placeholderText: 'text-fuchsia-300' },
+  'hobbies-arts': { bg: 'bg-fuchsia-100', border: 'border-l-fuchsia-500', text: 'text-fuchsia-700', placeholderBg: 'bg-fuchsia-50', placeholderText: 'text-fuchsia-300' },
   'travel-tourism': { bg: 'bg-blue-100', border: 'border-l-blue-500', text: 'text-blue-700', placeholderBg: 'bg-blue-50', placeholderText: 'text-blue-300' },
 }
 
@@ -222,18 +222,26 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
             {listing.title}
           </h3>
 
-          {/* Verified seller badge */}
-          {listing.user?.isVerified && (
-            <div className="flex items-center gap-1 mt-1.5">
-              <div className="flex items-center gap-0.5 text-[10px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+          {/* Seller info */}
+          <div className="flex items-center gap-1 mt-1.5 flex-wrap">
+            {listing.user?.isVerified && (
+              <span className="flex items-center gap-0.5 text-[10px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
                 <Star className="h-2.5 w-2.5 fill-current" />
-                Verified Seller
-              </div>
-              {listing.user?.name && (
-                <span className="text-[10px] text-slate-400 truncate">{listing.user.name.split(' ')[0]}</span>
-              )}
-            </div>
-          )}
+                Verified
+              </span>
+            )}
+            {listing.user?.username ? (
+              <Link
+                href={listing.user.role === 'business' ? `/shop/${listing.user.username}` : `/seller/${listing.user.username}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-[10px] text-royal hover:text-royal/70 truncate font-medium"
+              >
+                {listing.user.role === 'business' ? 'View Shop' : 'View Seller'}
+              </Link>
+            ) : listing.user?.name ? (
+              <span className="text-[10px] text-slate-400 truncate">{listing.user.name.split(' ')[0]}</span>
+            ) : null}
+          </div>
 
           <div className="flex items-center gap-3 mt-2 text-xs text-slate-400">
             <span className="flex items-center gap-1 truncate">

@@ -35,7 +35,7 @@ export default function AdminCmsPage() {
     try {
       const res = await apiFetch('/api/admin/cms')
       if (res.ok) setPages(await res.json())
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch CMS pages:', error) } finally { setLoading(false) }
   }
 
   const savePage = async () => {

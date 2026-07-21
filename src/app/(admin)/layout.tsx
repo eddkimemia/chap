@@ -41,6 +41,7 @@ const adminNav = [
   { href: '/admin/advertisements', label: 'Adverts', icon: Megaphone },
   { href: '/admin/blog', label: 'Blog', icon: PenTool },
   { href: '/admin/verifications', label: 'Verifications', icon: ShieldCheck },
+  { href: '/admin/business-verifications', label: 'Business Verifications', icon: ShieldCheck },
 ]
 
 function AdminSidebar({ user, onLogout }: { user: User | null; onLogout: () => void }) {

@@ -33,6 +33,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         data: { isVerified: true },
       })
 
+      if (!request_.user.email) {
+        return NextResponse.json({ error: 'User has no email address' }, { status: 400 })
+      }
+
       await sendEmail({
         to: request_.user.email,
         subject: 'Identity Verification Approved – ChapKE',
@@ -52,6 +56,9 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         `,
       })
     } else if (status === 'rejected') {
+      if (!request_.user.email) {
+        return NextResponse.json({ error: 'User has no email address' }, { status: 400 })
+      }
       await sendEmail({
         to: request_.user.email,
         subject: 'Identity Verification Update – ChapKE',

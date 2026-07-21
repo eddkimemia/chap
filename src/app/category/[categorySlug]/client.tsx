@@ -25,7 +25,7 @@ interface ListingItem {
   id: string; slug: string; title: string; description: string; price: number
   currency: string; condition: string; categoryId: string; locationId: string
   isFeatured: boolean; isPromoted?: boolean; isNegotiable: boolean; views: number
-  status?: string; createdAt: string; updatedAt: string; customFields?: string; tags?: string
+  status?: string; createdAt: string; updatedAt: string
   category: { id: string; name: string; slug: string; parentId: string | null }
   location: { id: string; name: string; slug: string }
   images: { id: string; url: string; alt: string; order: number }[]
@@ -83,7 +83,8 @@ export function CategoryBrowseClient({
         setAccumulated(data.listings || [])
       }
       setPagination(data.pagination || { page: 1, total: 0, totalPages: 0 })
-    } catch {
+    } catch (error) {
+      console.error('Failed to fetch listings:', error)
       if (!append) setAccumulated([])
     } finally {
       setLoading(false)
@@ -113,7 +114,7 @@ export function CategoryBrowseClient({
           const data = await res.json()
           setFeaturedListings(data.listings || [])
         }
-      } catch {} finally {
+      } catch (error) { console.error('Failed to fetch featured listings:', error) } finally {
         setFeaturedLoading(false)
       }
     }

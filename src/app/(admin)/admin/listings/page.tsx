@@ -72,7 +72,7 @@ export default function AdminListingsPage() {
   const [listings, setListings] = useState<AdminListing[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('pending')
+  const [statusFilter, setStatusFilter] = useState('all')
   const [userName, setUserName] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -86,7 +86,7 @@ export default function AdminListingsPage() {
     apiFetch('/api/admin/listings?status=pending&limit=1')
       .then(r => r.ok ? r.json() : null)
       .then(d => { if (d) setPendingCount(d.pagination?.total || 0) })
-      .catch(() => {})
+      .catch((error) => console.error('Failed to fetch pending count:', error))
   }, [])
 
   const fetchListings = async () => {
@@ -106,8 +106,8 @@ export default function AdminListingsPage() {
       apiFetch('/api/admin/listings?status=pending&limit=1')
         .then(r => r.ok ? r.json() : null)
         .then(d => { if (d) setPendingCount(d.pagination?.total || 0) })
-        .catch(() => {})
-    } catch {} finally {
+        .catch((error) => console.error('Failed to fetch pending count:', error))
+    } catch (error) { console.error('Failed to fetch listings:', error) } finally {
       setLoading(false)
     }
   }

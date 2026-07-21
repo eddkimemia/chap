@@ -4,6 +4,7 @@ import {
   hashPassword,
   destroyAllUserSessions,
   clearSessionCookie,
+  hashOtp,
 } from '@/lib/auth'
 import { resetPasswordSchema } from '@/lib/validators'
 import { rateLimit } from '@/lib/rate-limit'
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
     const { token, password, userId } = parsed.data
 
     const whereClause: Record<string, unknown> = {
-      code: token,
+      code: await hashOtp(token),
       type: 'reset_password',
       used: false,
       expiresAt: { gt: new Date() },

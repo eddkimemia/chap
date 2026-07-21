@@ -21,9 +21,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'You can only reply to reviews about you' }, { status: 403 })
     }
 
+    const updated = await db.review.update({
+      where: { id },
+      data: { reply: body.content, replyAt: new Date() },
+    })
+
     return NextResponse.json({
       success: true,
-      reply: { content: body.content, createdAt: new Date().toISOString() },
+      reply: { content: updated.reply, createdAt: updated.replyAt?.toISOString() },
     })
   } catch (error) {
     if ((error as any).message?.includes('Unauthorized')) {

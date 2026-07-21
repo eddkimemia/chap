@@ -8,166 +8,730 @@ const categories = [
   { name: 'Fashion', slug: 'fashion', icon: 'shirt', order: 5 },
   { name: 'Jobs', slug: 'jobs', icon: 'briefcase', order: 6 },
   { name: 'Services', slug: 'services', icon: 'wrench', order: 7 },
-  { name: 'Agriculture', slug: 'agriculture', icon: 'trees', order: 8 },
+  { name: 'Agriculture & Food', slug: 'agriculture-food', icon: 'trees', order: 8 },
   { name: 'Furniture & Home', slug: 'furniture-home', icon: 'sofa', order: 9 },
   { name: 'Health & Beauty', slug: 'health-beauty', icon: 'heart', order: 10 },
   { name: 'Sports & Outdoors', slug: 'sports-outdoors', icon: 'dumbbell', order: 11 },
   { name: 'Business & Industrial', slug: 'business-industrial', icon: 'building', order: 12 },
-  { name: 'Books & Media', slug: 'books-media', icon: 'book', order: 13 },
+  { name: 'Books, Media & Entertainment', slug: 'books-media', icon: 'book', order: 13 },
   { name: 'Baby & Kids', slug: 'baby-kids', icon: 'baby', order: 14 },
   { name: 'Pets & Animals', slug: 'pets-animals', icon: 'paw-print', order: 15 },
   { name: 'Food & Drinks', slug: 'food-drinks', icon: 'utensils', order: 16 },
-  { name: 'Hobbies & Crafts', slug: 'hobbies-crafts', icon: 'palette', order: 17 },
+  { name: 'Hobbies, Sports & Arts', slug: 'hobbies-arts', icon: 'palette', order: 17 },
   { name: 'Travel & Tourism', slug: 'travel-tourism', icon: 'plane', order: 18 },
 ];
 
 const vehicleSubs = [
   { name: 'Cars', slug: 'cars', parentId: 'vehicles' },
-  { name: 'Motorcycles', slug: 'motorcycles', parentId: 'vehicles' },
-  { name: 'Trucks', slug: 'trucks', parentId: 'vehicles' },
+  { name: 'Station Wagons', slug: 'station-wagons', parentId: 'vehicles' },
+  { name: 'SUVs & Crossovers', slug: 'suvs-crossovers', parentId: 'vehicles' },
+  { name: 'Pickup Trucks', slug: 'pickup-trucks', parentId: 'vehicles' },
+  { name: 'Motorcycles & Scooters', slug: 'motorcycles', parentId: 'vehicles' },
+  { name: 'Trucks & Trailers', slug: 'trucks', parentId: 'vehicles' },
   { name: 'Buses & Matatus', slug: 'buses-matatus', parentId: 'vehicles' },
-  { name: 'Vehicle Parts', slug: 'vehicle-parts', parentId: 'vehicles' },
+  { name: 'Heavy Equipment', slug: 'heavy-equipment', parentId: 'vehicles' },
+  { name: 'Boats & Watercraft', slug: 'boats-watercraft', parentId: 'vehicles' },
+  { name: 'Vehicle Parts & Accessories', slug: 'vehicle-parts', parentId: 'vehicles' },
+  { name: 'Car Audio & Electronics', slug: 'car-audio', parentId: 'vehicles' },
+  { name: 'Car Care & Detailing', slug: 'car-care', parentId: 'vehicles' },
+  { name: 'Auto Services & Repairs', slug: 'auto-services', parentId: 'vehicles' },
+  { name: 'Number Plates & Documents', slug: 'number-plates', parentId: 'vehicles' },
 ];
 
 const propertySubs = [
-  { name: 'Houses & Apartments', slug: 'houses-apartments', parentId: 'property' },
+  { name: 'Houses for Rent', slug: 'houses-rent', parentId: 'property' },
+  { name: 'Apartments for Rent', slug: 'apartments-rent', parentId: 'property' },
+  { name: 'Houses for Sale', slug: 'houses-sale', parentId: 'property' },
+  { name: 'Apartments for Sale', slug: 'apartments-sale', parentId: 'property' },
   { name: 'Land & Plots', slug: 'land-plots', parentId: 'property' },
   { name: 'Commercial Property', slug: 'commercial-property', parentId: 'property' },
   { name: 'Office Space', slug: 'office-space', parentId: 'property' },
+  { name: 'Short-Term Rentals', slug: 'short-term-rentals', parentId: 'property' },
+  { name: 'Warehouses & Storage', slug: 'warehouses-storage', parentId: 'property' },
+  { name: 'Parking Spaces', slug: 'parking-spaces', parentId: 'property' },
+  { name: 'Farm Land', slug: 'farm-land', parentId: 'property' },
+  { name: 'Townhouses', slug: 'townhouses', parentId: 'property' },
 ];
 
 const electronicsSubs = [
   { name: 'Laptops', slug: 'laptops', parentId: 'electronics' },
+  { name: 'Desktop Computers', slug: 'desktop-computers', parentId: 'electronics' },
+  { name: 'Computer Accessories', slug: 'computer-accessories', parentId: 'electronics' },
   { name: 'TVs & Video', slug: 'tvs-video', parentId: 'electronics' },
-  { name: 'Cameras', slug: 'cameras', parentId: 'electronics' },
+  { name: 'Cameras & Photography', slug: 'cameras', parentId: 'electronics' },
   { name: 'Audio & Speakers', slug: 'audio-speakers', parentId: 'electronics' },
-  { name: 'Gaming', slug: 'gaming', parentId: 'electronics' },
+  { name: 'Gaming Consoles & Gear', slug: 'gaming', parentId: 'electronics' },
+  { name: 'Smart Home Devices', slug: 'smart-home', parentId: 'electronics' },
+  { name: 'Networking & Routers', slug: 'networking', parentId: 'electronics' },
+  { name: 'Wearable Technology', slug: 'wearables', parentId: 'electronics' },
+  { name: 'Drones & Accessories', slug: 'drones', parentId: 'electronics' },
+  { name: 'Printers & Scanners', slug: 'printers-scanners', parentId: 'electronics' },
+  { name: 'Monitors & Screens', slug: 'monitors', parentId: 'electronics' },
+  { name: 'Projectors', slug: 'projectors', parentId: 'electronics' },
 ];
 
 const phoneSubs = [
   { name: 'Smartphones', slug: 'smartphones', parentId: 'phones-tablets' },
+  { name: 'Feature Phones', slug: 'feature-phones', parentId: 'phones-tablets' },
   { name: 'Tablets', slug: 'tablets', parentId: 'phones-tablets' },
-  { name: 'Phone Accessories', slug: 'phone-accessories', parentId: 'phones-tablets' },
+  { name: 'Phone Cases & Covers', slug: 'phone-cases', parentId: 'phones-tablets' },
+  { name: 'Screen Protectors', slug: 'screen-protectors', parentId: 'phones-tablets' },
+  { name: 'Chargers & Cables', slug: 'chargers-cables', parentId: 'phones-tablets' },
+  { name: 'Power Banks', slug: 'power-banks', parentId: 'phones-tablets' },
+  { name: 'Headphones & Earphones', slug: 'headphones', parentId: 'phones-tablets' },
+  { name: 'Phone Parts & Repairs', slug: 'phone-parts', parentId: 'phones-tablets' },
+  { name: 'Smartwatches', slug: 'smartwatches', parentId: 'phones-tablets' },
+  { name: 'SIM Cards & Airtime', slug: 'sim-cards', parentId: 'phones-tablets' },
 ];
 
 const fashionSubs = [
-  { name: 'Men\'s Clothing', slug: 'mens-clothing', parentId: 'fashion' },
-  { name: 'Women\'s Clothing', slug: 'womens-clothing', parentId: 'fashion' },
-  { name: 'Shoes', slug: 'shoes', parentId: 'fashion' },
+  { name: "Men's Clothing", slug: 'mens-clothing', parentId: 'fashion' },
+  { name: "Women's Clothing", slug: 'womens-clothing', parentId: 'fashion' },
+  { name: "Men's Shoes", slug: 'mens-shoes', parentId: 'fashion' },
+  { name: "Women's Shoes", slug: 'womens-shoes', parentId: 'fashion' },
+  { name: "Children's Clothing", slug: 'kids-clothing', parentId: 'fashion' },
+  { name: 'Traditional Wear', slug: 'traditional-wear', parentId: 'fashion' },
+  { name: 'Kitenge & African Fabric', slug: 'kitenge-fabric', parentId: 'fashion' },
   { name: 'Watches', slug: 'watches', parentId: 'fashion' },
-  { name: 'Bags & Accessories', slug: 'bags-accessories', parentId: 'fashion' },
+  { name: 'Jewelry & Accessories', slug: 'jewelry', parentId: 'fashion' },
+  { name: 'Bags & Luggage', slug: 'bags-accessories', parentId: 'fashion' },
+  { name: 'Sunglasses & Eyewear', slug: 'sunglasses', parentId: 'fashion' },
+  { name: 'Hats & Caps', slug: 'hats-caps', parentId: 'fashion' },
+  { name: 'Belts & Wallets', slug: 'belts-wallets', parentId: 'fashion' },
+  { name: 'Second-hand (Mitumba)', slug: 'mitumba', parentId: 'fashion' },
+  { name: 'Wedding & Bridal', slug: 'wedding-bridal', parentId: 'fashion' },
+  { name: 'Uniforms & Workwear', slug: 'uniforms-workwear', parentId: 'fashion' },
 ];
 
 const jobsSubs = [
   { name: 'Full Time', slug: 'full-time', parentId: 'jobs' },
   { name: 'Part Time', slug: 'part-time', parentId: 'jobs' },
-  { name: 'Internship', slug: 'internship', parentId: 'jobs' },
-  { name: 'Freelance', slug: 'freelance', parentId: 'jobs' },
+  { name: 'Contract', slug: 'contract', parentId: 'jobs' },
+  { name: 'Internship & Attachment', slug: 'internship', parentId: 'jobs' },
+  { name: 'Freelance & Remote', slug: 'freelance', parentId: 'jobs' },
+  { name: 'Volunteer', slug: 'volunteer', parentId: 'jobs' },
+  { name: 'Graduate Trainee', slug: 'graduate-trainee', parentId: 'jobs' },
+  { name: 'Accounting & Finance', slug: 'jobs-accounting', parentId: 'jobs' },
+  { name: 'Administration & Office', slug: 'jobs-admin', parentId: 'jobs' },
+  { name: 'Agriculture & Farming', slug: 'jobs-agriculture', parentId: 'jobs' },
+  { name: 'Banking & Insurance', slug: 'jobs-banking', parentId: 'jobs' },
+  { name: 'Construction & Trades', slug: 'jobs-construction', parentId: 'jobs' },
+  { name: 'Education & Teaching', slug: 'jobs-education', parentId: 'jobs' },
+  { name: 'Healthcare & Medical', slug: 'jobs-healthcare', parentId: 'jobs' },
+  { name: 'Hospitality & Tourism', slug: 'jobs-hospitality', parentId: 'jobs' },
+  { name: 'IT & Software', slug: 'jobs-it', parentId: 'jobs' },
+  { name: 'Manufacturing', slug: 'jobs-manufacturing', parentId: 'jobs' },
+  { name: 'Marketing & Sales', slug: 'jobs-marketing', parentId: 'jobs' },
+  { name: 'Security & Guarding', slug: 'jobs-security', parentId: 'jobs' },
+  { name: 'Transport & Logistics', slug: 'jobs-transport', parentId: 'jobs' },
 ];
 
 const servicesSubs = [
-  { name: 'Home Services', slug: 'home-services', parentId: 'services' },
-  { name: 'Professional Services', slug: 'professional-services', parentId: 'services' },
-  { name: 'Events & Photography', slug: 'events-photography', parentId: 'services' },
+  { name: 'Home Cleaning', slug: 'home-cleaning', parentId: 'services' },
+  { name: 'Plumbing Services', slug: 'plumbing', parentId: 'services' },
+  { name: 'Electrical Services', slug: 'electrical', parentId: 'services' },
+  { name: 'Painting & Decorating', slug: 'painting-decorating', parentId: 'services' },
+  { name: 'Moving & Relocation', slug: 'moving-relocation', parentId: 'services' },
+  { name: 'Carpentry & Furniture', slug: 'carpentry', parentId: 'services' },
+  { name: 'IT & Web Development', slug: 'it-web', parentId: 'services' },
+  { name: 'Graphic Design & Media', slug: 'graphic-design', parentId: 'services' },
+  { name: 'Photography & Videography', slug: 'photography', parentId: 'services' },
+  { name: 'Events Planning & Catering', slug: 'events-catering', parentId: 'services' },
+  { name: 'Beauty & Salon Services', slug: 'beauty-salon', parentId: 'services' },
+  { name: 'Barber & Grooming', slug: 'barber-grooming', parentId: 'services' },
+  { name: 'Massage & Spa', slug: 'massage-spa', parentId: 'services' },
   { name: 'Tutoring & Lessons', slug: 'tutoring-lessons', parentId: 'services' },
+  { name: 'Legal Services', slug: 'legal-services', parentId: 'services' },
+  { name: 'Accounting & Tax', slug: 'accounting-tax', parentId: 'services' },
+  { name: 'Real Estate Agents', slug: 'real-estate-agents', parentId: 'services' },
+  { name: 'Delivery & Courier', slug: 'delivery-courier', parentId: 'services' },
+  { name: 'Mobile Money Services', slug: 'mobile-money', parentId: 'services' },
+  { name: 'Car Wash & Detailing', slug: 'car-wash', parentId: 'services' },
+  { name: 'Fitness Training', slug: 'fitness-training', parentId: 'services' },
+  { name: 'Security Services', slug: 'security-services', parentId: 'services' },
+  { name: 'Printing & Publishing', slug: 'printing-publishing', parentId: 'services' },
+  { name: 'Tailoring & Alterations', slug: 'tailoring', parentId: 'services' },
 ];
 
 const agricultureSubs = [
-  { name: 'Farm Machinery', slug: 'farm-machinery', parentId: 'agriculture' },
-  { name: 'Livestock', slug: 'livestock', parentId: 'agriculture' },
-  { name: 'Seeds & Fertilizers', slug: 'seeds-fertilizers', parentId: 'agriculture' },
-  { name: 'Fresh Produce', slug: 'fresh-produce', parentId: 'agriculture' },
+  { name: 'Farm Machinery & Tools', slug: 'farm-machinery', parentId: 'agriculture-food' },
+  { name: 'Tractors & Harvesters', slug: 'tractors', parentId: 'agriculture-food' },
+  { name: 'Cattle & Livestock', slug: 'livestock', parentId: 'agriculture-food' },
+  { name: 'Poultry & Chicken', slug: 'poultry', parentId: 'agriculture-food' },
+  { name: 'Goats & Sheep', slug: 'goats-sheep', parentId: 'agriculture-food' },
+  { name: 'Pigs & Piglets', slug: 'pigs', parentId: 'agriculture-food' },
+  { name: 'Fish & Aquaculture', slug: 'fish-aquaculture', parentId: 'agriculture-food' },
+  { name: 'Seeds & Seedlings', slug: 'seeds-seedlings', parentId: 'agriculture-food' },
+  { name: 'Fertilizers & Soil inputs', slug: 'fertilizers', parentId: 'agriculture-food' },
+  { name: 'Animal Feeds & Supplements', slug: 'animal-feeds', parentId: 'agriculture-food' },
+  { name: 'Fresh Produce', slug: 'fresh-produce', parentId: 'agriculture-food' },
+  { name: 'Greenhouse & Irrigation', slug: 'greenhouse-irrigation', parentId: 'agriculture-food' },
+  { name: 'Bee Keeping', slug: 'bee-keeping', parentId: 'agriculture-food' },
+  { name: 'Farm Land & Ranches', slug: 'farm-land-agri', parentId: 'agriculture-food' },
+  { name: 'Agrochemicals', slug: 'agrochemicals', parentId: 'agriculture-food' },
 ];
 
 const furnitureSubs = [
-  { name: 'Living Room', slug: 'living-room', parentId: 'furniture-home' },
-  { name: 'Bedroom', slug: 'bedroom', parentId: 'furniture-home' },
+  { name: 'Living Room Sets', slug: 'living-room-sets', parentId: 'furniture-home' },
+  { name: 'Sofas & Couches', slug: 'sofas-couches', parentId: 'furniture-home' },
+  { name: 'Tables & Coffee Tables', slug: 'tables', parentId: 'furniture-home' },
+  { name: 'Chairs & Seating', slug: 'chairs-seating', parentId: 'furniture-home' },
+  { name: 'Bedroom Furniture', slug: 'bedroom', parentId: 'furniture-home' },
+  { name: 'Beds & Mattresses', slug: 'beds-mattresses', parentId: 'furniture-home' },
+  { name: 'Wardrobes & Dressers', slug: 'wardrobes', parentId: 'furniture-home' },
   { name: 'Kitchen & Dining', slug: 'kitchen-dining', parentId: 'furniture-home' },
   { name: 'Office Furniture', slug: 'office-furniture', parentId: 'furniture-home' },
-  { name: 'Home Decor', slug: 'home-decor', parentId: 'furniture-home' },
+  { name: 'Home Decor & Accessories', slug: 'home-decor', parentId: 'furniture-home' },
+  { name: 'Curtains & Blinds', slug: 'curtains-blinds', parentId: 'furniture-home' },
+  { name: 'Carpets & Rugs', slug: 'carpets-rugs', parentId: 'furniture-home' },
+  { name: 'Lighting & Lamps', slug: 'lighting-lamps', parentId: 'furniture-home' },
+  { name: 'Storage & Shelving', slug: 'storage-shelving', parentId: 'furniture-home' },
+  { name: 'Garden & Outdoor', slug: 'garden-outdoor', parentId: 'furniture-home' },
+  { name: 'Bedding & Linens', slug: 'bedding-linens', parentId: 'furniture-home' },
 ];
 
 const healthSubs = [
-  { name: 'Skincare', slug: 'skincare', parentId: 'health-beauty' },
-  { name: 'Hair Care', slug: 'hair-care', parentId: 'health-beauty' },
+  { name: 'Skincare & Lotions', slug: 'skincare', parentId: 'health-beauty' },
+  { name: 'Hair Care & Styling', slug: 'hair-care', parentId: 'health-beauty' },
+  { name: 'Makeup & Cosmetics', slug: 'makeup-cosmetics', parentId: 'health-beauty' },
+  { name: 'Perfumes & Fragrances', slug: 'perfumes', parentId: 'health-beauty' },
   { name: 'Fitness & Supplements', slug: 'fitness-supplements', parentId: 'health-beauty' },
   { name: 'Medical Equipment', slug: 'medical-equipment', parentId: 'health-beauty' },
+  { name: 'Natural & Organic Products', slug: 'natural-organic', parentId: 'health-beauty' },
+  { name: 'Nail Care & Manicure', slug: 'nail-care', parentId: 'health-beauty' },
+  { name: 'Men\'s Grooming', slug: 'mens-grooming', parentId: 'health-beauty' },
+  { name: 'Baby Care Products', slug: 'baby-care-products', parentId: 'health-beauty' },
+  { name: 'Maternity Care', slug: 'maternity-care', parentId: 'health-beauty' },
+  { name: 'Orthopedic & Mobility', slug: 'orthopedic', parentId: 'health-beauty' },
 ];
 
 const sportsSubs = [
-  { name: 'Exercise Equipment', slug: 'exercise-equipment', parentId: 'sports-outdoors' },
-  { name: 'Outdoor Gear', slug: 'outdoor-gear', parentId: 'sports-outdoors' },
-  { name: 'Team Sports', slug: 'team-sports', parentId: 'sports-outdoors' },
-  { name: 'Water Sports', slug: 'water-sports', parentId: 'sports-outdoors' },
+  { name: 'Exercise & Gym Equipment', slug: 'exercise-equipment', parentId: 'sports-outdoors' },
+  { name: 'Fitness Wear & Gear', slug: 'fitness-wear', parentId: 'sports-outdoors' },
+  { name: 'Camping & Hiking', slug: 'camping-hiking', parentId: 'sports-outdoors' },
+  { name: 'Cycling & Bicycles', slug: 'cycling-bicycles', parentId: 'sports-outdoors' },
+  { name: 'Football & Rugby', slug: 'football-rugby', parentId: 'sports-outdoors' },
+  { name: 'Basketball & Netball', slug: 'basketball-netball', parentId: 'sports-outdoors' },
+  { name: 'Swimming & Water Sports', slug: 'swimming-water-sports', parentId: 'sports-outdoors' },
+  { name: 'Running & Athletics', slug: 'running-athletics', parentId: 'sports-outdoors' },
+  { name: 'Martial Arts & Boxing', slug: 'martial-arts-boxing', parentId: 'sports-outdoors' },
+  { name: 'Tennis & Badminton', slug: 'tennis-badminton', parentId: 'sports-outdoors' },
+  { name: 'Fishing Gear', slug: 'fishing-gear', parentId: 'sports-outdoors' },
+  { name: 'Outdoor Games', slug: 'outdoor-games', parentId: 'sports-outdoors' },
 ];
 
 const businessSubs = [
   { name: 'Industrial Machinery', slug: 'industrial-machinery', parentId: 'business-industrial' },
-  { name: 'Office Equipment', slug: 'office-equipment', parentId: 'business-industrial' },
-  { name: 'Restaurant & Catering', slug: 'restaurant-catering', parentId: 'business-industrial' },
-  { name: 'Construction', slug: 'construction', parentId: 'business-industrial' },
+  { name: 'Manufacturing Equipment', slug: 'manufacturing-equipment', parentId: 'business-industrial' },
+  { name: 'Office Equipment & Supplies', slug: 'office-equipment', parentId: 'business-industrial' },
+  { name: 'Restaurant & Catering Equipment', slug: 'restaurant-equipment', parentId: 'business-industrial' },
+  { name: 'Construction Equipment', slug: 'construction-equipment', parentId: 'business-industrial' },
+  { name: 'Packaging & Labeling', slug: 'packaging-labeling', parentId: 'business-industrial' },
+  { name: 'Safety & Security', slug: 'safety-security', parentId: 'business-industrial' },
+  { name: 'Cleaning Equipment', slug: 'cleaning-equipment', parentId: 'business-industrial' },
+  { name: 'Retail & Shop Equipment', slug: 'retail-shop', parentId: 'business-industrial' },
+  { name: 'Business for Sale', slug: 'business-for-sale', parentId: 'business-industrial' },
+  { name: 'Franchise Opportunities', slug: 'franchise', parentId: 'business-industrial' },
+  { name: 'Raw Materials', slug: 'raw-materials', parentId: 'business-industrial' },
 ];
 
 const booksSubs = [
-  { name: 'Textbooks', slug: 'textbooks', parentId: 'books-media' },
+  { name: 'Textbooks & Academic', slug: 'textbooks-academic', parentId: 'books-media' },
   { name: 'Novels & Fiction', slug: 'novels-fiction', parentId: 'books-media' },
-  { name: 'Movies & Music', slug: 'movies-music', parentId: 'books-media' },
-  { name: 'Video Games', slug: 'video-games', parentId: 'books-media' },
+  { name: 'Children\'s Books', slug: 'childrens-books', parentId: 'books-media' },
+  { name: 'Religion & Spiritual', slug: 'religion-spiritual', parentId: 'books-media' },
+  { name: 'Business & Self-Help', slug: 'business-selfhelp', parentId: 'books-media' },
+  { name: 'Magazines & Journals', slug: 'magazines-journals', parentId: 'books-media' },
+  { name: 'Comics & Graphic Novels', slug: 'comics-graphic', parentId: 'books-media' },
+  { name: 'Movies & DVDs', slug: 'movies-dvds', parentId: 'books-media' },
+  { name: 'Music & CDs', slug: 'music-cds', parentId: 'books-media' },
+  { name: 'Video Games & Consoles', slug: 'video-games', parentId: 'books-media' },
+  { name: 'Board Games & Puzzles', slug: 'board-games', parentId: 'books-media' },
+  { name: 'E-books & Digital', slug: 'ebooks-digital', parentId: 'books-media' },
 ];
 
 const babySubs = [
   { name: 'Baby Clothing', slug: 'baby-clothing', parentId: 'baby-kids' },
+  { name: 'Baby Footwear', slug: 'baby-footwear', parentId: 'baby-kids' },
   { name: 'Toys & Games', slug: 'toys-games', parentId: 'baby-kids' },
-  { name: 'Baby Gear', slug: 'baby-gear', parentId: 'baby-kids' },
-  { name: 'Maternity', slug: 'maternity', parentId: 'baby-kids' },
+  { name: 'Baby Gear & Equipment', slug: 'baby-gear', parentId: 'baby-kids' },
+  { name: 'Strollers & Prams', slug: 'strollers-prams', parentId: 'baby-kids' },
+  { name: 'Car Seats & Safety', slug: 'car-seats', parentId: 'baby-kids' },
+  { name: 'Cribs & Nursery Furniture', slug: 'cribs-nursery', parentId: 'baby-kids' },
+  { name: 'Diapers & Changing', slug: 'diapers-changing', parentId: 'baby-kids' },
+  { name: 'Feeding & Nursing', slug: 'feeding-nursing', parentId: 'baby-kids' },
+  { name: 'Maternity Wear', slug: 'maternity', parentId: 'baby-kids' },
+  { name: 'Kids\' Furniture', slug: 'kids-furniture', parentId: 'baby-kids' },
+  { name: 'Educational Toys', slug: 'educational-toys', parentId: 'baby-kids' },
+  { name: 'School Supplies', slug: 'school-supplies', parentId: 'baby-kids' },
 ];
 
 const petsSubs = [
-  { name: 'Dogs', slug: 'dogs', parentId: 'pets-animals' },
-  { name: 'Cats', slug: 'cats', parentId: 'pets-animals' },
-  { name: 'Birds', slug: 'birds', parentId: 'pets-animals' },
-  { name: 'Pet Supplies', slug: 'pet-supplies', parentId: 'pets-animals' },
+  { name: 'Dogs & Puppies', slug: 'dogs', parentId: 'pets-animals' },
+  { name: 'Cats & Kittens', slug: 'cats', parentId: 'pets-animals' },
+  { name: 'Birds & Parrots', slug: 'birds', parentId: 'pets-animals' },
+  { name: 'Fish & Aquariums', slug: 'fish-aquariums', parentId: 'pets-animals' },
+  { name: 'Rabbits & Rodents', slug: 'rabbits-rodents', parentId: 'pets-animals' },
+  { name: 'Horses & Donkeys', slug: 'horses-donkeys', parentId: 'pets-animals' },
+  { name: 'Pet Food & Supplies', slug: 'pet-supplies', parentId: 'pets-animals' },
+  { name: 'Pet Grooming', slug: 'pet-grooming', parentId: 'pets-animals' },
+  { name: 'Veterinary Services', slug: 'veterinary', parentId: 'pets-animals' },
+  { name: 'Pet Accessories', slug: 'pet-accessories', parentId: 'pets-animals' },
 ];
 
 const foodSubs = [
-  { name: 'Groceries', slug: 'groceries', parentId: 'food-drinks' },
-  { name: 'Restaurant Equipment', slug: 'restaurant-equipment', parentId: 'food-drinks' },
-  { name: 'Catering', slug: 'catering', parentId: 'food-drinks' },
+  { name: 'Fresh Groceries', slug: 'fresh-groceries', parentId: 'food-drinks' },
+  { name: 'Beverages & Juices', slug: 'beverages-juices', parentId: 'food-drinks' },
+  { name: 'Snacks & Sweets', slug: 'snacks-sweets', parentId: 'food-drinks' },
+  { name: 'Cooking Oil & Fats', slug: 'cooking-oil', parentId: 'food-drinks' },
+  { name: 'Cereals & Grains', slug: 'cereals-grains', parentId: 'food-drinks' },
+  { name: 'Spices & Seasonings', slug: 'spices-seasonings', parentId: 'food-drinks' },
+  { name: 'Dairy & Eggs', slug: 'dairy-eggs', parentId: 'food-drinks' },
+  { name: 'Meat & Fish', slug: 'meat-fish', parentId: 'food-drinks' },
+  { name: 'Catering Services', slug: 'catering', parentId: 'food-drinks' },
+  { name: 'Bulk & Wholesale', slug: 'bulk-wholesale', parentId: 'food-drinks' },
+  { name: 'Restaurant & Food Business', slug: 'restaurant-food-business', parentId: 'food-drinks' },
+  { name: 'Traditional Kenyan Foods', slug: 'traditional-kenyan', parentId: 'food-drinks' },
 ];
 
 const hobbiesSubs = [
-  { name: 'Art Supplies', slug: 'art-supplies', parentId: 'hobbies-crafts' },
-  { name: 'Collectibles', slug: 'collectibles', parentId: 'hobbies-crafts' },
-  { name: 'Musical Instruments', slug: 'musical-instruments', parentId: 'hobbies-crafts' },
-  { name: 'DIY & Tools', slug: 'diy-tools', parentId: 'hobbies-crafts' },
+  { name: 'Art & Painting Supplies', slug: 'art-supplies', parentId: 'hobbies-arts' },
+  { name: 'Musical Instruments', slug: 'musical-instruments', parentId: 'hobbies-arts' },
+  { name: 'Collectibles & Memorabilia', slug: 'collectibles', parentId: 'hobbies-arts' },
+  { name: 'DIY Tools & Hardware', slug: 'diy-tools', parentId: 'hobbies-arts' },
+  { name: 'Sewing & Knitting', slug: 'sewing-knitting', parentId: 'hobbies-arts' },
+  { name: 'Crafts & Beading', slug: 'crafts-beading', parentId: 'hobbies-arts' },
+  { name: 'Photography Equipment', slug: 'photography-equipment', parentId: 'hobbies-arts' },
+  { name: 'Party & Event Supplies', slug: 'party-supplies', parentId: 'hobbies-arts' },
+  { name: 'Models & Miniatures', slug: 'models-miniatures', parentId: 'hobbies-arts' },
+  { name: 'Gardening Supplies', slug: 'gardening-supplies', parentId: 'hobbies-arts' },
 ];
 
 const travelSubs = [
   { name: 'Hotels & Lodging', slug: 'hotels-lodging', parentId: 'travel-tourism' },
-  { name: 'Tour Packages', slug: 'tour-packages', parentId: 'travel-tourism' },
-  { name: 'Flights & Transport', slug: 'flights-transport', parentId: 'travel-tourism' },
+  { name: 'Guest Houses & B&Bs', slug: 'guest-houses', parentId: 'travel-tourism' },
+  { name: 'Tour Packages & Safaris', slug: 'tour-packages', parentId: 'travel-tourism' },
+  { name: 'Flights & Air Travel', slug: 'flights', parentId: 'travel-tourism' },
+  { name: 'Bus & Matatu Travel', slug: 'bus-travel', parentId: 'travel-tourism' },
+  { name: 'Car Rentals & Self Drive', slug: 'car-rentals', parentId: 'travel-tourism' },
+  { name: 'Travel Accessories', slug: 'travel-accessories', parentId: 'travel-tourism' },
+  { name: 'Vacation Rentals', slug: 'vacation-rentals', parentId: 'travel-tourism' },
+  { name: 'Travel Insurance', slug: 'travel-insurance', parentId: 'travel-tourism' },
+  { name: 'Airbnb Management', slug: 'airbnb-management', parentId: 'travel-tourism' },
 ];
 
-const locations = [
-  { name: 'Nairobi', slug: 'nairobi' },
-  { name: 'Mombasa', slug: 'mombasa' },
-  { name: 'Kisumu', slug: 'kisumu' },
-  { name: 'Nakuru', slug: 'nakuru' },
-  { name: 'Eldoret', slug: 'eldoret' },
-  { name: 'Thika', slug: 'thika' },
-  { name: 'Malindi', slug: 'malindi' },
-  { name: 'Kitale', slug: 'kitale' },
-  { name: 'Nyeri', slug: 'nyeri' },
-  { name: 'Machakos', slug: 'machakos' },
-  { name: 'Meru', slug: 'meru' },
-  { name: 'Nanyuki', slug: 'nanyuki' },
-  { name: 'Kakamega', slug: 'kakamega' },
-  { name: 'Garissa', slug: 'garissa' },
-  { name: 'Kericho', slug: 'kericho' },
-  { name: 'Kajiado', slug: 'kajiado' },
-  { name: 'Migori', slug: 'migori' },
-  { name: 'Bungoma', slug: 'bungoma' },
-  { name: 'Vihiga', slug: 'vihiga' },
+interface LocationSeed {
+  name: string
+  slug: string
+  level: number
+  parentSlug?: string
+  order: number
+}
+
+const locations: LocationSeed[] = [
+  // ── Country ──
+  { name: 'Kenya', slug: 'kenya', level: 0, order: 0 },
+
+  // ── Counties (level 1) ──
+  { name: 'Nairobi', slug: 'nairobi', level: 1, parentSlug: 'kenya', order: 1 },
+  { name: 'Mombasa', slug: 'mombasa', level: 1, parentSlug: 'kenya', order: 2 },
+  { name: 'Kisumu', slug: 'kisumu', level: 1, parentSlug: 'kenya', order: 3 },
+  { name: 'Nakuru', slug: 'nakuru', level: 1, parentSlug: 'kenya', order: 4 },
+  { name: 'Kiambu', slug: 'kiambu', level: 1, parentSlug: 'kenya', order: 5 },
+  { name: 'Uasin Gishu', slug: 'uasin-gishu', level: 1, parentSlug: 'kenya', order: 6 },
+  { name: 'Kilifi', slug: 'kilifi', level: 1, parentSlug: 'kenya', order: 7 },
+  { name: 'Trans Nzoia', slug: 'trans-nzoia', level: 1, parentSlug: 'kenya', order: 8 },
+  { name: 'Nyeri', slug: 'nyeri', level: 1, parentSlug: 'kenya', order: 9 },
+  { name: 'Machakos', slug: 'machakos', level: 1, parentSlug: 'kenya', order: 10 },
+  { name: 'Meru', slug: 'meru', level: 1, parentSlug: 'kenya', order: 11 },
+  { name: 'Laikipia', slug: 'laikipia', level: 1, parentSlug: 'kenya', order: 12 },
+  { name: 'Kakamega', slug: 'kakamega', level: 1, parentSlug: 'kenya', order: 13 },
+  { name: 'Garissa', slug: 'garissa', level: 1, parentSlug: 'kenya', order: 14 },
+  { name: 'Kericho', slug: 'kericho', level: 1, parentSlug: 'kenya', order: 15 },
+  { name: 'Kajiado', slug: 'kajiado', level: 1, parentSlug: 'kenya', order: 16 },
+  { name: 'Migori', slug: 'migori', level: 1, parentSlug: 'kenya', order: 17 },
+  { name: 'Bungoma', slug: 'bungoma', level: 1, parentSlug: 'kenya', order: 18 },
+  { name: 'Vihiga', slug: 'vihiga', level: 1, parentSlug: 'kenya', order: 19 },
+  { name: 'Kwale', slug: 'kwale', level: 1, parentSlug: 'kenya', order: 20 },
+  { name: 'Taita Taveta', slug: 'taita-taveta', level: 1, parentSlug: 'kenya', order: 21 },
+  { name: 'Tana River', slug: 'tana-river', level: 1, parentSlug: 'kenya', order: 22 },
+  { name: 'Lamu', slug: 'lamu', level: 1, parentSlug: 'kenya', order: 23 },
+  { name: 'Marsabit', slug: 'marsabit', level: 1, parentSlug: 'kenya', order: 24 },
+  { name: 'Mandera', slug: 'mandera', level: 1, parentSlug: 'kenya', order: 25 },
+  { name: 'Wajir', slug: 'wajir', level: 1, parentSlug: 'kenya', order: 26 },
+  { name: 'Isiolo', slug: 'isiolo', level: 1, parentSlug: 'kenya', order: 27 },
+  { name: "Murang'a", slug: 'muranga', level: 1, parentSlug: 'kenya', order: 28 },
+  { name: 'Kirinyaga', slug: 'kirinyaga', level: 1, parentSlug: 'kenya', order: 29 },
+  { name: 'Embu', slug: 'embu', level: 1, parentSlug: 'kenya', order: 30 },
+  { name: 'Turkana', slug: 'turkana', level: 1, parentSlug: 'kenya', order: 31 },
+  { name: 'West Pokot', slug: 'west-pokot', level: 1, parentSlug: 'kenya', order: 32 },
+  { name: 'Samburu', slug: 'samburu', level: 1, parentSlug: 'kenya', order: 33 },
+  { name: 'Narok', slug: 'narok', level: 1, parentSlug: 'kenya', order: 34 },
+  { name: 'Bomet', slug: 'bomet', level: 1, parentSlug: 'kenya', order: 35 },
+  { name: 'Nyamira', slug: 'nyamira', level: 1, parentSlug: 'kenya', order: 36 },
+  { name: 'Kisii', slug: 'kisii', level: 1, parentSlug: 'kenya', order: 37 },
+  { name: 'Homa Bay', slug: 'homa-bay', level: 1, parentSlug: 'kenya', order: 38 },
+  { name: 'Siaya', slug: 'siaya', level: 1, parentSlug: 'kenya', order: 39 },
+  { name: 'Busia', slug: 'busia', level: 1, parentSlug: 'kenya', order: 40 },
+  { name: 'Elgeyo Marakwet', slug: 'elgeyo-marakwet', level: 1, parentSlug: 'kenya', order: 41 },
+  { name: 'Nandi', slug: 'nandi', level: 1, parentSlug: 'kenya', order: 42 },
+  { name: 'Tharaka Nithi', slug: 'tharaka-nithi', level: 1, parentSlug: 'kenya', order: 43 },
+  { name: 'Makueni', slug: 'makueni', level: 1, parentSlug: 'kenya', order: 44 },
+  { name: 'Kitui', slug: 'kitui', level: 1, parentSlug: 'kenya', order: 45 },
+  { name: 'Nyandarua', slug: 'nyandarua', level: 1, parentSlug: 'kenya', order: 46 },
+  { name: 'Baringo', slug: 'baringo', level: 1, parentSlug: 'kenya', order: 47 },
+
+  // ── Sub-Counties / Major Towns (level 2) ──
+
+  // Nairobi
+  { name: 'Westlands', slug: 'westlands', level: 2, parentSlug: 'nairobi', order: 1 },
+  { name: 'Kilimani', slug: 'kilimani', level: 2, parentSlug: 'nairobi', order: 2 },
+  { name: 'Karen', slug: 'karen', level: 2, parentSlug: 'nairobi', order: 3 },
+  { name: 'Eastlands', slug: 'eastlands', level: 2, parentSlug: 'nairobi', order: 4 },
+  { name: 'CBD', slug: 'nairobi-cbd', level: 2, parentSlug: 'nairobi', order: 5 },
+  { name: 'Langata', slug: 'langata', level: 2, parentSlug: 'nairobi', order: 6 },
+  { name: 'South B', slug: 'south-b', level: 2, parentSlug: 'nairobi', order: 7 },
+  { name: 'South C', slug: 'south-c', level: 2, parentSlug: 'nairobi', order: 8 },
+  { name: 'Kasarani', slug: 'kasarani', level: 2, parentSlug: 'nairobi', order: 9 },
+  { name: 'Roysambu', slug: 'roysambu', level: 2, parentSlug: 'nairobi', order: 10 },
+  { name: 'Ruaraka', slug: 'ruaraka', level: 2, parentSlug: 'nairobi', order: 11 },
+  { name: 'Embakasi', slug: 'embakasi', level: 2, parentSlug: 'nairobi', order: 12 },
+  { name: 'Dagoretti', slug: 'dagoretti', level: 2, parentSlug: 'nairobi', order: 13 },
+
+  // Mombasa
+  { name: 'Nyali', slug: 'nyali', level: 2, parentSlug: 'mombasa', order: 1 },
+  { name: 'Likoni', slug: 'likoni', level: 2, parentSlug: 'mombasa', order: 2 },
+  { name: 'Bamburi', slug: 'bamburi', level: 2, parentSlug: 'mombasa', order: 3 },
+  { name: 'Mombasa Island', slug: 'mombasa-island', level: 2, parentSlug: 'mombasa', order: 4 },
+  { name: 'Changamwe', slug: 'changamwe', level: 2, parentSlug: 'mombasa', order: 5 },
+  { name: 'Kisauni', slug: 'kisauni', level: 2, parentSlug: 'mombasa', order: 6 },
+
+  // Kisumu
+  { name: 'Milimani', slug: 'milimani', level: 2, parentSlug: 'kisumu', order: 1 },
+  { name: 'Kondele', slug: 'kondele', level: 2, parentSlug: 'kisumu', order: 2 },
+  { name: 'Kisumu CBD', slug: 'kisumu-cbd', level: 2, parentSlug: 'kisumu', order: 3 },
+  { name: 'Nyalenda', slug: 'nyalenda', level: 2, parentSlug: 'kisumu', order: 4 },
+  { name: 'Manyatta', slug: 'manyatta', level: 2, parentSlug: 'kisumu', order: 5 },
+  { name: 'Mamboleo', slug: 'mamboleo', level: 2, parentSlug: 'kisumu', order: 6 },
+
+  // Nakuru
+  { name: 'Nakuru Town', slug: 'nakuru-town', level: 2, parentSlug: 'nakuru', order: 1 },
+  { name: 'Lanet', slug: 'lanet', level: 2, parentSlug: 'nakuru', order: 2 },
+  { name: 'Naivasha', slug: 'naivasha', level: 2, parentSlug: 'nakuru', order: 3 },
+  { name: 'Gilgil', slug: 'gilgil', level: 2, parentSlug: 'nakuru', order: 4 },
+  { name: 'Molo', slug: 'molo', level: 2, parentSlug: 'nakuru', order: 5 },
+  { name: 'Njoro', slug: 'njoro', level: 2, parentSlug: 'nakuru', order: 6 },
+  { name: 'Elementaita', slug: 'elementaita', level: 2, parentSlug: 'nakuru', order: 7 },
+
+  // Kiambu
+  { name: 'Thika', slug: 'thika', level: 2, parentSlug: 'kiambu', order: 1 },
+  { name: 'Ruiru', slug: 'ruiru', level: 2, parentSlug: 'kiambu', order: 2 },
+  { name: 'Limuru', slug: 'limuru', level: 2, parentSlug: 'kiambu', order: 3 },
+  { name: 'Kikuyu', slug: 'kikuyu', level: 2, parentSlug: 'kiambu', order: 4 },
+  { name: 'Kiambu Town', slug: 'kiambu-town', level: 2, parentSlug: 'kiambu', order: 5 },
+  { name: 'Juja', slug: 'juja', level: 2, parentSlug: 'kiambu', order: 6 },
+  { name: 'Githunguri', slug: 'githunguri', level: 2, parentSlug: 'kiambu', order: 7 },
+  { name: 'Kabete', slug: 'kabete', level: 2, parentSlug: 'kiambu', order: 8 },
+  { name: 'Gatundu', slug: 'gatundu', level: 2, parentSlug: 'kiambu', order: 9 },
+
+  // Uasin Gishu
+  { name: 'Eldoret', slug: 'eldoret', level: 2, parentSlug: 'uasin-gishu', order: 1 },
+  { name: 'Moiben', slug: 'moiben', level: 2, parentSlug: 'uasin-gishu', order: 2 },
+  { name: 'Soy', slug: 'soy', level: 2, parentSlug: 'uasin-gishu', order: 3 },
+  { name: 'Turbo', slug: 'turbo', level: 2, parentSlug: 'uasin-gishu', order: 4 },
+  { name: 'Kapseret', slug: 'kapseret', level: 2, parentSlug: 'uasin-gishu', order: 5 },
+  { name: 'Pioneer', slug: 'pioneer-eldoret', level: 2, parentSlug: 'uasin-gishu', order: 6 },
+
+  // Kilifi
+  { name: 'Malindi', slug: 'malindi', level: 2, parentSlug: 'kilifi', order: 1 },
+  { name: 'Kilifi Town', slug: 'kilifi-town', level: 2, parentSlug: 'kilifi', order: 2 },
+  { name: 'Watamu', slug: 'watamu', level: 2, parentSlug: 'kilifi', order: 3 },
+  { name: 'Mtwapa', slug: 'mtwapa', level: 2, parentSlug: 'kilifi', order: 4 },
+  { name: 'Mariakani', slug: 'mariakani', level: 2, parentSlug: 'kilifi', order: 5 },
+  { name: 'Kaloleni', slug: 'kaloleni', level: 2, parentSlug: 'kilifi', order: 6 },
+
+  // Trans Nzoia
+  { name: 'Kitale', slug: 'kitale', level: 2, parentSlug: 'trans-nzoia', order: 1 },
+  { name: 'Kiminini', slug: 'kiminini', level: 2, parentSlug: 'trans-nzoia', order: 2 },
+  { name: 'Kwanza', slug: 'kwanza', level: 2, parentSlug: 'trans-nzoia', order: 3 },
+  { name: 'Saboti', slug: 'saboti', level: 2, parentSlug: 'trans-nzoia', order: 4 },
+
+  // Nyeri
+  { name: 'Karatina', slug: 'karatina', level: 2, parentSlug: 'nyeri', order: 1 },
+  { name: 'Othaya', slug: 'othaya', level: 2, parentSlug: 'nyeri', order: 2 },
+  { name: 'Mukurwe-ini', slug: 'mukurwe-ini', level: 2, parentSlug: 'nyeri', order: 3 },
+  { name: 'Tetu', slug: 'tetu', level: 2, parentSlug: 'nyeri', order: 4 },
+  { name: 'Mathira', slug: 'mathira', level: 2, parentSlug: 'nyeri', order: 5 },
+
+  // Machakos
+  { name: 'Athi River', slug: 'athi-river', level: 2, parentSlug: 'machakos', order: 1 },
+  { name: 'Kangundo', slug: 'kangundo', level: 2, parentSlug: 'machakos', order: 2 },
+  { name: 'Mavoko', slug: 'mavoko', level: 2, parentSlug: 'machakos', order: 3 },
+  { name: 'Machakos Town', slug: 'machakos-town', level: 2, parentSlug: 'machakos', order: 4 },
+  { name: 'Masaku', slug: 'masaku', level: 2, parentSlug: 'machakos', order: 5 },
+  { name: 'Kathiani', slug: 'kathiani', level: 2, parentSlug: 'machakos', order: 6 },
+
+  // Meru
+  { name: 'Timau', slug: 'timau', level: 2, parentSlug: 'meru', order: 1 },
+  { name: 'Maua', slug: 'maua', level: 2, parentSlug: 'meru', order: 2 },
+  { name: 'Nkubu', slug: 'nkubu', level: 2, parentSlug: 'meru', order: 3 },
+  { name: 'Meru Town', slug: 'meru-town', level: 2, parentSlug: 'meru', order: 4 },
+  { name: 'Gatunga', slug: 'gatunga', level: 2, parentSlug: 'meru', order: 5 },
+
+  // Laikipia
+  { name: 'Nanyuki', slug: 'nanyuki', level: 2, parentSlug: 'laikipia', order: 1 },
+  { name: 'Rumuruti', slug: 'rumuruti', level: 2, parentSlug: 'laikipia', order: 2 },
+  { name: 'Laikipia North', slug: 'laikipia-north', level: 2, parentSlug: 'laikipia', order: 3 },
+
+  // Kakamega
+  { name: 'Mumias', slug: 'mumias', level: 2, parentSlug: 'kakamega', order: 1 },
+  { name: 'Butere', slug: 'butere', level: 2, parentSlug: 'kakamega', order: 2 },
+  { name: 'Kakamega Town', slug: 'kakamega-town', level: 2, parentSlug: 'kakamega', order: 3 },
+  { name: 'Malava', slug: 'malava', level: 2, parentSlug: 'kakamega', order: 4 },
+  { name: 'Lugari', slug: 'lugari', level: 2, parentSlug: 'kakamega', order: 5 },
+  { name: 'Navakholo', slug: 'navakholo', level: 2, parentSlug: 'kakamega', order: 6 },
+
+  // Garissa
+  { name: 'Garissa Town', slug: 'garissa-town', level: 2, parentSlug: 'garissa', order: 1 },
+  { name: 'Dadaab', slug: 'dadaab', level: 2, parentSlug: 'garissa', order: 2 },
+  { name: 'Hola', slug: 'hola', level: 2, parentSlug: 'garissa', order: 3 },
+  { name: 'Ijara', slug: 'ijara', level: 2, parentSlug: 'garissa', order: 4 },
+
+  // Kericho
+  { name: 'Londiani', slug: 'londiani', level: 2, parentSlug: 'kericho', order: 1 },
+  { name: 'Kipkelion', slug: 'kipkelion', level: 2, parentSlug: 'kericho', order: 2 },
+  { name: 'Kericho Town', slug: 'kericho-town', level: 2, parentSlug: 'kericho', order: 3 },
+  { name: 'Sotik', slug: 'sotik', level: 2, parentSlug: 'kericho', order: 4 },
+  { name: 'Buret', slug: 'buret', level: 2, parentSlug: 'kericho', order: 5 },
+
+  // Kajiado
+  { name: 'Ngong', slug: 'ngong', level: 2, parentSlug: 'kajiado', order: 1 },
+  { name: 'Kitengela', slug: 'kitengela', level: 2, parentSlug: 'kajiado', order: 2 },
+  { name: 'Isinya', slug: 'isinya', level: 2, parentSlug: 'kajiado', order: 3 },
+  { name: 'Kiserian', slug: 'kiserian', level: 2, parentSlug: 'kajiado', order: 4 },
+  { name: 'Ongata Rongai', slug: 'ongata-rongai', level: 2, parentSlug: 'kajiado', order: 5 },
+  { name: 'Mashuuru', slug: 'mashuuru', level: 2, parentSlug: 'kajiado', order: 6 },
+  { name: 'Loitoktok', slug: 'loitoktok', level: 2, parentSlug: 'kajiado', order: 7 },
+
+  // Migori
+  { name: 'Awendo', slug: 'awendo', level: 2, parentSlug: 'migori', order: 1 },
+  { name: 'Kehancha', slug: 'kehancha', level: 2, parentSlug: 'migori', order: 2 },
+  { name: 'Migori Town', slug: 'migori-town', level: 2, parentSlug: 'migori', order: 3 },
+  { name: 'Rongo', slug: 'rongo', level: 2, parentSlug: 'migori', order: 4 },
+  { name: 'Uriri', slug: 'uriri', level: 2, parentSlug: 'migori', order: 5 },
+
+  // Bungoma
+  { name: 'Webuye', slug: 'webuye', level: 2, parentSlug: 'bungoma', order: 1 },
+  { name: 'Kimilili', slug: 'kimilili', level: 2, parentSlug: 'bungoma', order: 2 },
+  { name: 'Bungoma Town', slug: 'bungoma-town', level: 2, parentSlug: 'bungoma', order: 3 },
+  { name: 'Sirisia', slug: 'sirisia', level: 2, parentSlug: 'bungoma', order: 4 },
+  { name: 'Chwele', slug: 'chwele', level: 2, parentSlug: 'bungoma', order: 5 },
+  { name: 'Mt Elgon', slug: 'mt-elgon', level: 2, parentSlug: 'bungoma', order: 6 },
+
+  // Vihiga
+  { name: 'Mbale', slug: 'mbale', level: 2, parentSlug: 'vihiga', order: 1 },
+  { name: 'Luanda', slug: 'luanda', level: 2, parentSlug: 'vihiga', order: 2 },
+  { name: 'Vihiga Town', slug: 'vihiga-town', level: 2, parentSlug: 'vihiga', order: 3 },
+  { name: 'Emuhaya', slug: 'emuhaya', level: 2, parentSlug: 'vihiga', order: 4 },
+  { name: 'Sabatia', slug: 'sabatia', level: 2, parentSlug: 'vihiga', order: 5 },
+
+  // Kwale
+  { name: 'Diani', slug: 'diani', level: 2, parentSlug: 'kwale', order: 1 },
+  { name: 'Ukunda', slug: 'ukunda', level: 2, parentSlug: 'kwale', order: 2 },
+  { name: 'Msambweni', slug: 'msambweni', level: 2, parentSlug: 'kwale', order: 3 },
+  { name: 'Kwale Town', slug: 'kwale-town', level: 2, parentSlug: 'kwale', order: 4 },
+  { name: 'Kinango', slug: 'kinango', level: 2, parentSlug: 'kwale', order: 5 },
+  { name: 'Lunga Lunga', slug: 'lunga-lunga', level: 2, parentSlug: 'kwale', order: 6 },
+
+  // Taita Taveta
+  { name: 'Voi', slug: 'voi', level: 2, parentSlug: 'taita-taveta', order: 1 },
+  { name: 'Taveta', slug: 'taveta', level: 2, parentSlug: 'taita-taveta', order: 2 },
+  { name: 'Wundanyi', slug: 'wundanyi', level: 2, parentSlug: 'taita-taveta', order: 3 },
+  { name: 'Mwatate', slug: 'mwatate', level: 2, parentSlug: 'taita-taveta', order: 4 },
+
+  // Tana River
+  { name: 'Hola Town', slug: 'hola-town', level: 2, parentSlug: 'tana-river', order: 1 },
+  { name: 'Garsen', slug: 'garsen', level: 2, parentSlug: 'tana-river', order: 2 },
+  { name: 'Madogo', slug: 'madogo', level: 2, parentSlug: 'tana-river', order: 3 },
+
+  // Lamu
+  { name: 'Lamu Old Town', slug: 'lamu-old-town', level: 2, parentSlug: 'lamu', order: 1 },
+  { name: 'Mpeketoni', slug: 'mpeketoni', level: 2, parentSlug: 'lamu', order: 2 },
+  { name: 'Sheila', slug: 'sheila', level: 2, parentSlug: 'lamu', order: 3 },
+  { name: 'Faza', slug: 'faza', level: 2, parentSlug: 'lamu', order: 4 },
+  { name: 'Kizingo', slug: 'kizingo', level: 2, parentSlug: 'lamu', order: 5 },
+
+  // Marsabit
+  { name: 'Marsabit Town', slug: 'marsabit-town', level: 2, parentSlug: 'marsabit', order: 1 },
+  { name: 'Moyale', slug: 'moyale', level: 2, parentSlug: 'marsabit', order: 2 },
+  { name: 'Laisamis', slug: 'laisamis', level: 2, parentSlug: 'marsabit', order: 3 },
+  { name: 'North Horr', slug: 'north-horr', level: 2, parentSlug: 'marsabit', order: 4 },
+
+  // Mandera
+  { name: 'Mandera Town', slug: 'mandera-town', level: 2, parentSlug: 'mandera', order: 1 },
+  { name: 'El Wak', slug: 'el-wak', level: 2, parentSlug: 'mandera', order: 2 },
+  { name: 'Rhamu', slug: 'rhamu', level: 2, parentSlug: 'mandera', order: 3 },
+  { name: 'Takaba', slug: 'takaba', level: 2, parentSlug: 'mandera', order: 4 },
+  { name: 'Lafey', slug: 'lafey', level: 2, parentSlug: 'mandera', order: 5 },
+
+  // Wajir
+  { name: 'Wajir Town', slug: 'wajir-town', level: 2, parentSlug: 'wajir', order: 1 },
+  { name: 'Habaswein', slug: 'habaswein', level: 2, parentSlug: 'wajir', order: 2 },
+  { name: 'Tarbaj', slug: 'tarbaj', level: 2, parentSlug: 'wajir', order: 3 },
+  { name: 'Eldas', slug: 'eldas', level: 2, parentSlug: 'wajir', order: 4 },
+  { name: 'Buna', slug: 'buna', level: 2, parentSlug: 'wajir', order: 5 },
+
+  // Isiolo
+  { name: 'Isiolo Town', slug: 'isiolo-town', level: 2, parentSlug: 'isiolo', order: 1 },
+  { name: 'Merti', slug: 'merti', level: 2, parentSlug: 'isiolo', order: 2 },
+  { name: 'Garba Tula', slug: 'garba-tula', level: 2, parentSlug: 'isiolo', order: 3 },
+  { name: 'Kina', slug: 'kina', level: 2, parentSlug: 'isiolo', order: 4 },
+
+  // Murang'a
+  { name: 'Muranga Town', slug: 'muranga-town', level: 2, parentSlug: 'muranga', order: 1 },
+  { name: 'Sagana', slug: 'sagana', level: 2, parentSlug: 'muranga', order: 2 },
+  { name: 'Kangema', slug: 'kangema', level: 2, parentSlug: 'muranga', order: 3 },
+  { name: 'Kigumo', slug: 'kigumo', level: 2, parentSlug: 'muranga', order: 4 },
+  { name: 'Kahuro', slug: 'kahuro', level: 2, parentSlug: 'muranga', order: 5 },
+  { name: 'Mathioya', slug: 'mathioya', level: 2, parentSlug: 'muranga', order: 6 },
+
+  // Kirinyaga
+  { name: 'Kerugoya', slug: 'kerugoya', level: 2, parentSlug: 'kirinyaga', order: 1 },
+  { name: 'Sagana Kirinyaga', slug: 'sagana-kirinyaga', level: 2, parentSlug: 'kirinyaga', order: 2 },
+  { name: 'Wanguru', slug: 'wanguru', level: 2, parentSlug: 'kirinyaga', order: 3 },
+  { name: 'Kianyaga', slug: 'kianyaga', level: 2, parentSlug: 'kirinyaga', order: 4 },
+  { name: 'Ndia', slug: 'ndia', level: 2, parentSlug: 'kirinyaga', order: 5 },
+
+  // Embu
+  { name: 'Embu Town', slug: 'embu-town', level: 2, parentSlug: 'embu', order: 1 },
+  { name: 'Runyenjes', slug: 'runyenjes', level: 2, parentSlug: 'embu', order: 2 },
+  { name: 'Manyatta Embu', slug: 'manyatta-embu', level: 2, parentSlug: 'embu', order: 3 },
+  { name: 'Kyeni', slug: 'kyeni', level: 2, parentSlug: 'embu', order: 4 },
+
+  // Turkana
+  { name: 'Lodwar', slug: 'lodwar', level: 2, parentSlug: 'turkana', order: 1 },
+  { name: 'Lokichogio', slug: 'lokichogio', level: 2, parentSlug: 'turkana', order: 2 },
+  { name: 'Lokitaung', slug: 'lokitaung', level: 2, parentSlug: 'turkana', order: 3 },
+  { name: 'Kakuma', slug: 'kakuma', level: 2, parentSlug: 'turkana', order: 4 },
+  { name: 'Turkwell', slug: 'turkwell', level: 2, parentSlug: 'turkana', order: 5 },
+
+  // West Pokot
+  { name: 'Kapenguria', slug: 'kapenguria', level: 2, parentSlug: 'west-pokot', order: 1 },
+  { name: 'Ortum', slug: 'ortum', level: 2, parentSlug: 'west-pokot', order: 2 },
+  { name: 'Kacheliba', slug: 'kacheliba', level: 2, parentSlug: 'west-pokot', order: 3 },
+  { name: 'Pokot South', slug: 'pokot-south', level: 2, parentSlug: 'west-pokot', order: 4 },
+
+  // Samburu
+  { name: 'Maralal', slug: 'maralal', level: 2, parentSlug: 'samburu', order: 1 },
+  { name: 'Archers Post', slug: 'archers-post', level: 2, parentSlug: 'samburu', order: 2 },
+  { name: 'Baragoi', slug: 'baragoi', level: 2, parentSlug: 'samburu', order: 3 },
+  { name: 'Wamba', slug: 'wamba', level: 2, parentSlug: 'samburu', order: 4 },
+
+  // Narok
+  { name: 'Narok Town', slug: 'narok-town', level: 2, parentSlug: 'narok', order: 1 },
+  { name: 'Mai Mahiu', slug: 'mai-mahiu', level: 2, parentSlug: 'narok', order: 2 },
+  { name: 'Mara', slug: 'mara', level: 2, parentSlug: 'narok', order: 3 },
+  { name: 'Kilgoris', slug: 'kilgoris', level: 2, parentSlug: 'narok', order: 4 },
+  { name: 'Suswa', slug: 'suswa', level: 2, parentSlug: 'narok', order: 5 },
+  { name: 'Ololulunga', slug: 'ololulunga', level: 2, parentSlug: 'narok', order: 6 },
+
+  // Bomet
+  { name: 'Bomet Town', slug: 'bomet-town', level: 2, parentSlug: 'bomet', order: 1 },
+  { name: 'Sotik Bomet', slug: 'sotik-bomet', level: 2, parentSlug: 'bomet', order: 2 },
+  { name: 'Ndanai', slug: 'ndanai', level: 2, parentSlug: 'bomet', order: 3 },
+  { name: 'Chepalungu', slug: 'chepalungu', level: 2, parentSlug: 'bomet', order: 4 },
+  { name: 'Tenwek', slug: 'tenwek', level: 2, parentSlug: 'bomet', order: 5 },
+
+  // Nyamira
+  { name: 'Nyamira Town', slug: 'nyamira-town', level: 2, parentSlug: 'nyamira', order: 1 },
+  { name: 'Keroka', slug: 'keroka', level: 2, parentSlug: 'nyamira', order: 2 },
+  { name: 'Nyansiongo', slug: 'nyansiongo', level: 2, parentSlug: 'nyamira', order: 3 },
+  { name: 'Borabu', slug: 'borabu', level: 2, parentSlug: 'nyamira', order: 4 },
+  { name: 'Manga', slug: 'manga', level: 2, parentSlug: 'nyamira', order: 5 },
+
+  // Kisii
+  { name: 'Kisii Town', slug: 'kisii-town', level: 2, parentSlug: 'kisii', order: 1 },
+  { name: 'Ogembo', slug: 'ogembo', level: 2, parentSlug: 'kisii', order: 2 },
+  { name: 'Suneka', slug: 'suneka', level: 2, parentSlug: 'kisii', order: 3 },
+  { name: 'Mogonga', slug: 'mogonga', level: 2, parentSlug: 'kisii', order: 4 },
+  { name: 'Tabaka', slug: 'tabaka', level: 2, parentSlug: 'kisii', order: 5 },
+  { name: 'Nduru', slug: 'nduru', level: 2, parentSlug: 'kisii', order: 6 },
+  { name: 'Marani', slug: 'marani', level: 2, parentSlug: 'kisii', order: 7 },
+
+  // Homa Bay
+  { name: 'Homa Bay Town', slug: 'homa-bay-town', level: 2, parentSlug: 'homa-bay', order: 1 },
+  { name: 'Mbita', slug: 'mbita', level: 2, parentSlug: 'homa-bay', order: 2 },
+  { name: 'Oyugis', slug: 'oyugis', level: 2, parentSlug: 'homa-bay', order: 3 },
+  { name: 'Kendu Bay', slug: 'kendu-bay', level: 2, parentSlug: 'homa-bay', order: 4 },
+  { name: 'Rachuonyo', slug: 'rachuonyo', level: 2, parentSlug: 'homa-bay', order: 5 },
+
+  // Siaya
+  { name: 'Siaya Town', slug: 'siaya-town', level: 2, parentSlug: 'siaya', order: 1 },
+  { name: 'Bondo', slug: 'bondo', level: 2, parentSlug: 'siaya', order: 2 },
+  { name: 'Ugunja', slug: 'ugunja', level: 2, parentSlug: 'siaya', order: 3 },
+  { name: 'Ukwala', slug: 'ukwala', level: 2, parentSlug: 'siaya', order: 4 },
+  { name: 'Yala', slug: 'yala', level: 2, parentSlug: 'siaya', order: 5 },
+
+  // Busia
+  { name: 'Busia Town', slug: 'busia-town', level: 2, parentSlug: 'busia', order: 1 },
+  { name: 'Nambale', slug: 'nambale', level: 2, parentSlug: 'busia', order: 2 },
+  { name: 'Teso', slug: 'teso', level: 2, parentSlug: 'busia', order: 3 },
+  { name: 'Samia', slug: 'samia', level: 2, parentSlug: 'busia', order: 4 },
+  { name: 'Butula', slug: 'butula', level: 2, parentSlug: 'busia', order: 5 },
+  { name: 'Port Victoria', slug: 'port-victoria', level: 2, parentSlug: 'busia', order: 6 },
+
+  // Elgeyo Marakwet
+  { name: 'Iten', slug: 'iten', level: 2, parentSlug: 'elgeyo-marakwet', order: 1 },
+  { name: 'Kapsowar', slug: 'kapsowar', level: 2, parentSlug: 'elgeyo-marakwet', order: 2 },
+  { name: 'Chesoi', slug: 'chesoi', level: 2, parentSlug: 'elgeyo-marakwet', order: 3 },
+  { name: 'Keiyo', slug: 'keiyo', level: 2, parentSlug: 'elgeyo-marakwet', order: 4 },
+  { name: 'Marakwet', slug: 'marakwet', level: 2, parentSlug: 'elgeyo-marakwet', order: 5 },
+  { name: 'Tambach', slug: 'tambach', level: 2, parentSlug: 'elgeyo-marakwet', order: 6 },
+
+  // Nandi
+  { name: 'Kapsabet', slug: 'kapsabet', level: 2, parentSlug: 'nandi', order: 1 },
+  { name: 'Nandi Hills', slug: 'nandi-hills', level: 2, parentSlug: 'nandi', order: 2 },
+  { name: 'Tinderet', slug: 'tinderet', level: 2, parentSlug: 'nandi', order: 3 },
+  { name: 'Chesumei', slug: 'chesumei', level: 2, parentSlug: 'nandi', order: 4 },
+  { name: 'Kobujoi', slug: 'kobujoi', level: 2, parentSlug: 'nandi', order: 5 },
+  { name: 'Mosoriot', slug: 'mosoriot', level: 2, parentSlug: 'nandi', order: 6 },
+
+  // Tharaka Nithi
+  { name: 'Chuka', slug: 'chuka', level: 2, parentSlug: 'tharaka-nithi', order: 1 },
+  { name: 'Chogoria', slug: 'chogoria', level: 2, parentSlug: 'tharaka-nithi', order: 2 },
+  { name: 'Marima', slug: 'marima', level: 2, parentSlug: 'tharaka-nithi', order: 3 },
+  { name: 'Tharaka', slug: 'tharaka', level: 2, parentSlug: 'tharaka-nithi', order: 4 },
+
+  // Makueni
+  { name: 'Wote', slug: 'wote', level: 2, parentSlug: 'makueni', order: 1 },
+  { name: 'Kibwezi', slug: 'kibwezi', level: 2, parentSlug: 'makueni', order: 2 },
+  { name: 'Makindu', slug: 'makindu', level: 2, parentSlug: 'makueni', order: 3 },
+  { name: 'Emali', slug: 'emali', level: 2, parentSlug: 'makueni', order: 4 },
+  { name: 'Salama', slug: 'salama', level: 2, parentSlug: 'makueni', order: 5 },
+  { name: 'Mtito Andei', slug: 'mtito-andei', level: 2, parentSlug: 'makueni', order: 6 },
+
+  // Kitui
+  { name: 'Kitui Town', slug: 'kitui-town', level: 2, parentSlug: 'kitui', order: 1 },
+  { name: 'Mwingi', slug: 'mwingi', level: 2, parentSlug: 'kitui', order: 2 },
+  { name: 'Mutomo', slug: 'mutomo', level: 2, parentSlug: 'kitui', order: 3 },
+  { name: 'Kyuso', slug: 'kyuso', level: 2, parentSlug: 'kitui', order: 4 },
+  { name: 'Ikutha', slug: 'ikutha', level: 2, parentSlug: 'kitui', order: 5 },
+  { name: 'Kisasi', slug: 'kisasi', level: 2, parentSlug: 'kitui', order: 6 },
+
+  // Nyandarua
+  { name: 'Ol Kalou', slug: 'ol-kalou', level: 2, parentSlug: 'nyandarua', order: 1 },
+  { name: 'Ol Jororok', slug: 'ol-jororok', level: 2, parentSlug: 'nyandarua', order: 2 },
+  { name: 'Nyahururu', slug: 'nyahururu', level: 2, parentSlug: 'nyandarua', order: 3 },
+  { name: 'Engineer', slug: 'engineer', level: 2, parentSlug: 'nyandarua', order: 4 },
+  { name: 'Kinangop', slug: 'kinangop', level: 2, parentSlug: 'nyandarua', order: 5 },
+
+  // Baringo
+  { name: 'Kabarnet', slug: 'kabarnet', level: 2, parentSlug: 'baringo', order: 1 },
+  { name: 'Eldama Ravine', slug: 'eldama-ravine', level: 2, parentSlug: 'baringo', order: 2 },
+  { name: 'Mogotio', slug: 'mogotio', level: 2, parentSlug: 'baringo', order: 3 },
+  { name: 'Marigat', slug: 'marigat', level: 2, parentSlug: 'baringo', order: 4 },
+  { name: 'Baringo North', slug: 'baringo-north', level: 2, parentSlug: 'baringo', order: 5 },
+  { name: 'Tiaty', slug: 'tiaty', level: 2, parentSlug: 'baringo', order: 6 },
 ];
 
 const sampleListings = [
@@ -193,7 +757,7 @@ const sampleListings = [
     description: 'Modern 2-bedroom apartment in Kilimani with stunning views. Features include: swimming pool, gym, 24/7 security, backup generator, and ample parking. Close to Yaya Centre and major malls.',
     price: 85000,
     condition: 'New',
-    categorySlug: 'houses-apartments',
+    categorySlug: 'houses-rent',
     locationSlug: 'nairobi',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop',
@@ -287,7 +851,7 @@ const sampleListings = [
     description: 'High-quality executive leather office chair. Adjustable height, lumbar support, swivel base. Black genuine leather. Perfect for home office or corporate use.',
     price: 18000,
     condition: 'New',
-    categorySlug: 'furniture-home',
+    categorySlug: 'office-furniture',
     locationSlug: 'nairobi',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=600&h=400&fit=crop',
@@ -302,7 +866,7 @@ const sampleListings = [
     description: 'We are looking for a creative graphic designer to join our team. Must be proficient in Adobe Creative Suite (Photoshop, Illustrator, InDesign). Remote work, competitive salary. Send portfolio and CV.',
     price: 0,
     condition: 'New',
-    categorySlug: 'jobs',
+    categorySlug: 'graphic-design',
     locationSlug: 'nairobi',
     images: JSON.stringify([]),
     contactName: 'Creative Solutions Ltd',
@@ -316,7 +880,7 @@ const sampleListings = [
     description: 'Professional plumbing and electrical services. Over 15 years experience in residential and commercial projects. Free quotes, fast response time. Licensed and insured.',
     price: 2500,
     condition: 'New',
-    categorySlug: 'services',
+    categorySlug: 'plumbing',
     locationSlug: 'nairobi',
     images: JSON.stringify([]),
     contactName: 'Peter Kamau',
@@ -329,7 +893,7 @@ const sampleListings = [
     description: 'High-yielding Friesian and Ayrshire dairy cows. Currently producing 25-30 liters per day. Vaccinated and in excellent health. Delivery available within Nairobi and surrounding areas.',
     price: 120000,
     condition: 'Used',
-    categorySlug: 'agriculture',
+    categorySlug: 'livestock',
     locationSlug: 'eldoret',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=600&h=400&fit=crop',
@@ -359,7 +923,7 @@ const sampleListings = [
     description: 'Brand new men\'s designer suits collection. Italian fabric, various sizes available (M, L, XL, XXL). Perfect for weddings, corporate events, and special occasions. Wholesale and retail.',
     price: 8500,
     condition: 'New',
-    categorySlug: 'fashion',
+    categorySlug: 'mens-clothing',
     locationSlug: 'nairobi',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=400&fit=crop',
@@ -390,7 +954,7 @@ const sampleListings = [
     description: 'ProForm Performance 600i treadmill. Barely used, 6 months old. Features: 3.5 CHP motor, 20" x 60" tread belt, iFit compatible, cushioned deck. Must sell - relocating.',
     price: 45000,
     condition: 'Used',
-    categorySlug: 'sports-outdoors',
+    categorySlug: 'exercise-equipment',
     locationSlug: 'nairobi',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1576678927484-cc907957088c?w=600&h=400&fit=crop',
@@ -421,7 +985,7 @@ const sampleListings = [
     description: 'Premium natural skincare products including shea butter, coconut oil, and aloe vera products. Organic and cruelty-free. Available for wholesale and retail. Great for resellers.',
     price: 3500,
     condition: 'New',
-    categorySlug: 'health-beauty',
+    categorySlug: 'skincare',
     locationSlug: 'nairobi',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&h=400&fit=crop',
@@ -451,7 +1015,7 @@ const sampleListings = [
     description: 'Spacious 3-bedroom bungalow on a 1/8 acre plot in Nyeri town. Master bedroom en-suite, modern kitchen, perimeter wall, gate. Quiet neighborhood. Title deed available.',
     price: 8500000,
     condition: 'Used',
-    categorySlug: 'houses-apartments',
+    categorySlug: 'houses-sale',
     locationSlug: 'nyeri',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&h=400&fit=crop',
@@ -466,7 +1030,7 @@ const sampleListings = [
     description: 'Custom built desktop computer. Intel Core i7-13700K, 16GB DDR5 RAM, 512GB NVMe SSD, RTX 4060 8GB. Perfect for video editing, gaming, and heavy workloads.',
     price: 95000,
     condition: 'New',
-    categorySlug: 'electronics',
+    categorySlug: 'desktop-computers',
     locationSlug: 'nairobi',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=600&h=400&fit=crop',
@@ -513,7 +1077,7 @@ const sampleListings = [
     description: 'Professional accounting and bookkeeping services for SMEs. KRA returns, payroll, financial statements, and tax advisory. Affordable rates. Over 10 years experience.',
     price: 15000,
     condition: 'New',
-    categorySlug: 'services',
+    categorySlug: 'accounting-tax',
     locationSlug: 'nairobi',
     images: JSON.stringify([]),
     contactName: 'John Kariuki CPA',
@@ -587,7 +1151,7 @@ const sampleListings = [
     description: 'Wedding, corporate events, portraits, and product photography. 10+ years experience. Professional equipment, same-day editing available. Packages from KES 50,000. View portfolio on website.',
     price: 50000,
     condition: 'New',
-    categorySlug: 'events-photography',
+    categorySlug: 'photography',
     locationSlug: 'mombasa',
     images: JSON.stringify([
       'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop',
@@ -676,12 +1240,17 @@ async function seed() {
 
   // Upsert plans
   const plans = [
-    { name: 'Free', slug: 'free', description: 'Get started with basic features', price: 0, currency: 'KES', interval: 'monthly', features: JSON.stringify({ maxListings: 5, maxImages: 5, maxVideos: 0, featured: false, boost: false }), maxListings: 5, maxImages: 5, maxVideos: 0, isFeatured: false, isPromoted: false, isActive: true, order: 1 },
-    { name: 'Premium', slug: 'premium', description: 'For serious sellers who want more exposure', price: 999, currency: 'KES', interval: 'monthly', features: JSON.stringify({ maxListings: 50, maxImages: 10, maxVideos: 3, featured: true, boost: true }), maxListings: 50, maxImages: 10, maxVideos: 3, isFeatured: true, isPromoted: true, isActive: true, order: 2 },
-    { name: 'Business', slug: 'business', description: 'Unlimited power for businesses', price: 4999, currency: 'KES', interval: 'monthly', features: JSON.stringify({ maxListings: -1, maxImages: 20, maxVideos: 10, featured: true, boost: true, storefront: true }), maxListings: -1, maxImages: 20, maxVideos: 10, isFeatured: true, isPromoted: true, isActive: true, order: 3 },
+    { name: 'Free', slug: 'free', description: 'Get started with basic features', price: 0, currency: 'KES', interval: 'monthly', maxListings: 5, maxImages: 5, maxVideos: 0, isFeatured: false, isPromoted: false, isActive: true, order: 1, planFeatures: { create: [{ feature: '5 listings' }, { feature: '5 images per listing' }] } },
+    { name: 'Premium', slug: 'premium', description: 'For serious sellers who want more exposure', price: 999, currency: 'KES', interval: 'monthly', maxListings: 50, maxImages: 10, maxVideos: 3, isFeatured: true, isPromoted: true, isActive: true, order: 2, planFeatures: { create: [{ feature: '50 listings' }, { feature: '10 images per listing' }, { feature: 'Featured' }, { feature: 'Boost' }] } },
+    { name: 'Business', slug: 'business', description: 'Unlimited power for businesses', price: 4999, currency: 'KES', interval: 'monthly', maxListings: -1, maxImages: 20, maxVideos: 10, isFeatured: true, isPromoted: true, isActive: true, order: 3, planFeatures: { create: [{ feature: 'Unlimited listings' }, { feature: '20 images per listing' }, { feature: 'Featured' }, { feature: 'Boost' }, { feature: 'Storefront' }] } },
   ];
   for (const plan of plans) {
-    await db.plan.upsert({ where: { slug: plan.slug }, update: plan, create: plan });
+    const { planFeatures, ...planData } = plan;
+    await db.plan.upsert({
+      where: { slug: plan.slug },
+      update: { ...planData, planFeatures: { deleteMany: {}, create: planFeatures.create } },
+      create: { ...planData, planFeatures },
+    });
     console.log(`  Upserted plan: ${plan.name}`);
   }
 
@@ -706,12 +1275,21 @@ async function seed() {
     }
   }
 
-  // Upsert locations
+  // Upsert locations (sorted by level so parents are created before children)
   const locationMap: Record<string, string> = {};
-  for (const loc of locations) {
-    const created = await db.location.upsert({ where: { slug: loc.slug }, update: loc, create: loc });
+  const sortedLocations = [...locations].sort((a, b) => a.level - b.level);
+  const levelLabels = ['Country', 'County', 'Sub-County', 'Area'];
+  for (const loc of sortedLocations) {
+    const { parentSlug, ...rest } = loc;
+    const parentId = parentSlug && locationMap[parentSlug] ? locationMap[parentSlug] : null;
+    const data = { ...rest, parentId };
+    const created = await db.location.upsert({
+      where: { slug: loc.slug },
+      update: data,
+      create: data,
+    });
     locationMap[loc.slug] = created.id;
-    console.log(`  Upserted location: ${loc.name}`);
+    console.log(`  Upserted location: ${loc.name} (${levelLabels[loc.level] || `Level ${loc.level}`})`);
   }
 
   // Generate real password hashes for demo users

@@ -6,12 +6,20 @@ export async function GET(request: NextRequest) {
   try {
     await requireAdmin(request)
 
-    const [totalPayments, completedPayments] = await Promise.all([
+    const now = new Date()
+    const thirtyDaysAgo = new Date(now); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const [totalPayments, completedPayments, monthlyPayments] = await Promise.all([
       db.payment.count(),
       db.payment.findMany({ where: { status: 'completed' } }),
+      db.payment.findMany({ where: { status: 'completed', createdAt: { gte: thirtyDaysAgo } } }),
     ])
 
     const totalRevenue = completedPayments.reduce((sum, p) => sum + p.amount, 0)
+    const monthlyRevenue = monthlyPayments.reduce((sum, p) => sum + p.amount, 0)
+
+    const totalTransactions = completedPayments.length
+    const averageTransaction = totalTransactions > 0 ? totalRevenue / totalTransactions : 0
 
     const byProvider: Record<string, number> = {}
     for (const p of completedPayments) {
@@ -41,6 +49,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       totalPayments,
       totalRevenue,
+      monthlyRevenue,
+      totalTransactions,
+      averageTransaction: Math.round(averageTransaction * 100) / 100,
       byProvider,
       byType,
       recentPayments,

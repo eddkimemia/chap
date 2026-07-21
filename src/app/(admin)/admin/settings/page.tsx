@@ -33,7 +33,7 @@ export default function AdminSystemSettingsPage() {
     try {
       const res = await apiFetch('/api/admin/settings')
       if (res.ok) { const data = await res.json(); setSettings((prev) => ({ ...prev, ...data })) }
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch settings:', error) } finally { setLoading(false) }
   }
 
   const saveSettings = async () => {

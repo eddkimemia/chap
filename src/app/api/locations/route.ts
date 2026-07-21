@@ -5,6 +5,7 @@ export async function GET() {
   try {
     const locations = await db.location.findMany({
       orderBy: { name: 'asc' },
+      select: { id: true, name: true, slug: true, level: true, parentId: true },
     })
     return NextResponse.json(locations)
   } catch (error) {

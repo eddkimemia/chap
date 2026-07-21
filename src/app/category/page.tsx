@@ -30,7 +30,7 @@ const categoryImage: Record<string, string> = {
   fashion: 'fashion.png',
   jobs: 'jobs.png',
   services: 'service.png',
-  agriculture: 'agriculture.png',
+  'agriculture-food': 'agriculture.png',
   'furniture-home': 'furniture.png',
   'health-beauty': 'health.png',
   'sports-outdoors': 'sports.png',
@@ -38,7 +38,7 @@ const categoryImage: Record<string, string> = {
   'books-media': 'books.png',
   'pets-animals': 'pets.png',
   'food-drinks': 'foods.png',
-  'hobbies-crafts': 'hobbies.png',
+  'hobbies-arts': 'hobbies.png',
   'travel-tourism': 'travel.png',
   'baby-kids': 'baby.png',
 }
@@ -47,14 +47,14 @@ export default async function CategoriesPage() {
   const categories = await db.category.findMany({
     where: { parentId: null },
     include: {
-      children: true,
+      children: { include: { _count: { select: { listings: true } } } },
       _count: { select: { listings: true } },
     },
     orderBy: { order: 'asc' },
   })
 
   const enriched = categories.map((cat) => {
-    const childCount = cat.children.reduce((sum, c) => sum + (c as any)._count?.listings || 0, 0)
+    const childCount = cat.children.reduce((sum, c) => sum + (c._count?.listings || 0), 0)
     return { ...cat, totalListings: (cat._count?.listings || 0) + childCount }
   })
 
@@ -69,9 +69,11 @@ export default async function CategoriesPage() {
       images: { orderBy: { order: 'asc' }, take: 1 },
       user: { select: { id: true, name: true, avatar: true, phone: true, isVerified: true } },
     },
-    orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+    orderBy: { createdAt: 'desc' },
     take: 18,
   })
+
+  const shuffledFeatured = [...featuredListings].sort(() => 0.5 - Math.random())
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -138,7 +140,7 @@ export default async function CategoriesPage() {
             </div>
             {featuredListings.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {featuredListings.map((listing) => (
+                {shuffledFeatured.map((listing) => (
                   <ListingCard key={listing.id} listing={JSON.parse(JSON.stringify(listing)) as any} />
                 ))}
               </div>

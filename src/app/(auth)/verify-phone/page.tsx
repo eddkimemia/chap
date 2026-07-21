@@ -37,7 +37,7 @@ function VerifyPhoneContent() {
       setVerified(true)
       toast.success('Phone verified!')
       setTimeout(() => router.push('/dashboard'), 1500)
-    } catch (err: any) { toast.error(err.message) } finally { setLoading(false) }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') } finally { setLoading(false) }
   }
 
   const handleResend = async () => {
@@ -52,7 +52,7 @@ function VerifyPhoneContent() {
       if (!res.ok) throw new Error(data.error || 'Failed to resend')
       if (data.devCode) setCode(data.devCode)
       toast.success('Code resent via SMS!')
-    } catch (err: any) { toast.error(err.message) } finally { setResending(false) }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') } finally { setResending(false) }
   }
 
   if (verified) {

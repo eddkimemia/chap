@@ -7,15 +7,18 @@ interface PageProps {
   params: Promise<{ id: string }>
 }
 
+const userSelect = {
+  id: true, name: true, avatar: true, bio: true, username: true, createdAt: true,
+  profile: { select: { city: true, country: true } },
+} as const
+
 async function resolveUser(idOrUsername: string) {
-  const byId = await db.user.findUnique({ where: { id: idOrUsername } })
+  const byId = await db.user.findUnique({ where: { id: idOrUsername }, select: userSelect })
   if (byId) return { user: byId, field: 'id' as const }
-  const byUsername = await db.user.findUnique({ where: { username: idOrUsername } })
+  const byUsername = await db.user.findUnique({ where: { username: idOrUsername }, select: userSelect })
   if (byUsername) return { user: byUsername, field: 'username' as const }
   return null
 }
-
-const userSelect = { name: true, avatar: true, bio: true, username: true, createdAt: true, profile: { select: { city: true, country: true } } }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params

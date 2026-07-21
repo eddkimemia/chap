@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { generateOTP } from '@/lib/auth'
+import { generateOTP, hashOtp } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     await db.twoFactorSession.create({
       data: {
         userId: user.id,
-        code,
+        code: await hashOtp(code),
         type: '2fa',
         expiresAt,
       },

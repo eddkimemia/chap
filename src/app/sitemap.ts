@@ -45,8 +45,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryPages: MetadataRoute.Sitemap = [
     'vehicles', 'property', 'electronics', 'phones-tablets', 'fashion',
-    'jobs', 'services', 'agriculture', 'furniture-home', 'health-beauty',
-    'sports-outdoors', 'business-industrial',
+    'jobs', 'services', 'agriculture-food', 'furniture-home', 'health-beauty',
+    'sports-outdoors', 'business-industrial', 'books-media', 'baby-kids',
+    'pets-animals', 'food-drinks', 'hobbies-arts', 'travel-tourism',
   ].map((slug) => ({
     url: `${BASE_URL}/category/${slug}`,
     lastModified: new Date(),
@@ -55,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   const locationPages: MetadataRoute.Sitemap = (await db.location.findMany({
-    where: { parentId: null },
+    where: { level: 1 },
     select: { slug: true },
   })).map((l) => ({
     url: `${BASE_URL}/location/${l.slug}`,

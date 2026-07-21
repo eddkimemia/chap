@@ -34,7 +34,7 @@ export default function AdminLocationsPage() {
     try {
       const res = await apiFetch('/api/admin/locations')
       if (res.ok) setLocations(await res.json())
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch locations:', error) } finally { setLoading(false) }
   }
 
   const saveLocation = async () => {
@@ -65,7 +65,8 @@ export default function AdminLocationsPage() {
   }
 
   const filtered = locations.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()))
-  const parentLocations = locations.filter((l) => l.level === 0)
+  const parentLevel = form.level - 1
+  const parentLocations = parentLevel >= 0 ? locations.filter((l) => l.level === parentLevel) : []
 
   const levelLabels = ['Country', 'County', 'Sub-County', 'Area']
 

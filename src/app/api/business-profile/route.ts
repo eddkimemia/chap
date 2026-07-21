@@ -33,7 +33,7 @@ export async function PUT(request: NextRequest) {
     if (employeeCount !== undefined) data.employeeCount = employeeCount
     if (foundedYear !== undefined) data.foundedYear = foundedYear ? parseInt(String(foundedYear), 10) || null : null
     if (address !== undefined) data.address = address
-    if (socialLinks !== undefined) data.socialLinks = socialLinks
+    if (socialLinks !== undefined) data.socialLinks = typeof socialLinks === 'string' ? socialLinks : JSON.stringify(socialLinks)
 
     const profile = await db.businessProfile.upsert({
       where: { userId: user.id },

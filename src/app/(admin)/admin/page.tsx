@@ -42,6 +42,7 @@ import { apiFetch } from '@/lib/api-client'
 interface AdminStats {
   totalUsers: number
   newListings: number
+  activeListings: number
   totalRevenue: number
   openReports: number
   monthlyGrowth: number
@@ -94,7 +95,9 @@ export default function AdminDashboard() {
         if (activityRes.status === 'fulfilled' && activityRes.value.ok) {
           setActivity(await activityRes.value.json())
         }
-      } catch {} finally {
+      } catch (error) {
+        console.error('Failed to fetch admin stats:', error)
+      } finally {
         setLoading(false)
       }
     }

@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import {
   Plus, Search, MoreVertical, Pencil, Trash2, Eye, Star, Zap, Clock,
   ExternalLink, Grid3X3, List, Filter, Copy, Play, Pause, RefreshCw,
   TrendingUp, CheckSquare, Square, Megaphone, DollarSign, Ban, Package,
+  Smartphone, Loader2, CheckCircle2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -55,6 +56,11 @@ export default function ListingsPage() {
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [boostDialog, setBoostDialog] = useState<{ open: boolean; listingId: string }>({ open: false, listingId: '' })
+  const [mpesaDialog, setMpesaDialog] = useState<{ open: boolean; listingId: string; type: string; durationDays: number; amount: number }>({ open: false, listingId: '', type: '', durationDays: 0, amount: 0 })
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [mpesaStep, setMpesaStep] = useState<'enter-phone' | 'check-phone' | 'done'>('enter-phone')
+  const [mpesaProcessing, setMpesaProcessing] = useState(false)
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const fetchListings = useCallback(async () => {
     try {
       const params = new URLSearchParams({ mine: 'true' })
@@ -65,6 +71,7 @@ export default function ListingsPage() {
   }, [statusFilter])
 
   useEffect(() => { fetchListings() }, [fetchListings])
+  useEffect(() => { return () => { if (pollRef.current) clearInterval(pollRef.current) } }, [])
 
   const filtered = listings.filter((l) =>
     l.title.toLowerCase().includes(search.toLowerCase()) || l.status.includes(search.toLowerCase())
@@ -105,19 +112,90 @@ export default function ListingsPage() {
         default:
           throw new Error(`Unknown action: ${action}`)
       }
-    } catch (err: any) { toast.error(err.message) }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') }
   }
 
-  const handleBoost = async (type: string, durationDays: number) => {
+  const handleBoostOpen = (type: string, durationDays: number) => {
+    const opt = promoOptions.find(o => o.type === type)
+    const amount = opt?.price || 0
+    setMpesaDialog({ open: true, listingId: boostDialog.listingId, type, durationDays, amount })
+    setPhoneNumber('')
+    setMpesaStep('enter-phone')
+    setMpesaProcessing(false)
+  }
+
+  const handleMpesaPayment = async () => {
+    if (!phoneNumber || phoneNumber.length < 10) {
+      toast.error('Please enter a valid M-Pesa phone number')
+      return
+    }
+    setMpesaProcessing(true)
+    setMpesaStep('check-phone')
     try {
-      const opt = promoOptions.find(o => o.type === type)
-      const amount = opt?.price || 0
-      const res = await apiFetch(`/api/listings/${boostDialog.listingId}/boost`, {
-        method: 'POST', body: JSON.stringify({ type, durationDays, amount }),
+      const res = await apiFetch('/api/payments/mpesa/stk-push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: phoneNumber,
+          amount: mpesaDialog.amount,
+          type: mpesaDialog.type === 'featured' ? 'featured' : mpesaDialog.type === 'promote' ? 'promotion' : 'boost',
+          description: `${mpesaDialog.type} listing`,
+          metadata: { listingId: mpesaDialog.listingId, type: mpesaDialog.type, durationDays: mpesaDialog.durationDays },
+        }),
       })
-      if (res.ok) { toast.success(`Listing ${type === 'featured' ? 'featured' : 'boosted'} successfully!`); setBoostDialog({ open: false, listingId: '' }); fetchListings() }
-      else { const d = await res.json(); throw new Error(d.error) }
-    } catch (err: any) { toast.error(err.message) }
+      if (res.ok) {
+        const data = await res.json()
+        pollPayment(data.paymentId)
+      } else {
+        const d = await res.json()
+        toast.error(d.error || 'Payment initiation failed')
+        setMpesaProcessing(false)
+        setMpesaStep('enter-phone')
+      }
+    } catch {
+      toast.error('Network error')
+      setMpesaProcessing(false)
+      setMpesaStep('enter-phone')
+    }
+  }
+
+  const pollPayment = (paymentId: string) => {
+    let attempts = 0
+    pollRef.current = setInterval(async () => {
+      attempts++
+      if (attempts > 40) {
+        if (pollRef.current) clearInterval(pollRef.current)
+        toast.error('Payment confirmation timed out. Please check your M-Pesa and try again.')
+        setMpesaProcessing(false)
+        setMpesaStep('enter-phone')
+        return
+      }
+      const res = await apiFetch(`/api/payments/${paymentId}`)
+      if (!res.ok) return
+      const payment = await res.json()
+      if (payment.status === 'completed') {
+        if (pollRef.current) clearInterval(pollRef.current)
+        const boostRes = await apiFetch(`/api/listings/${mpesaDialog.listingId}/boost`, {
+          method: 'POST',
+          body: JSON.stringify({ type: mpesaDialog.type, durationDays: mpesaDialog.durationDays, amount: mpesaDialog.amount, paymentId }),
+        })
+        setMpesaProcessing(false)
+        if (boostRes.ok) {
+          setMpesaStep('done')
+          toast.success(`Listing ${mpesaDialog.type === 'featured' ? 'featured' : 'boosted'} successfully!`)
+          setTimeout(() => { setMpesaDialog({ open: false, listingId: '', type: '', durationDays: 0, amount: 0 }); setBoostDialog({ open: false, listingId: '' }); fetchListings() }, 1500)
+        } else {
+          const d = await boostRes.json()
+          toast.error(d.error || 'Failed to boost listing')
+          setMpesaStep('enter-phone')
+        }
+      } else if (payment.status === 'failed') {
+        if (pollRef.current) clearInterval(pollRef.current)
+        toast.error('Payment failed. Please try again.')
+        setMpesaProcessing(false)
+        setMpesaStep('enter-phone')
+      }
+    }, 3000)
   }
 
   const handleBulk = async (action: string) => {
@@ -128,7 +206,7 @@ export default function ListingsPage() {
       })
       if (res.ok) { toast.success(`Bulk ${action} completed`); setSelected(new Set()); fetchListings() }
       else { const d = await res.json(); throw new Error(d.error) }
-    } catch (err: any) { toast.error(err.message) }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') }
   }
 
   const toggleSelect = (id: string) => {
@@ -285,7 +363,7 @@ export default function ListingsPage() {
                         )}
                         <DropdownMenuItem onClick={() => handleAction(listing.id, 'feature')} className="rounded-lg"><Star className="h-4 w-4 mr-2" /> Promote / Feature</DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild className="rounded-lg"><Link href={`/listing/${(listing as any).slug || listing.id}`} target="_blank"><ExternalLink className="h-4 w-4 mr-2" /> View Live</Link></DropdownMenuItem>
+                        <DropdownMenuItem asChild className="rounded-lg"><Link href={`/listing/${(listing as unknown as { slug: string }).slug || listing.id}`} target="_blank"><ExternalLink className="h-4 w-4 mr-2" /> View Live</Link></DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleAction(listing.id, 'delete')} className="rounded-lg text-red-600 focus:text-red-600"><Trash2 className="h-4 w-4 mr-2" /> Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -334,7 +412,7 @@ export default function ListingsPage() {
                       )}
                       {listing.status === 'expired' && <DropdownMenuItem onClick={() => handleAction(listing.id, 'renew')} className="rounded-lg"><RefreshCw className="h-4 w-4 mr-2" /> Renew</DropdownMenuItem>}
                       <DropdownMenuItem onClick={() => handleAction(listing.id, 'feature')} className="rounded-lg"><Star className="h-4 w-4 mr-2" /> Promote</DropdownMenuItem>
-                      <DropdownMenuItem asChild className="rounded-lg"><Link href={`/listing/${(listing as any).slug || listing.id}`} target="_blank"><ExternalLink className="h-4 w-4 mr-2" /> View Live</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-lg"><Link href={`/listing/${(listing as unknown as { slug: string }).slug || listing.id}`} target="_blank"><ExternalLink className="h-4 w-4 mr-2" /> View Live</Link></DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleAction(listing.id, 'delete')} className="rounded-lg text-red-600"><Trash2 className="h-4 w-4 mr-2" /> Delete</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -354,7 +432,7 @@ export default function ListingsPage() {
           </DialogHeader>
           <div className="space-y-3 py-2">
             {promoOptions.map((opt) => (
-              <button key={opt.type} onClick={() => handleBoost(opt.type, opt.days)}
+              <button key={opt.type} onClick={() => handleBoostOpen(opt.type, opt.days)}
                 className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-royal/30 hover:bg-royal/5 transition-all group">
                 <div className="flex items-center justify-between">
                   <div>
@@ -372,6 +450,72 @@ export default function ListingsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setBoostDialog({ open: false, listingId: '' })} className="rounded-xl">Cancel</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* M-Pesa Payment Dialog */}
+      <Dialog open={mpesaDialog.open} onOpenChange={(o) => { if (!o) { setMpesaDialog((p) => ({ ...p, open: false })); if (pollRef.current) clearInterval(pollRef.current) } }}>
+        <DialogContent className="rounded-2xl max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Smartphone className="h-5 w-5 text-royal" /> M-Pesa Payment</DialogTitle>
+            <DialogDescription>
+              {mpesaStep === 'enter-phone' && `Pay KES ${mpesaDialog.amount.toLocaleString()} for ${mpesaDialog.type} listing`}
+              {mpesaStep === 'check-phone' && 'Check your phone for the M-Pesa STK Push prompt'}
+              {mpesaStep === 'done' && 'Payment successful! Your listing has been promoted.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {mpesaStep === 'enter-phone' && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 p-3 bg-royal/5 rounded-xl">
+                <Smartphone className="h-5 w-5 text-royal shrink-0" />
+                <p className="text-sm text-slate-600">Enter your M-Pesa registered phone number</p>
+              </div>
+              <Input
+                placeholder="e.g. 0712345678"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="rounded-xl h-12 text-lg"
+              />
+              <Button
+                onClick={handleMpesaPayment}
+                disabled={mpesaProcessing}
+                className="w-full rounded-xl h-12 bg-royal text-white border-0 text-base"
+              >
+                {mpesaProcessing ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : null}
+                Pay KES {mpesaDialog.amount.toLocaleString()}
+              </Button>
+              <Button variant="outline" className="w-full rounded-xl" onClick={() => setMpesaDialog((p) => ({ ...p, open: false }))}>
+                Cancel
+              </Button>
+            </div>
+          )}
+
+          {mpesaStep === 'check-phone' && (
+            <div className="space-y-4 text-center py-4">
+              <div className="h-16 w-16 rounded-full bg-royal/10 flex items-center justify-center mx-auto">
+                <Smartphone className="h-8 w-8 text-royal animate-pulse" />
+              </div>
+              <p className="text-sm text-slate-500">Enter your M-Pesa PIN when prompted on your phone</p>
+              <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Waiting for payment confirmation...
+              </div>
+              <Button
+                variant="outline" className="rounded-xl mt-2"
+                onClick={() => { setMpesaStep('enter-phone'); setMpesaProcessing(false); if (pollRef.current) clearInterval(pollRef.current) }}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+
+          {mpesaStep === 'done' && (
+            <div className="text-center py-4">
+              <CheckCircle2 className="h-12 w-12 mx-auto text-emerald-500 mb-3" />
+              <p className="text-sm font-medium text-navy">Listing promoted successfully!</p>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -35,7 +35,7 @@ export default function AdminAdvertisementsPage() {
     try {
       const res = await apiFetch('/api/admin/banners')
       if (res.ok) setBanners(await res.json())
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch banners:', error) } finally { setLoading(false) }
   }
 
   const saveBanner = async () => {

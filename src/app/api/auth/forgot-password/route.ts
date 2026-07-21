@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { generateOTP } from '@/lib/auth'
+import { generateOTP, hashOtp } from '@/lib/auth'
 import { forgotPasswordSchema } from '@/lib/validators'
 import { rateLimit } from '@/lib/rate-limit'
 
@@ -37,13 +37,11 @@ export async function POST(request: NextRequest) {
     await db.twoFactorSession.create({
       data: {
         userId: user.id,
-        code,
+        code: await hashOtp(code),
         type: 'reset_password',
         expiresAt,
       },
     })
-
-    console.log(`[DEV] Password reset code for ${email || phone}: ${code}`)
 
     return NextResponse.json({
       message: 'If the account exists, a reset code has been sent',

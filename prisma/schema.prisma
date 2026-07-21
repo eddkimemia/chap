@@ -55,11 +55,17 @@ model User {
   sellerStats       SellerStats?
   following         Follow[]          @relation("Follower")
   followers         Follow[]          @relation("Following")
+  blockedUsers      BlockedUser[]     @relation("BlockedBy")
+  blockedBy         BlockedUser[]     @relation("BlockedUser")
   reports           Report[]          @relation("ReportAuthor")
   reportsReceived   Report[]          @relation("ReportTarget")
   moderationLogs    ModerationLog[]
   sessions2fa       TwoFactorSession[]
   verificationRequests VerificationRequest[]
+  boosts              Boost[]
+
+  @@index([role])
+  @@index([isActive])
 }
 
 model UserProfile {
@@ -109,6 +115,9 @@ model Session {
   isActive     Boolean  @default(true)
   expiresAt    DateTime
   createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model TwoFactorSession {
@@ -129,9 +138,9 @@ model Listing {
   userId          String
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   categoryId      String
-  category        Category @relation(fields: [categoryId], references: [id])
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   locationId      String
-  location        Location @relation(fields: [locationId], references: [id])
+  location        Location @relation(fields: [locationId], references: [id], onDelete: Restrict)
 
   title           String
   slug            String   @unique
@@ -152,8 +161,6 @@ model Listing {
   contactName     String
   contactPhone    String
   contactEmail    String   @default("")
-  customFields    String   @default("{}") // JSON: dynamic fields per category
-  tags            String   @default("[]") // JSON array of tags
   displayId       String   @default("")
   expiresAt       DateTime?
   renewedAt       DateTime?
@@ -173,6 +180,8 @@ model Listing {
   reports         Report[]
   boosts          Boost[]
   moderationLogs  ModerationLog[]
+  customFields    ListingCustomField[]
+  listingTags     ListingTag[]
 
   @@index([userId])
   @@index([categoryId])
@@ -223,11 +232,11 @@ model Category {
   children   Category[] @relation("SubCategories")
   order      Int        @default(0)
   isActive   Boolean    @default(true)
-  customFields String   @default("[]") // JSON: [{name, type, required, options}]
   listings   Listing[]
   priceAlerts PriceAlert[]
   seoTitle   String     @default("")
   seoDesc    String     @default("")
+  customFieldDefs CategoryCustomFieldDef[]
 
   @@index([parentId])
 }
@@ -250,7 +259,44 @@ model Location {
   @@index([parentId])
 }
 
-// ─── CATEGORIES & LOCATIONS ───────────────────────────────────────────────────
+model CategoryCustomFieldDef {
+  id         String   @id @default(cuid())
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name       String
+  type       String   @default("text") // text, number, select, multi, boolean
+  required   Boolean  @default(false)
+  options    String   @default("[]") // JSON array for select/multi
+  order      Int      @default(0)
+
+  @@index([categoryId])
+}
+
+model ListingCustomField {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  name      String
+  value     String
+
+  @@index([listingId])
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  listings ListingTag[]
+}
+
+model ListingTag {
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  tagId     String
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([listingId, tagId])
+  @@index([tagId])
+}
 
 // ─── MESSAGING ─────────────────────────────────────────────────────────────────
 
@@ -293,6 +339,8 @@ model Message {
   @@index([senderId])
   @@index([receiverId])
   @@index([createdAt])
+  @@index([readAt])
+  @@index([isRead])
 }
 
 // ─── FAVORITES & SAVED SEARCHES ────────────────────────────────────────────────
@@ -309,13 +357,19 @@ model Favorite {
 }
 
 model SavedSearch {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  query     String   // JSON: {search, category, location, minPrice, maxPrice, condition, sort}
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  search     String?
+  categoryId String?
+  locationId String?
+  minPrice   Float?
+  maxPrice   Float?
+  condition  String?
+  sort       String   @default("newest")
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }
 
 model PriceAlert {
@@ -323,9 +377,9 @@ model PriceAlert {
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   categoryId String?
-  category   Category? @relation(fields: [categoryId], references: [id])
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   locationId String?
-  location   Location? @relation(fields: [locationId], references: [id])
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
   minPrice   Float?
   maxPrice   Float?
   isActive   Boolean  @default(true)
@@ -346,6 +400,8 @@ model Review {
   comment    String
   isVerified Boolean  @default(false) // verified purchase
   isPublic   Boolean  @default(true)
+  reply      String   @default("")
+  replyAt    DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -380,22 +436,41 @@ model Follow {
   @@unique([followerId, followingId])
 }
 
+model BlockedUser {
+  id         String   @id @default(cuid())
+  blockerId  String
+  blocker    User     @relation("BlockedBy", fields: [blockerId], references: [id], onDelete: Cascade)
+  blockedId  String
+  blocked    User     @relation("BlockedUser", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
 // ─── NOTIFICATIONS ─────────────────────────────────────────────────────────────
 
 model Notification {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String   // message, listing_sold, price_drop, review, payment, system, promotion
-  title     String
-  body      String
-  data      String   @default("{}") // JSON: extra data (listingId, conversationId, etc.)
-  isRead    Boolean  @default(false)
-  readAt    DateTime?
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String   // message, listing_sold, price_drop, review, payment, system, promotion
+  title          String
+  body           String
+  listingId      String?
+  conversationId String?
+  reviewId       String?
+  senderId       String?
+  isRead         Boolean  @default(false)
+  readAt         DateTime?
+  createdAt      DateTime @default(now())
 
   @@index([userId])
   @@index([isRead])
+  @@index([createdAt])
+  @@index([listingId])
+  @@index([conversationId])
 }
 
 model NotificationPreference {
@@ -453,6 +528,7 @@ model Subscription {
 
   @@index([userId])
   @@index([status])
+  @@index([endDate])
 }
 
 model Plan {
@@ -463,7 +539,6 @@ model Plan {
   price           Float
   currency        String   @default("KES")
   interval        String   @default("monthly") // monthly, yearly
-  features        String   // JSON: {maxListings, maxImages, featured, boost, etc.}
   maxListings     Int      @default(5)
   maxImages       Int      @default(5)
   maxVideos       Int      @default(0)
@@ -473,6 +548,16 @@ model Plan {
   order           Int      @default(0)
   createdAt       DateTime @default(now())
   subscriptions   Subscription[]
+  planFeatures    PlanFeature[]
+}
+
+model PlanFeature {
+  id      String @id @default(cuid())
+  planId  String
+  plan    Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  feature String
+
+  @@index([planId])
 }
 
 model Boost {
@@ -480,6 +565,7 @@ model Boost {
   listingId String
   listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
   userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      String   // boost, featured, promote
   amount    Float
   startDate DateTime @default(now())
@@ -506,9 +592,12 @@ model Report {
   reviewedAt    DateTime?
   resolution    String   @default("")
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([status])
   @@index([listingId])
+  @@index([targetId])
+  @@index([authorId])
 }
 
 model ModerationLog {
@@ -522,6 +611,7 @@ model ModerationLog {
   details     String   @default("")
   aiScore     Float?
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // ─── BLOG & CMS ───────────────────────────────────────────────────────────────
@@ -565,6 +655,8 @@ model Faq {
   category  String   @default("General")
   order     Int      @default(0)
   isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ─── SYSTEM ────────────────────────────────────────────────────────────────────
@@ -594,6 +686,7 @@ model Banner {
   impressions Int      @default(0)
   order       Int      @default(0)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model VerificationRequest {

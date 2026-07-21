@@ -9,6 +9,7 @@ import {
   MapPin,
   Clock,
   Phone,
+  Mail,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -93,7 +94,7 @@ export function ListingDetail() {
           url: getListingUrl(),
         })
       }
-    } catch {}
+    } catch (error) { console.error('Share failed:', error) }
   }
 
   const nextImage = () => {

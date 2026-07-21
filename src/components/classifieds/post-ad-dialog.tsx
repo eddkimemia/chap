@@ -21,11 +21,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useAppStore } from '@/lib/store'
+import { apiFetch } from '@/lib/api-client'
 import { toast } from 'sonner'
 import { Loader2, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const MAX_IMAGES = 10
 const MAX_FILE_SIZE = 5 * 1024 * 1024
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
@@ -35,10 +35,11 @@ export function PostAdDialog() {
   const [submitting, setSubmitting] = useState(false)
   const [parentCategory, setParentCategory] = useState('')
   const [subCategory, setSubCategory] = useState('')
+  const [areaSlug, setAreaSlug] = useState('')
   const [uploadedImages, setUploadedImages] = useState<string[]>([])
   const [uploading, setUploading] = useState(false)
+  const [maxImages, setMaxImages] = useState(10)
   const fileInputRef = useRef<HTMLInputElement>(null)
-
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -54,6 +55,9 @@ export function PostAdDialog() {
   const parentCategories = categories.filter((c) => !c.parentId)
   const selectedParent = categories.find((c) => c.slug === parentCategory && !c.parentId)
   const subCategories = selectedParent?.children || []
+  const counties = locations.filter((l) => l.level === 1)
+  const selectedCounty = counties.find((c) => c.slug === form.location)
+  const areas = selectedCounty ? locations.filter((l) => l.parentId === selectedCounty.id) : []
 
   useEffect(() => {
     if (showPostAd) {
@@ -70,7 +74,16 @@ export function PostAdDialog() {
       })
       setParentCategory('')
       setSubCategory('')
+      setAreaSlug('')
       setUploadedImages([])
+      apiFetch('/api/subscriptions').then((r) => {
+        if (!r.ok) return
+        r.json().then((subs) => {
+          const active = Array.isArray(subs) ? subs.find((s: { status: string }) => s.status === 'active') : null
+          const planMax = active?.plan?.maxImages
+          setMaxImages(planMax === -1 ? 999 : planMax || 10)
+        })
+      })
     }
   }, [showPostAd])
 
@@ -80,9 +93,9 @@ export function PostAdDialog() {
 
   const handleFiles = useCallback(async (files: FileList | File[]) => {
     const fileArray = Array.from(files)
-    const remaining = MAX_IMAGES - uploadedImages.length
+    const remaining = maxImages - uploadedImages.length
     if (remaining <= 0) {
-      toast.error(`Maximum ${MAX_IMAGES} images allowed`)
+      toast.error(`Maximum ${maxImages} images allowed`)
       return
     }
 
@@ -163,6 +176,7 @@ export function PostAdDialog() {
 
     setSubmitting(true)
     try {
+      const locationSlug = areaSlug || form.location
       const res = await fetch('/api/listings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -172,7 +186,7 @@ export function PostAdDialog() {
           price: form.price ? parseFloat(form.price) : 0,
           condition: form.condition,
           categorySlug: subCategory,
-          locationSlug: form.location,
+          locationSlug,
           contactName: form.contactName,
           contactPhone: form.contactPhone,
           contactEmail: form.contactEmail,
@@ -213,12 +227,12 @@ export function PostAdDialog() {
         <form onSubmit={handleSubmit} className="space-y-5 pt-2">
           {/* Image Upload */}
           <div className="space-y-1.5">
-            <Label className="text-sm font-semibold text-navy">Images (optional, max {MAX_IMAGES})</Label>
+            <Label className="text-sm font-semibold text-navy">Images (optional, max {maxImages})</Label>
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onClick={() => {
-                if (uploadedImages.length < MAX_IMAGES && !uploading) {
+                if (uploadedImages.length < maxImages && !uploading) {
                   fileInputRef.current?.click()
                 }
               }}
@@ -252,7 +266,7 @@ export function PostAdDialog() {
               </p>
               {uploadedImages.length > 0 && (
                 <p className="text-xs font-semibold text-royal mt-2">
-                  {uploadedImages.length}/{MAX_IMAGES} images
+                  {uploadedImages.length}/{maxImages} images
                 </p>
               )}
             </div>
@@ -372,21 +386,60 @@ export function PostAdDialog() {
           </div>
 
           {/* Location */}
-          <div className="space-y-1.5">
-            <Label className="text-sm font-semibold text-navy">Location</Label>
-            <Select value={form.location} onValueChange={(v) => updateField('location', v)}>
-              <SelectTrigger className="w-full rounded-xl border-slate-200 bg-slate-50/50 text-sm">
-                <SelectValue placeholder="Select location" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                {locations.map((loc) => (
-                  <SelectItem key={loc.id} value={loc.slug}>
-                    {loc.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {counties.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-navy">County</Label>
+                <Select value={form.location} onValueChange={(v) => { updateField('location', v); setAreaSlug('') }}>
+                  <SelectTrigger className="w-full rounded-xl border-slate-200 bg-slate-50/50 text-sm">
+                    <SelectValue placeholder="Select county" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    {counties.map((loc) => (
+                      <SelectItem key={loc.id} value={loc.slug}>
+                        {loc.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-sm font-semibold text-navy">Area / Town</Label>
+                <Select
+                  value={areaSlug}
+                  onValueChange={setAreaSlug}
+                  disabled={!form.location || areas.length === 0}
+                >
+                  <SelectTrigger className="w-full rounded-xl border-slate-200 bg-slate-50/50 text-sm">
+                    <SelectValue placeholder={form.location ? 'Select area' : 'Pick county first'} />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    {areas.map((loc) => (
+                      <SelectItem key={loc.id} value={loc.slug}>
+                        {loc.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1.5">
+              <Label className="text-sm font-semibold text-navy">Location</Label>
+              <Select value={form.location} onValueChange={(v) => updateField('location', v)}>
+                <SelectTrigger className="w-full rounded-xl border-slate-200 bg-slate-50/50 text-sm">
+                  <SelectValue placeholder="Select location" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {locations.map((loc) => (
+                    <SelectItem key={loc.id} value={loc.slug}>
+                      {loc.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Condition */}
           <div className="space-y-1.5">

@@ -11,20 +11,16 @@ export async function GET(request: NextRequest) {
       orderBy: { createdAt: 'desc' },
     })
 
-    const mapped = savedSearches.map((s) => {
-      let query = {}
-      try { query = JSON.parse(s.query) } catch {}
-      return {
-        id: s.id,
-        query: (query as any).search || s.name || '',
-        category: (query as any).category || undefined,
-        location: (query as any).location || undefined,
-        minPrice: (query as any).minPrice || undefined,
-        maxPrice: (query as any).maxPrice || undefined,
-        alertsEnabled: s.isActive,
-        createdAt: s.createdAt.toISOString(),
-      }
-    })
+    const mapped = savedSearches.map((s) => ({
+      id: s.id,
+      query: s.search || s.name || '',
+      category: s.categoryId || undefined,
+      location: s.locationId || undefined,
+      minPrice: s.minPrice || undefined,
+      maxPrice: s.maxPrice || undefined,
+      alertsEnabled: s.isActive,
+      createdAt: s.createdAt.toISOString(),
+    }))
 
     return NextResponse.json({ searches: mapped })
   } catch (error) {

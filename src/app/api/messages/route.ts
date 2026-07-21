@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         type: 'message',
         title: 'New message',
         body: content.substring(0, 100),
-        data: JSON.stringify({ conversationId: conversation.id, senderId: user.id }),
+        conversationId: conversation.id, senderId: user.id,
       },
     })
 

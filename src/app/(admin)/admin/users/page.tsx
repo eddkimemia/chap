@@ -22,6 +22,7 @@ import {
   ExternalLink,
   ShieldCheck,
   XCircle,
+  Pencil,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -70,6 +71,7 @@ interface UserRecord {
   isEmailVerified: boolean
   isPhoneVerified: boolean
   notes: string
+  bio?: string
   createdAt: string
   lastLoginAt?: string
   _count?: { listings: number; sessions: number }
@@ -83,7 +85,7 @@ export default function AdminUsersPage() {
   const [totalPages, setTotalPages] = useState(1)
 
   const [activeUser, setActiveUser] = useState<UserRecord | null>(null)
-  const [dialog, setDialog] = useState<'reset' | 'verify' | 'notify' | 'impersonate' | 'activity' | 'ban' | 'notes' | null>(null)
+  const [dialog, setDialog] = useState<'reset' | 'verify' | 'notify' | 'impersonate' | 'activity' | 'ban' | 'notes' | 'edit' | null>(null)
 
   const [newPassword, setNewPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -99,8 +101,11 @@ export default function AdminUsersPage() {
   const [impersonating, setImpersonating] = useState(false)
   const [impersonateToken, setImpersonateToken] = useState('')
 
+  interface ActivityListing { id: string; title: string; status: string; price: number; views: number; slug?: string }
+  interface ActivityModerationLog { id: string; action: string; createdAt: string; reason: string; listing?: { title: string } }
+  interface ActivitySession { id: string; isActive: boolean; createdAt: string; ipAddress: string; userAgent: string }
   const [activityData, setActivityData] = useState<{
-    moderationLogs: any[]; listings: any[]; sessions: any[]
+    moderationLogs: ActivityModerationLog[]; listings: ActivityListing[]; sessions: ActivitySession[]
   } | null>(null)
   const [activityLoading, setActivityLoading] = useState(false)
 
@@ -109,6 +114,9 @@ export default function AdminUsersPage() {
 
   const [notesText, setNotesText] = useState('')
   const [notesSubmitting, setNotesSubmitting] = useState(false)
+
+  const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', username: '', bio: '' })
+  const [editSubmitting, setEditSubmitting] = useState(false)
 
   useEffect(() => {
     fetchUsers()
@@ -123,7 +131,7 @@ export default function AdminUsersPage() {
         setUsers(data.users || [])
         setTotalPages(data.totalPages || 1)
       }
-    } catch {} finally {
+    } catch (error) { console.error('Failed to fetch users:', error) } finally {
       setLoading(false)
     }
   }
@@ -317,6 +325,37 @@ export default function AdminUsersPage() {
     }
   }
 
+  const handleEdit = async () => {
+    if (!activeUser) return
+    setEditSubmitting(true)
+    try {
+      const res = await apiFetch(`/api/admin/users/${activeUser.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editForm),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === activeUser.id
+              ? { ...u, name: data.name, email: data.email, phone: data.phone, username: data.username, bio: data.bio }
+              : u
+          )
+        )
+        toast.success('User updated')
+        setDialog(null)
+        setActiveUser(null)
+      } else {
+        toast.error(data.error || 'Failed to update user')
+      }
+    } catch {
+      toast.error('Failed to update user')
+    } finally {
+      setEditSubmitting(false)
+    }
+  }
+
   const handleNotes = async () => {
     if (!activeUser) return
     setNotesSubmitting(true)
@@ -491,6 +530,9 @@ export default function AdminUsersPage() {
                             <Link href={`/seller/${user.username || user.id}`} target="_blank">
                               <ExternalLink className="h-4 w-4 mr-2" /> View Seller Page
                             </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => { setActiveUser(user); setDialog('edit'); setEditForm({ name: user.name, email: user.email || '', phone: user.phone || '', username: user.username || '', bio: (user as any).bio || '' }) }} className="rounded-lg">
+                            <Pencil className="h-4 w-4 mr-2" /> Edit User
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => { setActiveUser(user); setDialog('notify'); setNotifyTitle(''); setNotifyBody('') }} className="rounded-lg">
                             <Ban className="h-4 w-4 mr-2" /> Send Notification
@@ -742,7 +784,7 @@ export default function AdminUsersPage() {
                 <div>
                   <h4 className="text-sm font-bold text-navy mb-2">Listings ({activityData.listings.length})</h4>
                   <div className="space-y-2">
-                    {activityData.listings.map((l: any) => (
+                    {activityData.listings.map((l: ActivityListing) => (
                       <div key={l.id} className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-semibold text-navy truncate">{l.title}</p>
@@ -760,7 +802,7 @@ export default function AdminUsersPage() {
                 <div>
                   <h4 className="text-sm font-bold text-navy mb-2">Moderation History ({activityData.moderationLogs.length})</h4>
                   <div className="space-y-2">
-                    {activityData.moderationLogs.map((log: any) => (
+                    {activityData.moderationLogs.map((log: ActivityModerationLog) => (
                       <div key={log.id} className="p-2 rounded-xl bg-slate-50 border border-slate-100">
                         <div className="flex items-center justify-between">
                           <p className="text-xs font-semibold text-navy capitalize">{log.action.replace(/_/g, ' ')}</p>
@@ -777,7 +819,7 @@ export default function AdminUsersPage() {
                 <div>
                   <h4 className="text-sm font-bold text-navy mb-2">Sessions ({activityData.sessions.length})</h4>
                   <div className="space-y-2">
-                    {activityData.sessions.map((s: any) => (
+                    {activityData.sessions.map((s: ActivitySession) => (
                       <div key={s.id} className="p-2 rounded-xl bg-slate-50 border border-slate-100">
                         <div className="flex items-center justify-between">
                           <p className={`text-xs font-semibold ${s.isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
@@ -869,6 +911,75 @@ export default function AdminUsersPage() {
             <Button variant="outline" onClick={() => { setDialog(null); setActiveUser(null) }} className="rounded-xl">Cancel</Button>
             <Button onClick={handleNotes} disabled={notesSubmitting} className="rounded-xl bg-royal hover:bg-royal/90 border-0">
               {notesSubmitting ? 'Saving...' : 'Save Notes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit User Dialog */}
+      <Dialog open={dialog === 'edit'} onOpenChange={(o) => { if (!o) { setDialog(null); setActiveUser(null) } }}>
+        <DialogContent className="rounded-2xl sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-royal" /> Edit User
+            </DialogTitle>
+            <DialogDescription>
+              Update profile information for <strong>{activeUser?.name}</strong>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Name</Label>
+              <Input
+                value={editForm.name}
+                onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))}
+                placeholder="Full name"
+                className="h-11 rounded-xl border-slate-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                value={editForm.email}
+                onChange={(e) => setEditForm((p) => ({ ...p, email: e.target.value }))}
+                placeholder="email@example.com"
+                className="h-11 rounded-xl border-slate-200"
+                type="email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Phone</Label>
+              <Input
+                value={editForm.phone}
+                onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))}
+                placeholder="+2547XXXXXXXX"
+                className="h-11 rounded-xl border-slate-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Username</Label>
+              <Input
+                value={editForm.username}
+                onChange={(e) => setEditForm((p) => ({ ...p, username: e.target.value }))}
+                placeholder="username"
+                className="h-11 rounded-xl border-slate-200"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Bio</Label>
+              <textarea
+                value={editForm.bio}
+                onChange={(e) => setEditForm((p) => ({ ...p, bio: e.target.value }))}
+                placeholder="Short bio about the user..."
+                className="w-full min-h-[80px] rounded-xl border border-slate-200 p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-royal/20 focus:border-royal"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setDialog(null); setActiveUser(null) }} className="rounded-xl">Cancel</Button>
+            <Button onClick={handleEdit} disabled={editSubmitting || !editForm.name} className="rounded-xl bg-royal hover:bg-royal/90 border-0">
+              {editSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 export default async function LocationPage() {
   const [locations, featuredListings] = await Promise.all([
     db.location.findMany({
-      where: { parentId: null },
+      where: { level: 1 },
       include: {
         children: { select: { id: true, name: true, slug: true } },
         listings: {
@@ -36,10 +36,12 @@ export default async function LocationPage() {
         location: { select: { name: true, slug: true } },
         category: { select: { name: true, slug: true } },
       },
-      orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+      orderBy: { createdAt: 'desc' },
       take: 12,
     }),
   ])
+
+  const shuffledFeatured = [...featuredListings].sort(() => 0.5 - Math.random())
 
   const locationsWithCounts = await Promise.all(
     locations.map(async (loc) => {
@@ -84,7 +86,7 @@ export default async function LocationPage() {
         orderBy: { createdAt: 'desc' },
         take: 4,
       })
-      return { slug: loc.slug, listings }
+      return { slug: loc.slug, listings: [...listings].sort(() => 0.5 - Math.random()) }
     }),
   )
   const topListingMap = new Map(topLocationListings.map((t) => [t.slug, t.listings]))
@@ -109,7 +111,7 @@ export default async function LocationPage() {
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {featuredListings.map((listing) => (
+                {shuffledFeatured.map((listing) => (
                   <Link key={listing.id} href={`/listing/${listing.slug}`} className="group rounded-xl overflow-hidden bg-white border border-slate-100 hover:shadow-lg hover:-translate-y-0.5 transition-all">
                     <div className="relative aspect-[4/3] bg-slate-100">
                       {listing.images[0] ? (

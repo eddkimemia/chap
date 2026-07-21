@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getCurrentUser } from '@/lib/auth'
-import { generateOTP } from '@/lib/auth'
+import { getCurrentUser, hashOtp } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 import { z } from 'zod'
 
@@ -36,10 +35,11 @@ export async function POST(request: NextRequest) {
     const { code, type } = parsed.data
     const userId = user.id
 
+    const codeHash = await hashOtp(code)
     const otp = await db.twoFactorSession.findFirst({
       where: {
         userId,
-        code,
+        code: codeHash,
         type: `verify_${type}`,
         used: false,
         expiresAt: { gt: new Date() },
@@ -92,22 +92,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function generateAndStoreOTP(
-  userId: string,
-  type: 'phone' | 'email'
-) {
-  const code = generateOTP()
-  const expiresAt = new Date()
-  expiresAt.setMinutes(expiresAt.getMinutes() + 10)
 
-  await db.twoFactorSession.create({
-    data: {
-      userId,
-      code,
-      type: `verify_${type}`,
-      expiresAt,
-    },
-  })
-
-  return code
-}

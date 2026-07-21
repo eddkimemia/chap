@@ -77,7 +77,7 @@ export default function AdminReportsPage() {
       const data = await res.json()
         setReports(data.reports || [])
       }
-    } catch {} finally {
+    } catch (error) { console.error('Failed to fetch reports:', error) } finally {
       setLoading(false)
     }
   }

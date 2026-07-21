@@ -42,6 +42,8 @@ interface Location {
   id: string
   name: string
   slug: string
+  level?: number
+  parentId?: string | null
 }
 
 interface ImagePreview {
@@ -64,6 +66,7 @@ export default function EditListingPage() {
   const [locations, setLocations] = useState<Location[]>([])
   const [images, setImages] = useState<ImagePreview[]>([])
   const [dragOver, setDragOver] = useState(false)
+  const [maxImages, setMaxImages] = useState(10)
 
   const [form, setForm] = useState({
     title: '',
@@ -72,6 +75,7 @@ export default function EditListingPage() {
     categoryId: '',
     subcategoryId: '',
     locationId: '',
+    areaId: '',
     condition: 'Used',
     isNegotiable: false,
     contactName: '',
@@ -82,23 +86,39 @@ export default function EditListingPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-      const [catRes, locRes, listRes] = await Promise.all([
+      const [catRes, locRes, listRes, subRes] = await Promise.all([
           apiFetch('/api/categories'),
           apiFetch('/api/locations'),
           apiFetch(`/api/listings/${id}`),
+          apiFetch('/api/subscriptions'),
         ])
+        if (subRes.ok) {
+          const subs = await subRes.json()
+          const active = Array.isArray(subs) ? subs.find((s: { status: string }) => s.status === 'active') : null
+          const planMax = active?.plan?.maxImages
+          setMaxImages(planMax === -1 ? 999 : planMax || 10)
+        }
         if (catRes.ok) setCategories(await catRes.json())
-        if (locRes.ok) setLocations(await locRes.json())
+        const allLocations: Location[] = locRes.ok ? await locRes.json() : []
+        if (locRes.ok) setLocations(allLocations)
         if (listRes.ok) {
-      const data = await listRes.json()
-      const listing = data.listing || data
+          const data = await listRes.json()
+          const listing = data.listing || data
+          let areaId = ''
+          let locationId = listing.locationId || ''
+          const locData = allLocations.find((l: Location) => l.id === locationId)
+          if (locData && locData.level === 2) {
+            areaId = locData.id
+            locationId = locData.parentId || ''
+          }
           setForm({
             title: listing.title || '',
             description: listing.description || '',
             price: String(listing.price || ''),
             categoryId: listing.categoryId || '',
             subcategoryId: '',
-            locationId: listing.locationId || '',
+            locationId,
+            areaId,
             condition: listing.condition || 'Used',
             isNegotiable: listing.isNegotiable || false,
             contactName: listing.contactName || '',
@@ -118,15 +138,21 @@ export default function EditListingPage() {
     fetchData()
   }, [id])
 
-  const updateForm = (field: string, value: any) => setForm((prev) => ({ ...prev, [field]: value }))
+  const updateForm = (field: string, value: string | number | boolean | string[]) => setForm((prev) => ({ ...prev, [field]: value }))
 
   const parentCategories = categories.filter((c) => !c.parentId)
   const subcategories = categories.filter((c) => c.parentId === form.categoryId)
 
+  const counties = locations.filter((l) => l.level === 1)
+  const hasHierarchy = counties.length > 0
+  const flatLocations = !hasHierarchy ? locations : []
+  const selectedCounty = counties.find((c) => c.id === form.locationId)
+  const areas = selectedCounty ? locations.filter((l) => l.parentId === selectedCounty.id) : []
+
   const handleImageUpload = (files: FileList | null) => {
     if (!files) return
     const newImages: ImagePreview[] = []
-    Array.from(files).slice(0, 10 - images.length).forEach((file) => {
+    Array.from(files).slice(0, maxImages - images.length).forEach((file) => {
       if (file.type.startsWith('image/')) {
         newImages.push({ file, url: URL.createObjectURL(file) })
       }
@@ -149,7 +175,7 @@ export default function EditListingPage() {
       formData.append('description', form.description)
       formData.append('price', form.price || '0')
       formData.append('categoryId', form.subcategoryId || form.categoryId)
-      formData.append('locationId', form.locationId)
+      formData.append('locationId', form.areaId || form.locationId)
       formData.append('condition', form.condition)
       formData.append('isNegotiable', String(form.isNegotiable))
       formData.append('contactName', form.contactName)
@@ -169,8 +195,8 @@ export default function EditListingPage() {
 
       toast.success('Listing updated!')
       router.push('/dashboard/listings')
-    } catch (err: any) {
-      toast.error(err.message)
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setSaving(false)
     }
@@ -327,21 +353,60 @@ export default function EditListingPage() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-navy font-medium">Location *</Label>
-                <Select value={form.locationId} onValueChange={(v) => updateForm('locationId', v)}>
-                  <SelectTrigger className="rounded-2xl h-12 bg-white border-slate-200">
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl">
-                    {locations.map((loc) => (
-                      <SelectItem key={loc.id} value={loc.id}>
-                        {loc.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {hasHierarchy ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-navy font-medium">County *</Label>
+                    <Select value={form.locationId} onValueChange={(v) => { updateForm('locationId', v); updateForm('areaId', '') }}>
+                      <SelectTrigger className="rounded-2xl h-12 bg-white border-slate-200">
+                        <SelectValue placeholder="Select county" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl">
+                        {counties.map((loc) => (
+                          <SelectItem key={loc.id} value={loc.id}>
+                            {loc.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-navy font-medium">Area / Town</Label>
+                    <Select
+                      value={form.areaId}
+                      onValueChange={(v) => updateForm('areaId', v)}
+                      disabled={!form.locationId || areas.length === 0}
+                    >
+                      <SelectTrigger className="rounded-2xl h-12 bg-white border-slate-200">
+                        <SelectValue placeholder={form.locationId ? 'Select area' : 'Pick county first'} />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl">
+                        {areas.map((loc) => (
+                          <SelectItem key={loc.id} value={loc.id}>
+                            {loc.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label className="text-navy font-medium">Location *</Label>
+                  <Select value={form.locationId} onValueChange={(v) => updateForm('locationId', v)}>
+                    <SelectTrigger className="rounded-2xl h-12 bg-white border-slate-200">
+                      <SelectValue placeholder="Select location" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl">
+                      {flatLocations.map((loc) => (
+                        <SelectItem key={loc.id} value={loc.id}>
+                          {loc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="flex items-center gap-3">
                 <Checkbox
@@ -495,7 +560,7 @@ export default function EditListingPage() {
   )
 }
 
-function Badge({ className, children, ...props }: any) {
+function Badge({ className, children, ...props }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${className || ''}`} {...props}>
       {children}

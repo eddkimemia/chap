@@ -30,7 +30,7 @@ function VerifyEmailContent() {
         if (data?.user?.email) toast.info('Verify your email to unlock all features')
         else if (data?.user) router.push('/dashboard')
       })
-      .catch(() => {})
+      .catch(() => { /* not authenticated or no email — expected */ })
   }, [userId, router])
 
   const handleVerify = async (e: React.FormEvent) => {
@@ -48,7 +48,7 @@ function VerifyEmailContent() {
       setVerified(true)
       toast.success('Email verified!')
       setTimeout(() => router.push('/dashboard'), 1500)
-    } catch (err: any) { toast.error(err.message) } finally { setLoading(false) }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') } finally { setLoading(false) }
   }
 
   const handleResend = async () => {
@@ -63,7 +63,7 @@ function VerifyEmailContent() {
       if (!res.ok) throw new Error(data.error || 'Failed to resend')
       if (data.devCode) setCode(data.devCode)
       toast.success('Code resent!')
-    } catch (err: any) { toast.error(err.message) } finally { setResending(false) }
+    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') } finally { setResending(false) }
   }
 
   if (verified) {

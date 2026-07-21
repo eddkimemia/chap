@@ -38,6 +38,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Plan not found' }, { status: 404 })
     }
 
+    if (plan.price > 0) {
+      if (!paymentId) {
+        return NextResponse.json({ error: 'paymentId is required for paid plans' }, { status: 400 })
+      }
+
+      const payment = await db.payment.findUnique({ where: { id: paymentId } })
+      if (!payment) {
+        return NextResponse.json({ error: 'Payment not found' }, { status: 404 })
+      }
+      if (payment.userId !== user.id) {
+        return NextResponse.json({ error: 'Payment does not belong to this user' }, { status: 403 })
+      }
+      if (payment.status !== 'completed') {
+        return NextResponse.json({ error: 'Payment is not completed' }, { status: 400 })
+      }
+      if (payment.type !== 'subscription') {
+        return NextResponse.json({ error: 'Payment type must be subscription' }, { status: 400 })
+      }
+    }
+
     const startDate = new Date()
     const endDate = new Date()
     if (plan.interval === 'yearly') {

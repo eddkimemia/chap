@@ -74,7 +74,7 @@ export default async function ListingPage({ params }: PageProps) {
   const cookieStore = await cookies()
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null
   const session = token ? await validateSession(token) : null
-  const currentUserId = session?.user?.id ?? null
+  const currentUserId = session?.id ?? null
 
   const listingOwner = await db.listing.findUnique({ where: { id: resolved.id }, select: { userId: true, status: true } })
   const isOwner = listingOwner && currentUserId === listingOwner.userId
@@ -84,7 +84,7 @@ export default async function ListingPage({ params }: PageProps) {
       status: isOwner ? listingOwner!.status : 'active',
     },
     include: {
-      user: { select: { id: true, name: true, avatar: true, isVerified: true, createdAt: true, role: true, bio: true } },
+      user: { select: { id: true, name: true, avatar: true, isVerified: true, createdAt: true, role: true, bio: true, username: true } },
       category: { select: { id: true, name: true, slug: true, parentId: true, icon: true } },
       location: { select: { id: true, name: true, slug: true } },
       images: { orderBy: { order: 'asc' } },
@@ -117,6 +117,8 @@ export default async function ListingPage({ params }: PageProps) {
     take: 6,
   })
 
+  const shuffledSeller = [...sellerListings].sort(() => 0.5 - Math.random())
+
   const reviews = await db.review.findMany({
     where: { targetId: listing.userId, isPublic: true },
     include: { author: { select: { id: true, name: true, avatar: true, isVerified: true } } },
@@ -130,6 +132,8 @@ export default async function ListingPage({ params }: PageProps) {
     orderBy: { createdAt: 'desc' },
     take: 8,
   })
+
+  const shuffledSimilar = [...similar].sort(() => 0.5 - Math.random())
 
   const parentCategory = listing.category.parentId
     ? await db.category.findUnique({ where: { id: listing.category.parentId }, select: { id: true, name: true, slug: true } })
@@ -170,9 +174,9 @@ export default async function ListingPage({ params }: PageProps) {
         <main className="flex-1">
           <ProductDetailClient
             listing={JSON.parse(JSON.stringify({ ...listing, slug: listing.slug }))}
-            sellerListings={JSON.parse(JSON.stringify(sellerListings))}
+            sellerListings={JSON.parse(JSON.stringify(shuffledSeller))}
             reviews={JSON.parse(JSON.stringify(reviews))}
-            similarListings={JSON.parse(JSON.stringify(similar))}
+            similarListings={JSON.parse(JSON.stringify(shuffledSimilar))}
             sellerStats={sellerData?.sellerStats ? JSON.parse(JSON.stringify(sellerData.sellerStats)) : null}
             breadcrumbItems={breadcrumbItems}
           />

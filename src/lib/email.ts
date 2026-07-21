@@ -29,8 +29,10 @@ export async function sendEmail({
     }
   }
 
-  console.log(`[DEV EMAIL] To: ${to}`)
-  console.log(`[DEV EMAIL] Subject: ${subject}`)
-  console.log(`[DEV EMAIL] Body: ${html.replace(/<[^>]*>/g, '')}`)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[DEV EMAIL] To: ${to}`)
+    console.log(`[DEV EMAIL] Subject: ${subject}`)
+    console.log(`[DEV EMAIL] Body: ${html.replace(/<[^>]*>/g, '')}`)
+  }
   return true
 }

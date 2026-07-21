@@ -34,7 +34,7 @@ export default function AdminCategoriesPage() {
     try {
       const res = await apiFetch('/api/admin/categories')
       if (res.ok) setCategories(await res.json())
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch categories:', error) } finally { setLoading(false) }
   }
 
   const saveCategory = async () => {

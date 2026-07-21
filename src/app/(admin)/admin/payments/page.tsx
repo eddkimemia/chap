@@ -85,7 +85,7 @@ export default function AdminPaymentsPage() {
       if (statsRes.status === 'fulfilled' && statsRes.value.ok) {
         setStats(await statsRes.value.json())
       }
-    } catch {} finally {
+    } catch (error) { console.error('Failed to fetch payments:', error) } finally {
       setLoading(false)
     }
   }

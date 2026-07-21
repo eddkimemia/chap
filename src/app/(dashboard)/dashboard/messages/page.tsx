@@ -83,7 +83,7 @@ export default function MessagesPage() {
   const [recordingTime, setRecordingTime] = useState(0)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunksRef = useRef<Blob[]>([])
-  const recordingTimerRef = useRef<ReturnType<typeof setInterval>>()
+  const recordingTimerRef = useRef<ReturnType<typeof setInterval>>(undefined)
   const [playingAudio, setPlayingAudio] = useState<string | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -103,7 +103,7 @@ export default function MessagesPage() {
         .then((data) => {
           if (data?.user?.id) setUserId(data.user.id)
         })
-        .catch(() => {})
+        .catch((error) => console.error('Failed to fetch auth user:', error))
     }
     fetchConversations()
   }, [currentUser?.id])

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getCurrentUser, generateOTP } from '@/lib/auth'
+import { getCurrentUser, generateOTP, hashOtp } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,13 +31,11 @@ export async function POST(request: NextRequest) {
     await db.twoFactorSession.create({
       data: {
         userId: user.id,
-        code,
+        code: await hashOtp(code),
         type: `verify_${type}`,
         expiresAt,
       },
     })
-
-    console.log(`[DEV] Verification code for ${fullUser.email || fullUser.phone}: ${code}`)
 
     return NextResponse.json({
       message: `Code sent to your ${type}`,

@@ -44,9 +44,15 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [recentListings, setRecentListings] = useState<RecentListing[]>([])
   const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([])
-  const [notifications, setNotifications] = useState<any[]>([])
+  interface Notification {
+    id: string
+    title: string
+    body: string
+    isRead: boolean
+  }
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
-  const [fullUser, setFullUser] = useState<any>(null)
+  const [fullUser, setFullUser] = useState<Record<string, unknown> | null>(null)
   const { currentUser } = useAppStore()
 
   const hour = new Date().getHours()
@@ -58,10 +64,10 @@ export default function DashboardPage() {
   useEffect(() => {
     Promise.all([
       apiFetch('/api/analytics/overview').then(r => r.ok ? r.json() : null),
-      apiFetch('/api/listings?mine=true&limit=5').then(r => r.ok ? r.json().then((d: any) => d.listings || d) : []),
+      apiFetch('/api/listings?mine=true&limit=5').then(r => r.ok ? r.json().then((d: { listings: RecentListing[] }) => d.listings || d as unknown as RecentListing[]) : []),
       apiFetch('/api/messages?limit=5').then(r => r.ok ? r.json() : { messages: [] }),
       apiFetch('/api/notifications').then(r => r.ok ? r.json() : []),
-      apiFetch('/api/auth/me').then(r => r.ok ? r.json().then((d: any) => d.user) : null),
+      apiFetch('/api/auth/me').then(r => r.ok ? r.json().then((d: { user: Record<string, unknown> }) => d.user) : null),
     ]).then(([s, listingsData, messagesData, notifData, userData]) => {
       setStats(s)
       setRecentListings(listingsData || [])
@@ -330,7 +336,7 @@ export default function DashboardPage() {
                   <p className="text-[10px]">No notifications</p>
                 </div>
               ) : (
-                notifications.map((n: any) => (
+                notifications.map((n: Notification) => (
                   <Link key={n.id} href="/dashboard/notifications"
                     className={`flex items-start gap-2 p-2 rounded-lg transition-colors hover:bg-slate-50 ${!n.isRead ? 'bg-royal/5' : ''}`}>
                     <div className={`mt-1 h-1.5 w-1.5 rounded-full shrink-0 ${n.isRead ? 'bg-transparent' : 'bg-royal'}`} />

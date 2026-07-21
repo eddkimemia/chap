@@ -41,19 +41,43 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     await requireAdmin(request)
     const { id } = await params
     const body = await request.json()
-    const { role, isSuspended, suspendedReason } = body
+    const { role, isSuspended, suspendedReason, name, email, phone, username, bio } = body
 
     const user = await db.user.findUnique({ where: { id } })
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
+    if (email && email !== user.email) {
+      const existing = await db.user.findUnique({ where: { email } })
+      if (existing && existing.id !== id) {
+        return NextResponse.json({ error: 'Email already in use' }, { status: 409 })
+      }
+    }
+    if (phone && phone !== user.phone) {
+      const existing = await db.user.findUnique({ where: { phone } })
+      if (existing && existing.id !== id) {
+        return NextResponse.json({ error: 'Phone already in use' }, { status: 409 })
+      }
+    }
+    if (username && username !== user.username) {
+      const existing = await db.user.findUnique({ where: { username } })
+      if (existing && existing.id !== id) {
+        return NextResponse.json({ error: 'Username already in use' }, { status: 409 })
+      }
+    }
+
     const updateData: Record<string, unknown> = {}
-    if (role) updateData.role = role
+    if (role !== undefined) updateData.role = role
     if (typeof isSuspended === 'boolean') {
       updateData.isSuspended = isSuspended
       if (isSuspended) updateData.suspendedReason = suspendedReason || null
     }
+    if (name !== undefined) updateData.name = name
+    if (email !== undefined) updateData.email = email || null
+    if (phone !== undefined) updateData.phone = phone || null
+    if (username !== undefined) updateData.username = username || null
+    if (bio !== undefined) updateData.bio = bio
 
     const updated = await db.user.update({
       where: { id },
@@ -63,6 +87,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         name: true,
         email: true,
         phone: true,
+        username: true,
+        bio: true,
         role: true,
         isActive: true,
         isSuspended: true,

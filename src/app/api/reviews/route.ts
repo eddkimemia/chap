@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         type: 'review',
         title: 'New review',
         body: `${user.name} left you a ${rating}-star review`,
-        data: JSON.stringify({ reviewId: review.id, authorId: user.id }),
+        reviewId: review.id, senderId: user.id,
       },
     })
 

@@ -38,7 +38,7 @@ export default function AdminBlogPage() {
       const params = new URLSearchParams({ status: statusFilter, search })
       const res = await apiFetch(`/api/admin/blog?${params}`)
       if (res.ok) { const data = await res.json(); setPosts(data.posts || []) }
-    } catch {} finally { setLoading(false) }
+    } catch (error) { console.error('Failed to fetch blog posts:', error) } finally { setLoading(false) }
   }
 
   const handleSearch = (e: React.FormEvent) => { e.preventDefault(); fetchPosts() }
