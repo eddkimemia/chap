@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, Clock, Heart, MessageCircle, Phone, Eye, Star, ChevronDown } from 'lucide-react'
@@ -66,22 +67,35 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
   const colors = getCategoryColors(listing.category, categories)
 
   const [showActions, setShowActions] = useState(false)
+  const router = useRouter()
+  const { currentUser } = useAppStore()
 
-  const handleQuickChat = (e: React.MouseEvent) => {
+  const handleQuickChat = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (listing.user?.id) {
-      const link = document.createElement('a')
-      link.href = currentUser ? `/dashboard/messages` : '/login'
-      link.click()
-    }
+    if (!listing.user?.id) return
+    if (!currentUser) { router.push('/login'); return }
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiverId: listing.user.id,
+          listingId: listing.id,
+          content: `Hi, I'm interested in "${listing.title}" on ChapKE`,
+        }),
+      })
+      if (res.ok) router.push('/dashboard/messages')
+      else toast.error('Failed to start conversation')
+    } catch { toast.error('Failed to start conversation') }
   }
 
   const handleQuickCall = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (listing.user?.phone) {
-      window.open(`tel:${listing.user.phone}`)
+    const phone = listing.user?.phone || listing.contactPhone
+    if (phone) {
+      window.open(`tel:${phone}`)
     } else {
       toast.error('Phone number not available')
     }
@@ -90,7 +104,7 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
   const handleQuickWhatsApp = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    const phone = listing.user?.phone?.replace(/[^0-9]/g, '')
+    const phone = (listing.user?.phone || listing.contactPhone)?.replace(/[^0-9]/g, '')
     if (phone) {
       const text = `Hi, I'm interested in "${listing.title}" on ChapKE`
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
@@ -98,8 +112,6 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
       toast.error('WhatsApp number not available')
     }
   }
-
-  const { currentUser } = useAppStore()
 
   return (
     <motion.div

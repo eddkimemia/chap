@@ -12,6 +12,11 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   phone: z.string().regex(/^(\+?[1-9]\d{6,14}|0\d{9})$/, 'Invalid phone number'),
   password: passwordPolicy,
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username must be at most 30 characters')
+    .regex(/^[a-z0-9_-]+$/, 'Username can only contain lowercase letters, numbers, underscores and hyphens'),
 })
 
 export const loginSchema = z.object({

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronLeft, ChevronRight, X, MapPin, Clock, Phone, Mail,
@@ -12,6 +13,7 @@ import {
   Truck, RefreshCw,
   CheckCircle, Play, Send, AlertCircle, Zap, Edit, MessageSquareMore, HelpCircle,
 } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
@@ -306,11 +308,27 @@ export function ProductDetailClient({
     ? new Date(listing.user.createdAt).toLocaleDateString('en-KE', { year: 'numeric', month: 'short' })
     : 'N/A'
 
+  const router = useRouter()
+
   const prevImage = () => setCurrentImage((p) => (p - 1 + images.length) % images.length)
   const nextImage = () => setCurrentImage((p) => (p + 1) % images.length)
 
+  const handleMessageSeller = async () => {
+    if (!currentUser) { toast.error('Please login to message the seller'); router.push('/login'); return }
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receiverId: listing.user.id, content: `Hi, I'm interested in "${listing.title}" listed at ${formatPrice(listing.price)}.` }),
+      })
+      if (res.ok) { router.push('/dashboard/messages') }
+      else { toast.error('Failed to start conversation') }
+    } catch { toast.error('Failed to start conversation') }
+  }
+
   const handleWhatsApp = () => {
-    const phone = listing.contactPhone.replace(/[^0-9]/g, '')
+    const phone = (listing.user?.phone || listing.contactPhone).replace(/[^0-9]/g, '')
     const text = `Hi, I'm interested in: ${listing.title} - ${formatPrice(listing.price)} (ChapKE)`
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
   }
@@ -375,7 +393,7 @@ export function ProductDetailClient({
     }
     setSendingMessage(true)
     try {
-      const phone = listing.contactPhone.replace(/[^0-9]/g, '')
+      const phone = (listing.user?.phone || listing.contactPhone).replace(/[^0-9]/g, '')
       const text = `Hi, I'm ${contactForm.name}. ${contactForm.message}\n\nRe: ${listing.title} - ${formatPrice(listing.price)}`
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
       toast.success('Opening WhatsApp...')
@@ -423,7 +441,7 @@ export function ProductDetailClient({
     { label: 'Category', value: listing.category.name, icon: <Tag className="h-4 w-4 text-royal" /> },
     { label: 'Location', value: listing.location.name, icon: <MapPin className="h-4 w-4 text-electric" /> },
     { label: 'Listed', value: timeAgo(listing.createdAt), icon: <Calendar className="h-4 w-4 text-accent-purple" /> },
-    { label: 'Listing ID', value: `#${listing.id.slice(-8).toUpperCase()}`, icon: <Hash className="h-4 w-4 text-slate-400" /> },
+    { label: 'Listing ID', value: `${listing.displayId || `#${listing.id.slice(-8).toUpperCase()}`}`, icon: <Hash className="h-4 w-4 text-slate-400" /> },
     { label: 'Views', value: `${listing.views}`, icon: <Eye className="h-4 w-4 text-accent-red" /> },
   ]
 
@@ -434,6 +452,17 @@ export function ProductDetailClient({
       )}
 
       <div className="container mx-auto px-4 lg:px-8 py-4 sm:py-6 max-w-7xl">
+        {/* Pending approval banner */}
+        {(listing as any).status === 'pending' && isOwner && (
+          <div className="mb-4 sm:mb-6 flex items-center gap-3 px-4 py-3 rounded-2xl bg-amber-50 border border-amber-200">
+            <Clock className="h-5 w-5 text-amber-600 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-amber-800">Pending Approval</p>
+              <p className="text-xs text-amber-700/70">Your listing is under review and will be published once approved by our team.</p>
+            </div>
+          </div>
+        )}
+
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-xs sm:text-sm text-slate-400 mb-4 sm:mb-6 overflow-x-auto pb-1">
           {breadcrumbItems.map((item, i) => (
@@ -594,8 +623,8 @@ export function ProductDetailClient({
             {/* Description */}
             <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-premium border border-slate-100">
               <h3 className="font-bold text-navy text-base sm:text-lg mb-3">Description</h3>
-              <div className="text-sm sm:text-base text-slate-600 leading-relaxed whitespace-pre-line">
-                {listing.description}
+              <div className="text-sm sm:text-base text-slate-600 leading-relaxed prose prose-slate prose-sm max-w-none">
+                <ReactMarkdown>{listing.description}</ReactMarkdown>
               </div>
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-slate-100">
@@ -711,11 +740,9 @@ export function ProductDetailClient({
                       <Button variant="outline" className="w-full gap-2 rounded-xl h-11 font-semibold border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 transition-all" onClick={handleWhatsApp}>
                         <MessageCircle className="h-4 w-4" /> WhatsApp
                       </Button>
-                      {listing.contactEmail && (
-                        <Button variant="outline" className="w-full gap-2 rounded-xl h-11 font-semibold border-slate-200 hover:bg-slate-50 transition-all" asChild>
-                          <a href={`mailto:${listing.contactEmail}`}><Mail className="h-4 w-4" /> Send Email</a>
-                        </Button>
-                      )}
+                      <Button variant="outline" className="w-full gap-2 rounded-xl h-11 font-semibold border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all" onClick={handleMessageSeller}>
+                        <MessageSquare className="h-4 w-4" /> Message Seller
+                      </Button>
                       <Button variant="outline" className="w-full gap-2 rounded-xl h-11 font-semibold border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-all" onClick={handleMakeOffer}>
                         <Send className="h-4 w-4" /> Make an Offer
                       </Button>
@@ -985,7 +1012,7 @@ export function ProductDetailClient({
               <div className="bg-white rounded-3xl p-5 shadow-premium border border-slate-100">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-bold text-navy text-sm">More from {listing.user.name.split(' ')[0]}</h3>
-                  <Link href={`/seller/${listing.user.id}`} className="text-xs text-royal font-semibold hover:underline">View All</Link>
+                  <Link href={`/seller/${listing.user.username || listing.user.id}`} className="text-xs text-royal font-semibold hover:underline">View All</Link>
                 </div>
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin">
                   {sellerListings.map((item) => (
@@ -1028,7 +1055,7 @@ export function ProductDetailClient({
             {/* Listing ID */}
             <div className="text-center">
               <p className="text-[10px] text-slate-400">
-                Listing ID: #{listing.id.slice(-8).toUpperCase()} · {listing.views} views
+                Listing ID: {listing.displayId || `#${listing.id.slice(-8).toUpperCase()}`} · {listing.views} views
               </p>
             </div>
           </div>

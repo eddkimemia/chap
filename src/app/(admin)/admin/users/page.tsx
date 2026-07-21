@@ -448,9 +448,14 @@ export default function AdminUsersPage() {
                             Verified
                           </Badge>
                         )}
+                        {new Date(user.createdAt) > new Date(Date.now() - 7 * 86400000) && (
+                          <Badge variant="outline" className="text-[10px] rounded-lg font-medium bg-violet-50 text-violet-700 border-violet-200">
+                            New
+                          </Badge>
+                        )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
+                    <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">

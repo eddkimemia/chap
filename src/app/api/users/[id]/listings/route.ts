@@ -14,6 +14,7 @@ export async function GET(
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
     const skip = (page - 1) * limit
+    const featured = searchParams.get('featured') === 'true'
 
     const where: Record<string, unknown> = {
       userId: id,
@@ -21,6 +22,10 @@ export async function GET(
 
     if (status !== 'all') {
       where.status = status
+    }
+
+    if (featured) {
+      where.isFeatured = true
     }
 
     let orderBy: Record<string, string> = { createdAt: 'desc' }

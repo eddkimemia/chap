@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAuth } from '@/lib/auth'
+import { nextDisplayId } from '@/lib/display-id'
 
 export async function POST(
   _request: NextRequest,
@@ -10,6 +11,14 @@ export async function POST(
     const user = await requireAuth(_request)
     const { id } = await params
 
+    const fullUser = await db.user.findUnique({ where: { id: user.id }, select: { isVerified: true } })
+    if (!fullUser?.isVerified) {
+      return NextResponse.json(
+        { error: 'Your account must be verified before you can publish ads.' },
+        { status: 403 }
+      )
+    }
+
     const original = await db.listing.findUnique({
       where: { id },
       include: { images: { orderBy: { order: 'asc' } } },
@@ -18,9 +27,10 @@ export async function POST(
     if (original.userId !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
     const slug = `${original.slug}-copy-${Math.random().toString(36).substring(2, 6)}`
+    const displayId = await nextDisplayId(db)
     const created = await db.listing.create({
       data: {
-        userId: user.id, title: `${original.title} (Copy)`, slug,
+        userId: user.id, title: `${original.title} (Copy)`, slug, displayId,
         description: original.description, price: original.price,
         currency: original.currency, condition: original.condition,
         categoryId: original.categoryId, locationId: original.locationId,

@@ -16,6 +16,7 @@ export interface Listing {
   originalPrice?: number;
   currency: string;
   condition: string;
+  status?: string;
   categoryId: string;
   category: { id: string; name: string; slug: string; parentId: string | null };
   locationId: string;
@@ -32,7 +33,8 @@ export interface Listing {
   updatedAt: string;
   customFields?: string;
   tags?: string;
-  user?: { id: string; name: string; avatar: string; isVerified: boolean; phone?: string | null };
+  displayId?: string;
+  user?: { id: string; name: string; avatar: string; isVerified: boolean; phone?: string | null; username?: string };
   status?: string;
   isUrgent?: boolean;
 }

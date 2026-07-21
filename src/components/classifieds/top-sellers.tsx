@@ -12,7 +12,7 @@ export function TopSellers() {
   const { listings } = useAppStore()
 
   const sellers = useMemo(() => {
-    const map = new Map<string, { id: string; name: string; avatar: string | null; isVerified: boolean; count: number; locations: Set<string> }>()
+    const map = new Map<string, { id: string; name: string; avatar: string | null; isVerified: boolean; username?: string; count: number; locations: Set<string> }>()
     for (const l of listings) {
       if (!l.user?.id) continue
       const existing = map.get(l.user.id)
@@ -25,6 +25,7 @@ export function TopSellers() {
           name: l.user.name || 'Unknown',
           avatar: l.user.avatar || null,
           isVerified: l.user.isVerified || false,
+          username: l.user.username,
           count: 1,
           locations: new Set([l.location.name]),
         })
@@ -63,7 +64,7 @@ export function TopSellers() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
             >
-              <Link href={`/seller/${seller.id}`} className="block group">
+              <Link href={`/seller/${seller.username || seller.id}`} className="block group">
                 <div className="rounded-2xl border border-slate-100 bg-white p-5 text-center hover:shadow-premium-lg transition-all hover:-translate-y-1">
                   <div className="relative mx-auto mb-3">
                     <Avatar className="h-16 w-16 mx-auto ring-2 ring-slate-100 group-hover:ring-royal/20 transition-all">

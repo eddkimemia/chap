@@ -50,7 +50,7 @@ export async function PUT(request: NextRequest) {
     if (!fullUser) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
     const body = await request.json()
-    const { name, bio, avatar, city, country, address, website, phone, email, username } = body
+    const { name, bio, avatar, city, country, address, website, phone, email, username, socialLinks } = body
 
     const updateData: Record<string, unknown> = {}
     if (name !== undefined) updateData.name = name
@@ -113,12 +113,13 @@ export async function PUT(request: NextRequest) {
 
     await db.user.update({ where: { id: user.id }, data: updateData })
 
-    if (city !== undefined || country !== undefined || address !== undefined || website !== undefined) {
+    if (city !== undefined || country !== undefined || address !== undefined || website !== undefined || socialLinks !== undefined) {
       const profileData: Record<string, unknown> = {}
       if (city !== undefined) profileData.city = city
       if (country !== undefined) profileData.country = country
       if (address !== undefined) profileData.address = address
       if (website !== undefined) profileData.website = website
+      if (socialLinks !== undefined) profileData.socialLinks = typeof socialLinks === 'string' ? socialLinks : JSON.stringify(socialLinks)
 
       await db.userProfile.upsert({
         where: { userId: user.id },

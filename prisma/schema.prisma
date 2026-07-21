@@ -154,6 +154,7 @@ model Listing {
   contactEmail    String   @default("")
   customFields    String   @default("{}") // JSON: dynamic fields per category
   tags            String   @default("[]") // JSON array of tags
+  displayId       String   @default("")
   expiresAt       DateTime?
   renewedAt       DateTime?
   publishedAt     DateTime?

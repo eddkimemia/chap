@@ -31,7 +31,7 @@ export async function PUT(request: NextRequest) {
     if (registrationNo !== undefined) data.registrationNo = registrationNo
     if (website !== undefined) data.website = website
     if (employeeCount !== undefined) data.employeeCount = employeeCount
-    if (foundedYear !== undefined) data.foundedYear = foundedYear
+    if (foundedYear !== undefined) data.foundedYear = foundedYear ? parseInt(String(foundedYear), 10) || null : null
     if (address !== undefined) data.address = address
     if (socialLinks !== undefined) data.socialLinks = socialLinks
 

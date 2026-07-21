@@ -13,14 +13,14 @@ import {
   Megaphone,
   PenTool,
   LayoutDashboard,
-  LogOut,
   Menu,
   ChevronRight,
   Home,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { toast } from 'sonner'
 import { useAppStore } from '@/lib/store'
@@ -40,6 +40,7 @@ const adminNav = [
   { href: '/admin/plans', label: 'Plans', icon: CreditCardIcon },
   { href: '/admin/advertisements', label: 'Adverts', icon: Megaphone },
   { href: '/admin/blog', label: 'Blog', icon: PenTool },
+  { href: '/admin/verifications', label: 'Verifications', icon: ShieldCheck },
 ]
 
 function AdminSidebar({ user, onLogout }: { user: User | null; onLogout: () => void }) {
@@ -98,27 +99,7 @@ function AdminSidebar({ user, onLogout }: { user: User | null; onLogout: () => v
           })}
         </nav>
 
-        <Separator className="my-4 bg-white/10" />
-
-        <Link
-          href="/"
-          className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-white/50 hover:text-white hover:bg-white/5 transition-all"
-        >
-          <Home className="h-[18px] w-[18px]" />
-          Back to Site
-        </Link>
       </ScrollArea>
-
-      <div className="p-3">
-        <Button
-          onClick={onLogout}
-          variant="ghost"
-          className="w-full justify-start gap-3 rounded-xl text-white/50 hover:text-red-400 hover:bg-red-500/10"
-        >
-          <LogOut className="h-[18px] w-[18px]" />
-          Sign Out
-        </Button>
-      </div>
     </div>
   )
 }
@@ -197,6 +178,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
         <div className="min-h-full p-4 sm:p-6 lg:p-8 lg:pl-0" style={{ zoom: 0.88 }}>
+          {/* Header bar */}
+          <div className="flex items-center justify-end gap-2 mb-6">
+            <Link href="/">
+              <Button variant="outline" size="sm" className="rounded-xl text-xs h-8">
+                <Home className="h-3.5 w-3.5 mr-1.5" /> Back to Site
+              </Button>
+            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl text-xs h-8 text-red-500 border-red-200 hover:bg-red-50"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-3.5 w-3.5 mr-1.5" /> Sign Out
+            </Button>
+          </div>
           {children}
         </div>
       </main>

@@ -34,7 +34,9 @@ export default function VerifyIdentityPage() {
   })
 
   const [documents, setDocuments] = useState({
-    idType: 'national_id', idFront: '', idBack: '', selfie: '',
+    idType: 'national_id', idFront: null as File | null, idFrontUrl: '',
+    idBack: null as File | null, idBackUrl: '',
+    selfie: null as File | null, selfieUrl: '',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -49,27 +51,45 @@ export default function VerifyIdentityPage() {
     if (!personal.firstName.trim()) errs.firstName = 'Required'
     if (!personal.lastName.trim()) errs.lastName = 'Required'
     if (!personal.dateOfBirth) errs.dateOfBirth = 'Required'
-    if (!personal.idNumber.trim()) errs.idNumber = 'Required'
     setErrors(errs)
     return Object.keys(errs).length === 0
+  }
+
+  const uploadFile = async (file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append('file', file)
+    const res = await apiFetch('/api/upload', { method: 'POST', body: formData })
+    if (!res.ok) throw new Error('Upload failed')
+    const data = await res.json()
+    return data.url
   }
 
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
-      const res = await apiFetch('/api/auth/me', {
-        method: 'PUT',
+      const [idFrontUrl, idBackUrl, selfieUrl] = await Promise.all([
+        documents.idFront ? uploadFile(documents.idFront) : Promise.resolve(''),
+        documents.idBack ? uploadFile(documents.idBack) : Promise.resolve(''),
+        documents.selfie ? uploadFile(documents.selfie) : Promise.resolve(''),
+      ])
+
+      const res = await apiFetch('/api/verification', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          kyc: { personal, documents, submittedAt: new Date().toISOString() },
-          isVerified: false,
+          idType: documents.idType,
+          idNumber: personal.idNumber,
+          idFrontUrl,
+          idBackUrl,
+          selfieUrl,
         }),
       })
       if (res.ok) {
         setStep('submitted')
         toast.success('Verification submitted!')
       } else {
-        toast.error('Failed to submit verification')
+        const d = await res.json()
+        toast.error(d.error || 'Failed to submit verification')
       }
     } catch { toast.error('Network error') } finally { setSubmitting(false) }
   }
@@ -251,7 +271,7 @@ export default function VerifyIdentityPage() {
                     <Label className="text-navy font-medium">ID Front</Label>
                     <label className="flex flex-col items-center justify-center h-44 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 hover:border-royal/30 transition-all">
                       {documents.idFront ? (
-                        <img src={documents.idFront} alt="ID front" className="h-full w-full object-contain rounded-xl" />
+                        <img src={URL.createObjectURL(documents.idFront)} alt="ID front" className="h-full w-full object-contain rounded-xl" />
                       ) : (
                         <div className="text-center p-4">
                           <Upload className="h-8 w-8 text-slate-300 mx-auto mb-2" />
@@ -259,14 +279,14 @@ export default function VerifyIdentityPage() {
                           <p className="text-[10px] text-slate-300 mt-1">PNG, JPG up to 5MB</p>
                         </div>
                       )}
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setDocuments((p) => ({ ...p, idFront: URL.createObjectURL(f) })) }} />
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setDocuments((p) => ({ ...p, idFront: f })) }} />
                     </label>
                   </div>
                   <div className="space-y-2">
                     <Label className="text-navy font-medium">ID Back</Label>
                     <label className="flex flex-col items-center justify-center h-44 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 hover:border-royal/30 transition-all">
                       {documents.idBack ? (
-                        <img src={documents.idBack} alt="ID back" className="h-full w-full object-contain rounded-xl" />
+                        <img src={URL.createObjectURL(documents.idBack)} alt="ID back" className="h-full w-full object-contain rounded-xl" />
                       ) : (
                         <div className="text-center p-4">
                           <Upload className="h-8 w-8 text-slate-300 mx-auto mb-2" />
@@ -274,7 +294,7 @@ export default function VerifyIdentityPage() {
                           <p className="text-[10px] text-slate-300 mt-1">PNG, JPG up to 5MB</p>
                         </div>
                       )}
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setDocuments((p) => ({ ...p, idBack: URL.createObjectURL(f) })) }} />
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setDocuments((p) => ({ ...p, idBack: f })) }} />
                     </label>
                   </div>
                 </div>
@@ -299,7 +319,7 @@ export default function VerifyIdentityPage() {
 
                 <label className="flex flex-col items-center justify-center h-64 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 hover:border-royal/30 transition-all">
                   {documents.selfie ? (
-                    <img src={documents.selfie} alt="Selfie photo" className="h-full w-full object-contain rounded-xl" />
+                    <img src={URL.createObjectURL(documents.selfie)} alt="Selfie photo" className="h-full w-full object-contain rounded-xl" />
                   ) : (
                     <div className="text-center p-4">
                       <Camera className="h-12 w-12 text-slate-300 mx-auto mb-3" />
@@ -307,7 +327,7 @@ export default function VerifyIdentityPage() {
                       <p className="text-xs text-slate-300 mt-1">Ensure good lighting and a neutral background</p>
                     </div>
                   )}
-                  <input type="file" accept="image/*" capture="user" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setDocuments((p) => ({ ...p, selfie: URL.createObjectURL(f) })) }} />
+                  <input type="file" accept="image/*" capture="user" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) setDocuments((p) => ({ ...p, selfie: f })) }} />
                 </label>
 
                 <div className="flex gap-3 pt-2">
@@ -341,11 +361,14 @@ export default function VerifyIdentityPage() {
                   <div>
                     <h3 className="font-semibold text-navy text-sm mb-2">Documents</h3>
                     <div className="grid grid-cols-3 gap-3">
-                      {['idFront', 'idBack', 'selfie'].map((key) => (
-                        <div key={key} className="h-20 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
-                          {(documents as any)[key] ? <img src={(documents as any)[key]} alt="Document preview" className="h-full w-full object-cover" /> : <div className="h-full flex items-center justify-center text-xs text-slate-300">Missing</div>}
-                        </div>
-                      ))}
+                      {(['idFront', 'idBack', 'selfie'] as const).map((key) => {
+                        const file = documents[key]
+                        return (
+                          <div key={key} className="h-20 rounded-xl bg-slate-50 overflow-hidden border border-slate-100">
+                            {file ? <img src={URL.createObjectURL(file)} alt="Document preview" className="h-full w-full object-cover" /> : <div className="h-full flex items-center justify-center text-xs text-slate-300">Missing</div>}
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 </div>

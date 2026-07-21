@@ -18,7 +18,7 @@ import { apiFetch } from '@/lib/api-client'
 export default function RegisterPage() {
   const router = useRouter()
   const { setCurrentUser, clearLegacyAuthStorage } = useAppStore()
-  const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', confirmPassword: '' })
+  const [form, setForm] = useState({ name: '', username: '', email: '', phone: '', password: '', confirmPassword: '' })
 
   useEffect(() => {
     clearLegacyAuthStorage()
@@ -36,10 +36,28 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [agreeTerms, setAgreeTerms] = useState(false)
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
+  const [checkingUsername, setCheckingUsername] = useState(false)
+
+  useEffect(() => {
+    if (!form.username || form.username.length < 3) { setUsernameAvailable(null); setCheckingUsername(false); return }
+    const timer = setTimeout(async () => {
+      setCheckingUsername(true)
+      try {
+        const res = await apiFetch(`/api/users/check-username?username=${encodeURIComponent(form.username)}`)
+        const data = await res.json()
+        setUsernameAvailable(data.available)
+      } catch { setUsernameAvailable(null) }
+      finally { setCheckingUsername(false) }
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [form.username])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!form.name || !form.email || !form.phone || !form.password) return toast.error('Please fill in all fields')
+    if (!form.name || !form.username || !form.email || !form.phone || !form.password) return toast.error('Please fill in all fields')
+    if (form.username.length < 3) return toast.error('Username must be at least 3 characters')
+    if (usernameAvailable === false) return toast.error('Username is already taken')
     if (form.password !== form.confirmPassword) return toast.error('Passwords do not match')
     if (form.password.length < 8) return toast.error('Password must be at least 8 characters')
     if (!agreeTerms) return toast.error('You must agree to the terms and conditions')
@@ -50,6 +68,7 @@ export default function RegisterPage() {
         method: 'POST',
         body: JSON.stringify({
           name: form.name,
+          username: form.username.toLowerCase().replace(/[^a-z0-9_-]/g, ''),
           email: form.email,
           phone: form.phone,
           password: form.password,
@@ -98,6 +117,23 @@ export default function RegisterPage() {
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Your full name" value={form.name} onChange={(e) => updateForm('name', e.target.value)} className="h-12 rounded-2xl pl-11 bg-white/80 border-slate-200 focus:border-royal/30 focus:ring-royal/10" required />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-navy font-medium">Username</Label>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono">@</span>
+                <Input placeholder="username" value={form.username} onChange={(e) => updateForm('username', e.target.value.replace(/[^a-z0-9_-]/g, '').toLowerCase())} className={`h-12 rounded-2xl pl-11 bg-white/80 border-slate-200 focus:border-royal/30 focus:ring-royal/10 font-mono ${usernameAvailable === false ? 'border-red-300 focus:border-red-300' : usernameAvailable === true ? 'border-emerald-300' : ''}`} required minLength={3} />
+              </div>
+              {checkingUsername ? (
+                <p className="text-[10px] text-slate-400">Checking availability...</p>
+              ) : usernameAvailable === false ? (
+                <p className="text-[10px] text-red-500">Username already taken</p>
+              ) : usernameAvailable === true ? (
+                <p className="text-[10px] text-emerald-500">Username available</p>
+              ) : (
+                <p className="text-[10px] text-muted-foreground">chap.co.ke/seller/{form.username || 'username'}</p>
+              )}
             </div>
 
             <div className="space-y-2">

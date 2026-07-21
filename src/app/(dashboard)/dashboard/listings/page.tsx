@@ -153,8 +153,8 @@ export default function ListingsPage() {
           <h1 className="text-2xl font-bold text-navy">My Listings</h1>
           <p className="text-sm text-slate-400 mt-1">Manage all your marketplace listings</p>
         </div>
-        <Button className="rounded-xl bg-royal border-0 shadow-lg shadow-royal/20" asChild>
-          <Link href="/dashboard/listings/new"><Plus className="h-4 w-4 mr-1.5" /> Create Listing</Link>
+        <Button className="rounded-xl bg-red-500 border-0 shadow-lg shadow-red-500/20" asChild>
+          <Link href="/sell"><Plus className="h-4 w-4 mr-1.5" /> Post Ad</Link>
         </Button>
       </div>
 
@@ -219,8 +219,8 @@ export default function ListingsPage() {
           <Package className="h-16 w-16 mx-auto text-slate-200 mb-4" />
           <h3 className="text-lg font-bold text-navy mb-2">No listings found</h3>
           <p className="text-sm text-slate-400 mb-4">Get started by creating your first listing.</p>
-          <Button className="rounded-xl bg-royal border-0" asChild>
-            <Link href="/dashboard/listings/new"><Plus className="h-4 w-4 mr-1.5" /> Create Listing</Link>
+          <Button className="rounded-xl bg-red-500 border-0" asChild>
+            <Link href="/sell"><Plus className="h-4 w-4 mr-1.5" /> Post Ad</Link>
           </Button>
         </div>
       ) : viewMode === 'table' ? (

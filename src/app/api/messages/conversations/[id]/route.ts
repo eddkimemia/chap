@@ -21,9 +21,6 @@ export async function GET(
 
     const messages = await db.message.findMany({
       where: { conversationId: id },
-      include: {
-        sender: { select: { id: true, name: true, avatar: true } },
-      },
       orderBy: { createdAt: 'asc' },
     })
 
@@ -36,7 +33,17 @@ export async function GET(
       data: { isRead: true, readAt: new Date() },
     })
 
-    return NextResponse.json(messages)
+    return NextResponse.json({
+      messages: messages.map((msg) => ({
+        id: msg.id,
+        content: msg.content,
+        senderId: msg.senderId,
+        createdAt: msg.createdAt,
+        type: msg.type,
+        mediaUrl: msg.mediaUrl,
+        isRead: msg.isRead,
+      })),
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unauthorized'
     return NextResponse.json({ error: message }, { status: message === 'Unauthorized' ? 401 : 500 })

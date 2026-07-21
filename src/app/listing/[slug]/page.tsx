@@ -1,6 +1,8 @@
 import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { db } from '@/lib/db'
+import { validateSession, SESSION_COOKIE_NAME } from '@/lib/auth'
 import { ProductDetailClient } from '@/components/classifieds/product-detail'
 import { generateListingSchema, generateBreadcrumbSchema } from '@/lib/seo'
 import { Header } from '@/components/classifieds/header'
@@ -69,8 +71,18 @@ export default async function ListingPage({ params }: PageProps) {
   const resolved = await resolveListing(slug)
   if (!resolved) notFound()
 
+  const cookieStore = await cookies()
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null
+  const session = token ? await validateSession(token) : null
+  const currentUserId = session?.user?.id ?? null
+
+  const listingOwner = await db.listing.findUnique({ where: { id: resolved.id }, select: { userId: true, status: true } })
+  const isOwner = listingOwner && currentUserId === listingOwner.userId
   const listing = await db.listing.findUnique({
-    where: { id: resolved.id, status: { not: 'archived' } },
+    where: {
+      id: resolved.id,
+      status: isOwner ? listingOwner!.status : 'active',
+    },
     include: {
       user: { select: { id: true, name: true, avatar: true, isVerified: true, createdAt: true, role: true, bio: true } },
       category: { select: { id: true, name: true, slug: true, parentId: true, icon: true } },

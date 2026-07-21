@@ -34,7 +34,9 @@ export default function SettingsPage() {
   const [sendingCode, setSendingCode] = useState(false)
 
   const [profile, setProfile] = useState({ name: '', bio: '', avatar: '', phone: '', email: '', username: '' })
-  const [profileExtra, setProfileExtra] = useState({ city: '', country: 'Kenya', address: '', website: '' })
+  const [profileExtra, setProfileExtra] = useState({ city: '', country: 'Kenya', address: '' })
+  const [socialLinks, setSocialLinks] = useState({ facebook: '', twitter: '', instagram: '', linkedin: '' })
+  const [activeTab, setActiveTab] = useState('profile')
   const [business, setBusiness] = useState({
     companyName: '', description: '', industry: '', taxId: '', registrationNo: '',
     website: '', employeeCount: '', foundedYear: '', address: '',
@@ -60,7 +62,8 @@ export default function SettingsPage() {
       setUser(u)
       setCurrentUser(u)
       setProfile({ name: u.name || '', bio: u.bio || '', avatar: u.avatar || '', phone: u.phone || '', email: u.email || '', username: u.username || '' })
-      setProfileExtra({ city: u.profile?.city || '', country: u.profile?.country || 'Kenya', address: u.profile?.address || '', website: u.profile?.website || '' })
+      setProfileExtra({ city: u.profile?.city || '', country: u.profile?.country || 'Kenya', address: u.profile?.address || '' })
+      try { const sl = JSON.parse(u.profile?.socialLinks || '{}'); setSocialLinks({ facebook: sl.facebook || '', twitter: sl.twitter || '', instagram: sl.instagram || '', linkedin: sl.linkedin || '' }) } catch {} 
       if (busData?.businessProfile) {
         const b = busData.businessProfile
         setBusiness({
@@ -83,7 +86,7 @@ export default function SettingsPage() {
     try {
       const res = await apiFetch('/api/auth/me', {
         method: 'PUT',
-        body: JSON.stringify({ ...profile, ...profileExtra }),
+        body: JSON.stringify({ ...profile, ...profileExtra, socialLinks }),
       })
       if (res.ok) {
         const data = await res.json()
@@ -120,7 +123,9 @@ export default function SettingsPage() {
           const data = await userRes.json()
           setUser(data.user)
           setCurrentUser(data.user)
-          setProfile({ name: data.user.name || '', bio: data.user.bio || '', avatar: data.user.avatar || '', phone: data.user.phone || '', email: data.user.email || '' })
+          setProfile({ name: data.user.name || '', bio: data.user.bio || '', avatar: data.user.avatar || '', phone: data.user.phone || '', email: data.user.email || '', username: data.user.username || '' })
+          setProfileExtra({ city: data.user.profile?.city || '', country: data.user.profile?.country || 'Kenya', address: data.user.profile?.address || '' })
+          try { const sl = JSON.parse(data.user.profile?.socialLinks || '{}'); setSocialLinks({ facebook: sl.facebook || '', twitter: sl.twitter || '', instagram: sl.instagram || '', linkedin: sl.linkedin || '' }) } catch {} 
         }
       } else {
         const d = await res.json().catch(() => ({}))
@@ -150,7 +155,15 @@ export default function SettingsPage() {
         method: 'PUT',
         body: JSON.stringify(business),
       })
-      if (res.ok) toast.success('Business profile saved')
+      if (res.ok) {
+        const userRes = await apiFetch('/api/auth/me')
+        if (userRes.ok) {
+          const userData = await userRes.json()
+          setUser(userData.user)
+          setCurrentUser(userData.user)
+        }
+        toast.success('Business profile saved')
+      }
       else { const d = await res.json(); toast.error(d.error || 'Failed to save') }
     } catch { toast.error('Failed to save business profile') }
     finally { setSaving(null) }
@@ -158,8 +171,31 @@ export default function SettingsPage() {
 
   const handleKycSubmit = async () => {
     if (!kyc.idNumber) return toast.error('ID number is required')
+    if (!profileComplete) return toast.error('Complete all required Profile fields first')
+    if (!businessComplete) return toast.error('Complete all required Business fields first')
+
     setSaving('kyc')
     try {
+      const saves = []
+      saves.push(
+        apiFetch('/api/auth/me', {
+          method: 'PUT',
+          body: JSON.stringify({ ...profile, ...profileExtra, socialLinks }),
+        })
+      )
+      saves.push(
+        apiFetch('/api/business-profile', {
+          method: 'PUT',
+          body: JSON.stringify(business),
+        })
+      )
+      const results = await Promise.allSettled(saves)
+      if (results.some(r => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.ok))) {
+        toast.error('Failed to save profile data')
+        setSaving(null)
+        return
+      }
+
       const res = await apiFetch('/api/verification', {
         method: 'POST',
         body: JSON.stringify(kyc),
@@ -167,6 +203,12 @@ export default function SettingsPage() {
       if (res.ok) {
         const data = await res.json()
         setVerification((prev: any) => ({ ...prev, verification: data.verification }))
+        const userRes = await apiFetch('/api/auth/me')
+        if (userRes.ok) {
+          const userData = await userRes.json()
+          setUser(userData.user)
+          setCurrentUser(userData.user)
+        }
         toast.success('Verification documents submitted for review')
       } else {
         const d = await res.json()
@@ -239,12 +281,39 @@ export default function SettingsPage() {
 
   const verifStatus = verification?.verification?.status
   const isVerified = user?.isVerified
+  const profileComplete = !!(user?.name && user?.username && user?.email && user?.phone && user?.profile?.address)
+  const businessComplete = !!(user?.businessProfile?.companyName && user?.businessProfile?.industry && user?.businessProfile?.taxId)
+  const allRequiredComplete = profileComplete && businessComplete && !!kyc.idType && !!kyc.idNumber && !!kyc.idFrontUrl && !!kyc.idBackUrl && !!kyc.selfieUrl
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 lg:pl-6">
       <h1 className="text-2xl font-bold text-navy tracking-tight">Settings</h1>
 
-      <Tabs defaultValue="profile" className="space-y-6">
+      {/* Verification steps progress */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { step: 1, label: 'Profile', desc: 'Name, username, email, phone, address', tab: 'profile', done: profileComplete },
+          { step: 2, label: 'Business', desc: 'Business name, industry, tax ID', tab: 'business', done: businessComplete },
+          { step: 3, label: 'KYC', desc: 'ID & documents', tab: 'kyc', done: isVerified },
+        ].map((s) => {
+          const isCurrentTab = activeTab === s.tab
+          return (
+            <button key={s.step} onClick={() => setActiveTab(s.tab as any)} className={`p-4 rounded-xl border text-left transition-all ${isCurrentTab ? 'bg-royal/5 border-royal/30 shadow-sm' : s.done ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200 hover:border-slate-300'}`}>
+              <div className="flex items-center gap-3 mb-1">
+                <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${s.done ? 'bg-emerald-500 text-white' : isCurrentTab ? 'bg-royal text-white' : 'bg-slate-300 text-white'}`}>
+                  {s.done ? <CheckCircle2 className="h-4 w-4" /> : s.step}
+                </div>
+                <div className="min-w-0">
+                  <p className={`text-sm font-semibold truncate ${isCurrentTab ? 'text-royal' : 'text-navy'}`}>{s.label}</p>
+                  <p className="text-[10px] text-slate-400 truncate">{s.done ? 'Completed' : s.desc}</p>
+                </div>
+              </div>
+            </button>
+          )
+        })}
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="rounded-2xl bg-muted p-1 h-auto flex-wrap">
           <TabsTrigger value="profile" className="rounded-xl gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"><User className="h-4 w-4" /> Profile</TabsTrigger>
           <TabsTrigger value="business" className="rounded-xl gap-2 data-[state=active]:bg-white data-[state=active]:shadow-sm"><Building2 className="h-4 w-4" /> Business</TabsTrigger>
@@ -291,11 +360,11 @@ export default function SettingsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">Full Name</Label>
+                  <Label className="text-navy font-medium">Full Name <span className="text-red-400">*</span></Label>
                   <Input value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} className="h-11 rounded-xl bg-white border-slate-200" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">Username</Label>
+                  <Label className="text-navy font-medium">Username <span className="text-red-400">*</span></Label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
                     <Input value={profile.username} onChange={(e) => setProfile((p) => ({ ...p, username: e.target.value.replace(/[^a-z0-9_-]/g, '').toLowerCase() }))} placeholder="username" className="h-11 rounded-xl bg-white border-slate-200 pl-8" />
@@ -303,16 +372,12 @@ export default function SettingsPage() {
                   <p className="text-[10px] text-muted-foreground">URL: chap.co.ke/seller/{profile.username || 'username'}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">Email</Label>
+                  <Label className="text-navy font-medium">Email <span className="text-red-400">*</span></Label>
                   <Input value={profile.email} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))} type="email" className="h-11 rounded-xl bg-white border-slate-200" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">Phone</Label>
+                  <Label className="text-navy font-medium">Phone <span className="text-red-400">*</span></Label>
                   <Input value={profile.phone} onChange={(e) => setProfile((p) => ({ ...p, phone: e.target.value }))} type="tel" className="h-11 rounded-xl bg-white border-slate-200" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-navy font-medium">Website</Label>
-                  <Input value={profileExtra.website} onChange={(e) => setProfileExtra((p) => ({ ...p, website: e.target.value }))} placeholder="https://example.com" className="h-11 rounded-xl bg-white border-slate-200" />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-navy font-medium">City</Label>
@@ -325,8 +390,27 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-navy font-medium">Address</Label>
+                <Label className="text-navy font-medium">Address <span className="text-red-400">*</span></Label>
                 <Input value={profileExtra.address} onChange={(e) => setProfileExtra((p) => ({ ...p, address: e.target.value }))} placeholder="Physical address" className="h-11 rounded-xl bg-white border-slate-200" />
+              </div>
+
+              <Separator />
+
+              <div>
+                <h3 className="text-sm font-bold text-navy mb-3">Social Links</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { key: 'facebook', label: 'Facebook', placeholder: 'https://facebook.com/...' },
+                    { key: 'twitter', label: 'X (Twitter)', placeholder: 'https://x.com/...' },
+                    { key: 'instagram', label: 'Instagram', placeholder: 'https://instagram.com/...' },
+                    { key: 'linkedin', label: 'LinkedIn', placeholder: 'https://linkedin.com/in/...' },
+                  ].map((s) => (
+                    <div key={s.key} className="space-y-2">
+                      <Label className="text-navy font-medium">{s.label}</Label>
+                      <Input value={(socialLinks as any)[s.key]} onChange={(e) => setSocialLinks((p) => ({ ...p, [s.key]: e.target.value }))} placeholder={s.placeholder} className="h-11 rounded-xl bg-white border-slate-200" />
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -334,6 +418,8 @@ export default function SettingsPage() {
                 <Textarea value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} className="rounded-xl min-h-[80px] bg-white border-slate-200 resize-none" maxLength={300} />
                 <p className="text-xs text-muted-foreground text-right">{profile.bio.length}/300</p>
               </div>
+
+              <p className="text-xs text-slate-400"><span className="text-red-400">*</span> Required fields</p>
 
               <Button onClick={handleProfileSave} disabled={saving === 'profile'} className="rounded-xl bg-royal text-white border-0 shadow-lg shadow-royal/20">
                 {saving === 'profile' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
@@ -362,11 +448,11 @@ export default function SettingsPage() {
               <Separator />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">Company Name</Label>
-                  <Input value={business.companyName} onChange={(e) => setBusiness((p) => ({ ...p, companyName: e.target.value }))} placeholder="Your company name" className="h-11 rounded-xl bg-white border-slate-200" />
+                  <Label className="text-navy font-medium">Business Name <span className="text-red-400">*</span></Label>
+                  <Input value={business.companyName} onChange={(e) => setBusiness((p) => ({ ...p, companyName: e.target.value }))} placeholder="Your business name" className="h-11 rounded-xl bg-white border-slate-200" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">Industry</Label>
+                  <Label className="text-navy font-medium">Industry <span className="text-red-400">*</span></Label>
                   <select value={business.industry} onChange={(e) => setBusiness((p) => ({ ...p, industry: e.target.value }))} className="h-11 w-full rounded-xl bg-white border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-royal/20">
                     <option value="">Select industry</option>
                     <option value="retail">Retail & Wholesale</option>
@@ -382,31 +468,8 @@ export default function SettingsPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">Registration Number</Label>
-                  <Input value={business.registrationNo} onChange={(e) => setBusiness((p) => ({ ...p, registrationNo: e.target.value }))} placeholder="Business registration number" className="h-11 rounded-xl bg-white border-slate-200" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-navy font-medium">Tax ID (KRA PIN)</Label>
+                  <Label className="text-navy font-medium">Tax ID (KRA PIN) <span className="text-red-400">*</span></Label>
                   <Input value={business.taxId} onChange={(e) => setBusiness((p) => ({ ...p, taxId: e.target.value }))} placeholder="P051234567Z" className="h-11 rounded-xl bg-white border-slate-200" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-navy font-medium">Website</Label>
-                  <Input value={business.website} onChange={(e) => setBusiness((p) => ({ ...p, website: e.target.value }))} placeholder="https://example.com" className="h-11 rounded-xl bg-white border-slate-200" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-navy font-medium">Employees</Label>
-                  <select value={business.employeeCount} onChange={(e) => setBusiness((p) => ({ ...p, employeeCount: e.target.value }))} className="h-11 w-full rounded-xl bg-white border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-royal/20">
-                    <option value="">Select size</option>
-                    <option value="1">Solo (1)</option>
-                    <option value="2-10">Micro (2-10)</option>
-                    <option value="11-50">Small (11-50)</option>
-                    <option value="51-200">Medium (51-200)</option>
-                    <option value="201+">Large (201+)</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-navy font-medium">Founded Year</Label>
-                  <Input type="number" value={business.foundedYear} onChange={(e) => setBusiness((p) => ({ ...p, foundedYear: e.target.value }))} placeholder="2020" className="h-11 rounded-xl bg-white border-slate-200" />
                 </div>
               </div>
               <div className="space-y-2">
@@ -414,9 +477,11 @@ export default function SettingsPage() {
                 <Textarea value={business.description} onChange={(e) => setBusiness((p) => ({ ...p, description: e.target.value }))} placeholder="Describe your business" className="rounded-xl resize-none min-h-[60px]" />
               </div>
               <div className="space-y-2">
-                <Label className="text-navy font-medium">Address</Label>
+                <Label className="text-navy font-medium">Address <span className="text-red-400">*</span></Label>
                 <Input value={business.address} onChange={(e) => setBusiness((p) => ({ ...p, address: e.target.value }))} placeholder="Physical business address" className="h-11 rounded-xl bg-white border-slate-200" />
               </div>
+              <p className="text-xs text-slate-400"><span className="text-red-400">*</span> Required fields</p>
+
               <Button onClick={handleBusinessSave} disabled={saving === 'business'} className="rounded-xl bg-royal text-white border-0 shadow-lg shadow-royal/20">
                 {saving === 'business' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                 Save Business Info
@@ -451,7 +516,7 @@ export default function SettingsPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">ID Type</Label>
+                  <Label className="text-navy font-medium">ID Type <span className="text-red-400">*</span></Label>
                   <select value={kyc.idType} onChange={(e) => setKyc((p) => ({ ...p, idType: e.target.value }))} disabled={verifStatus === 'pending'} className="h-11 w-full rounded-xl bg-white border border-slate-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-royal/20 disabled:opacity-50">
                     <option value="national_id">National ID Card</option>
                     <option value="passport">Passport</option>
@@ -460,7 +525,7 @@ export default function SettingsPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-navy font-medium">ID Number</Label>
+                  <Label className="text-navy font-medium">ID Number <span className="text-red-400">*</span></Label>
                   <Input value={kyc.idNumber} onChange={(e) => setKyc((p) => ({ ...p, idNumber: e.target.value }))} placeholder="Enter your ID number" disabled={verifStatus === 'pending'} className="h-11 rounded-xl bg-white border-slate-200 disabled:opacity-50" />
                 </div>
               </div>
@@ -472,7 +537,7 @@ export default function SettingsPage() {
                   { key: 'selfieUrl', label: 'Selfie', desc: 'Take a selfie' },
                 ].map((doc) => (
                   <div key={doc.key} className="space-y-2">
-                    <Label className="text-navy font-medium">{doc.label}</Label>
+                    <Label className="text-navy font-medium">{doc.label} <span className="text-red-400">*</span></Label>
                     <label className={`flex flex-col items-center justify-center h-32 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-colors ${(kyc as any)[doc.key] ? 'border-emerald-300 bg-emerald-50' : ''}`}>
                       {(kyc as any)[doc.key] ? (
                         <img src={(kyc as any)[doc.key]} alt={doc.label} className="h-full w-full object-contain rounded-lg" />
@@ -513,7 +578,7 @@ export default function SettingsPage() {
               </div>
 
               {verifStatus !== 'pending' && (
-                <Button onClick={handleKycSubmit} disabled={saving === 'kyc'} className="rounded-xl bg-royal text-white border-0 shadow-lg shadow-royal/20">
+                <Button onClick={handleKycSubmit} disabled={saving === 'kyc' || !allRequiredComplete} className="rounded-xl bg-royal text-white border-0 shadow-lg shadow-royal/20 disabled:opacity-50">
                   {saving === 'kyc' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
                   Submit for Verification
                 </Button>

@@ -103,7 +103,7 @@ export default function AdminDashboard() {
 
   const statCards = [
     { title: 'Total Users', value: stats?.totalUsers ?? 0, icon: Users, color: 'bg-royal', href: '/admin/users' },
-    { title: 'Active Listings', value: stats?.newListings ?? 0, icon: List, color: 'bg-accent-red', href: '/admin/listings' },
+    { title: 'Active Listings', value: stats?.activeListings ?? 0, icon: List, color: 'bg-accent-red', href: '/admin/listings' },
     { title: 'Revenue (KES)', value: `KES ${(stats?.totalRevenue ?? 0).toLocaleString()}`, icon: DollarSign, color: 'bg-emerald-500', href: '/admin/payments' },
     { title: 'Open Reports', value: stats?.openReports ?? 0, icon: AlertTriangle, color: 'bg-red-500', href: '/admin/reports' },
   ]

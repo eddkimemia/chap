@@ -72,14 +72,22 @@ export default function AdminListingsPage() {
   const [listings, setListings] = useState<AdminListing[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('pending')
   const [userName, setUserName] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
+  const [pendingCount, setPendingCount] = useState(0)
 
   useEffect(() => {
     fetchListings()
   }, [statusFilter, search, userName, startDate, endDate])
+
+  useEffect(() => {
+    apiFetch('/api/admin/listings?status=pending&limit=1')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d) setPendingCount(d.pagination?.total || 0) })
+      .catch(() => {})
+  }, [])
 
   const fetchListings = async () => {
     setLoading(true)
@@ -95,6 +103,10 @@ export default function AdminListingsPage() {
       const data = await res.json()
         setListings(data.listings || [])
       }
+      apiFetch('/api/admin/listings?status=pending&limit=1')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) setPendingCount(d.pagination?.total || 0) })
+        .catch(() => {})
     } catch {} finally {
       setLoading(false)
     }
@@ -154,9 +166,17 @@ export default function AdminListingsPage() {
 
   return (
     <div className="space-y-6 lg:pl-6">
-      <div>
-        <h1 className="text-2xl font-bold text-navy tracking-tight">Manage Listings</h1>
-        <p className="text-sm text-muted-foreground mt-1">Review and manage all listings on the platform</p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-navy tracking-tight">Manage Listings</h1>
+          <p className="text-sm text-muted-foreground mt-1">Review and manage all listings on the platform</p>
+        </div>
+        {pendingCount > 0 && (
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-200">
+            <div className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
+            <p className="text-sm font-semibold text-amber-700">{pendingCount} pending {pendingCount === 1 ? 'listing' : 'listings'}</p>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-3">
@@ -290,9 +310,20 @@ export default function AdminListingsPage() {
                       <p className="text-xs text-muted-foreground">{listing.user?.email}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={`text-[10px] rounded-lg font-medium ${statusColors[listing.status] || ''}`}>
-                        {listing.status}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className={`text-[10px] rounded-lg font-medium ${statusColors[listing.status] || ''}`}>
+                          {listing.status}
+                        </Badge>
+                        {listing.status === 'pending' && (
+                          <Button
+                            size="sm"
+                            className="rounded-lg h-7 text-[11px] bg-emerald-500 hover:bg-emerald-600 text-white px-2"
+                            onClick={() => updateStatus(listing.id, 'active')}
+                          >
+                            <CheckCircle className="h-3 w-3 mr-1" /> Approve
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{listing.views || 0}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">

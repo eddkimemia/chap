@@ -4,6 +4,7 @@ import { getCurrentUser, requireAuth } from '@/lib/auth'
 import { maskContact } from '@/lib/mask'
 import { rateLimit } from '@/lib/rate-limit'
 import { autoFlag } from '@/lib/auto-flag'
+import { formatDisplayId, nextDisplayId } from '@/lib/display-id'
 
 function generateSlug(title: string): string {
   const base = title
@@ -130,7 +131,8 @@ export async function GET(request: NextRequest) {
       customFields: true,
       tags: true,
       status: true,
-      user: { select: { id: true, name: true, avatar: true, isVerified: true } },
+      displayId: true,
+      user: { select: { id: true, name: true, avatar: true, isVerified: true, username: true } },
       category: { select: { id: true, name: true, slug: true, parentId: true } },
       location: { select: { id: true, name: true, slug: true } },
       images: { orderBy: { order: 'asc' } },
@@ -180,13 +182,19 @@ export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth(request)
 
-    const fullUser = await db.user.findUnique({ where: { id: user.id }, select: { isPhoneVerified: true, isEmailVerified: true, email: true, phone: true } })
+    const fullUser = await db.user.findUnique({ where: { id: user.id }, select: { isPhoneVerified: true, isEmailVerified: true, isVerified: true, email: true, phone: true } })
     if (!fullUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
     if (!fullUser.isPhoneVerified && !fullUser.isEmailVerified) {
       return NextResponse.json(
         { error: 'Please verify your phone number or email before posting. Check your inbox for a verification code.' },
+        { status: 403 }
+      )
+    }
+    if (!fullUser.isVerified) {
+      return NextResponse.json(
+        { error: 'Your account must be verified before you can publish ads. Please submit your identity documents from your settings page.' },
         { status: 403 }
       )
     }
@@ -221,6 +229,7 @@ export async function POST(request: NextRequest) {
       customFields,
       tags,
       status,
+      images: imageUrls,
     } = body
 
     if (!title || !categorySlug || !locationSlug || !contactName || !contactPhone) {
@@ -245,11 +254,21 @@ export async function POST(request: NextRequest) {
     const allowedStatuses = ['pending', 'draft']
     const listingStatus = status && allowedStatuses.includes(status) ? status : 'pending'
 
+    let parsedImages: string[] = []
+    if (imageUrls) {
+      try {
+        parsedImages = typeof imageUrls === 'string' ? JSON.parse(imageUrls) : imageUrls
+      } catch { parsedImages = [] }
+    }
+
+    const displayId = await nextDisplayId(db)
+
     const listing = await db.listing.create({
       data: {
         userId: user.id,
         title,
         slug,
+        displayId,
         description: description || '',
         price: price || 0,
         condition: condition || 'Used',
@@ -263,10 +282,14 @@ export async function POST(request: NextRequest) {
         customFields: customFields ? JSON.stringify(customFields) : '{}',
         tags: tags ? JSON.stringify(tags) : '[]',
         publishedAt: new Date(),
+        images: parsedImages.length > 0 ? {
+          create: parsedImages.map((url: string, i: number) => ({ url, order: i })),
+        } : undefined,
       },
       include: {
         category: { select: { id: true, name: true, slug: true } },
         location: { select: { id: true, name: true, slug: true } },
+        images: { orderBy: { order: 'asc' } },
       },
     })
 

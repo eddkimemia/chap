@@ -13,7 +13,7 @@ export function PremiumBusinesses() {
   const { listings } = useAppStore()
 
   const businesses = useMemo(() => {
-    const map = new Map<string, { id: string; name: string; avatar: string | null; isVerified: boolean; isPremium: boolean; count: number; location: string; description: string }>()
+    const map = new Map<string, { id: string; name: string; avatar: string | null; isVerified: boolean; username?: string; isPremium: boolean; count: number; location: string; description: string }>()
     for (const l of listings) {
       if (!l.user?.id) continue
       const isPremium = !!(l.isFeatured || l.isPromoted)
@@ -28,6 +28,7 @@ export function PremiumBusinesses() {
           name: l.user.name || 'Unknown',
           avatar: l.user.avatar || null,
           isVerified: l.user.isVerified,
+          username: l.user.username,
           isPremium,
           count: 1,
           location: l.location.name,
@@ -70,7 +71,7 @@ export function PremiumBusinesses() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
-              <Link href={`/seller/${biz.id}`} className="block group">
+              <Link href={`/seller/${biz.username || biz.id}`} className="block group">
                 <div className="rounded-2xl bg-white border border-slate-100 overflow-hidden hover:shadow-premium-lg transition-all hover:-translate-y-1">
                   <div className="h-24 bg-gradient-to-r from-royal to-electric relative">
                     <div className="absolute -bottom-8 left-6">

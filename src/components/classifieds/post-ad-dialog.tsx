@@ -182,7 +182,7 @@ export function PostAdDialog() {
       })
 
       if (res.ok) {
-        toast.success('Ad posted successfully!')
+        toast.success('Ad submitted for review! It will be published once approved.')
         setShowPostAd(false)
         const listRes = await fetch('/api/listings')
         if (listRes.ok) {

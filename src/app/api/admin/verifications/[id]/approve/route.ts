@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireAdmin } from '@/lib/auth'
+import { sendEmail } from '@/lib/email'
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,7 +14,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Status must be approved or rejected' }, { status: 400 })
     }
 
-    const request_ = await db.verificationRequest.findUnique({ where: { id } })
+    const request_ = await db.verificationRequest.findUnique({ where: { id }, include: { user: { select: { name: true, email: true } } } })
     if (!request_) return NextResponse.json({ error: 'Verification request not found' }, { status: 404 })
 
     const updated = await db.verificationRequest.update({
@@ -30,6 +31,45 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       await db.user.update({
         where: { id: request_.userId },
         data: { isVerified: true },
+      })
+
+      await sendEmail({
+        to: request_.user.email,
+        subject: 'Identity Verification Approved – ChapKE',
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;">
+            <h2 style="color:#1e293b;">Identity Verified ✅</h2>
+            <p style="color:#475569;font-size:15px;line-height:1.6;">Hi <strong>${request_.user.name}</strong>,</p>
+            <p style="color:#475569;font-size:15px;line-height:1.6;">Your identity documents have been reviewed and <strong style="color:#059669;">approved</strong>.</p>
+            <p style="color:#475569;font-size:15px;line-height:1.6;">You are now a verified seller on ChapKE and can start publishing ads.</p>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://chapke.co.ke'}/dashboard/listings/new"
+               style="display:inline-block;background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:15px;margin-top:8px;">
+              Post Your First Ad
+            </a>
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;" />
+            <p style="color:#94a3b8;font-size:13px;">ChapKE Team</p>
+          </div>
+        `,
+      })
+    } else if (status === 'rejected') {
+      await sendEmail({
+        to: request_.user.email,
+        subject: 'Identity Verification Update – ChapKE',
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;">
+            <h2 style="color:#1e293b;">Verification Not Approved</h2>
+            <p style="color:#475569;font-size:15px;line-height:1.6;">Hi <strong>${request_.user.name}</strong>,</p>
+            <p style="color:#475569;font-size:15px;line-height:1.6;">Unfortunately your identity documents could not be verified at this time.</p>
+            ${reviewNote ? `<p style="color:#dc2626;font-size:14px;background:#fef2f2;padding:12px;border-radius:8px;"><strong>Reason:</strong> ${reviewNote}</p>` : ''}
+            <p style="color:#475569;font-size:15px;line-height:1.6;">Please submit new documents from your settings page.</p>
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://chapke.co.ke'}/dashboard/settings"
+               style="display:inline-block;background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-size:15px;margin-top:8px;">
+              Resubmit Documents
+            </a>
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;" />
+            <p style="color:#94a3b8;font-size:13px;">ChapKE Team</p>
+          </div>
+        `,
       })
     }
 

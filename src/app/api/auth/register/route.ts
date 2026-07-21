@@ -24,8 +24,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { name, email, phone, password } = parsed.data
+    const { name, email, phone, password, username } = parsed.data
     const normalizedPhone = phone ? normalizeKenyanPhone(phone) : null
+    const cleanedUsername = username.toLowerCase().replace(/[^a-z0-9_-]/g, '')
 
     if (email) {
       const existing = await db.user.findUnique({ where: { email } })
@@ -47,6 +48,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (cleanedUsername) {
+      const existing = await db.user.findUnique({ where: { username: cleanedUsername } })
+      if (existing) {
+        return NextResponse.json(
+          { error: 'Username already taken' },
+          { status: 409 }
+        )
+      }
+    }
+
     const passwordHash = await hashPassword(password)
 
     const user = await db.user.create({
@@ -55,12 +66,14 @@ export async function POST(request: NextRequest) {
         email: email ?? null,
         phone: normalizedPhone,
         passwordHash,
+        username: cleanedUsername,
       },
       select: {
         id: true,
         email: true,
         phone: true,
         name: true,
+        username: true,
         avatar: true,
         role: true,
         isVerified: true,

@@ -3,12 +3,12 @@
 import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
+import ReactMarkdown from 'react-markdown'
 import {
   X,
   MapPin,
   Clock,
   Phone,
-  Mail,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -266,8 +266,8 @@ export function ListingDetail() {
                     )}
                   </p>
                   <Separator className="my-5" />
-                  <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
-                    {listing.description}
+                  <div className="text-sm text-slate-600 leading-relaxed prose prose-slate prose-sm max-w-none">
+                    <ReactMarkdown>{listing.description}</ReactMarkdown>
                   </div>
                 </div>
 

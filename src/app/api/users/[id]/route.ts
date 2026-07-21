@@ -49,6 +49,8 @@ export async function GET(
             country: true,
             totalViews: true,
             totalLeads: true,
+            website: true,
+            socialLinks: true,
           },
         },
       },

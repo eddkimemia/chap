@@ -88,12 +88,22 @@ export function Header() {
     resetToHome,
     setShowPostAd,
     currentUser,
+    setCurrentUser,
     logout,
   } = useAppStore()
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!currentUser) {
+      fetch('/api/auth/me', { credentials: 'include' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => { if (data?.user) setCurrentUser(data.user) })
+        .catch(() => {})
+    }
+  }, [currentUser, setCurrentUser])
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10)
@@ -286,7 +296,7 @@ export function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href={`/seller/${currentUser.id}`} className="flex items-center gap-2 cursor-pointer">
+                        <Link href={`/seller/${currentUser.username || currentUser.id}`} className="flex items-center gap-2 cursor-pointer">
                           <User className="h-4 w-4 text-slate-500" />
                           My Profile
                         </Link>
@@ -468,7 +478,7 @@ export function Header() {
                     Dashboard
                   </Button>
                 </Link>
-                <Link href={`/seller/${currentUser.id}`}>
+                <Link href={`/seller/${currentUser.username || currentUser.id}`}>
                   <Button
                     variant="ghost"
                     className="w-full justify-start gap-3 rounded-xl hover:bg-primary/5 hover:text-primary"
