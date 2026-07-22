@@ -3,8 +3,9 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Package, Users, Store, MapPin, TrendingUp } from 'lucide-react'
+import { useAppStore } from '@/lib/store'
 
-const stats = [
+const defaultStats = [
   { label: 'Total Listings', value: 250000, icon: Package, suffix: '+', color: 'text-royal', bg: 'bg-royal/5' },
   { label: 'Registered Users', value: 150000, icon: Users, suffix: '+', color: 'text-emerald-500', bg: 'bg-emerald-50' },
   { label: 'Active Businesses', value: 40000, icon: Store, suffix: '+', color: 'text-accent-red', bg: 'bg-accent-red/5' },
@@ -44,6 +45,18 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
 }
 
 export function MarketplaceStats() {
+  const { homeStats } = useAppStore()
+
+  const stats = homeStats
+    ? [
+        { label: 'Total Listings', value: homeStats.totalListings, icon: Package, suffix: '+', color: 'text-royal', bg: 'bg-royal/5' },
+        { label: 'Registered Users', value: homeStats.totalUsers, icon: Users, suffix: '+', color: 'text-emerald-500', bg: 'bg-emerald-50' },
+        { label: 'Active Businesses', value: homeStats.totalBusinesses, icon: Store, suffix: '+', color: 'text-accent-red', bg: 'bg-accent-red/5' },
+        { label: 'Cities Covered', value: homeStats.locations, icon: MapPin, suffix: '', color: 'text-electric', bg: 'bg-electric/5' },
+        { label: 'Transactions', value: homeStats.totalTransactions, icon: TrendingUp, suffix: '+', color: 'text-accent-purple', bg: 'bg-accent-purple/5' },
+      ]
+    : defaultStats
+
   return (
     <section className="py-20 bg-navy text-white relative overflow-hidden">
       <div className="absolute inset-0 opacity-5">

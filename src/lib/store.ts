@@ -32,7 +32,7 @@ export interface Listing {
   createdAt: string;
   updatedAt: string;
   displayId?: string;
-  user?: { id: string; name: string; avatar: string; isVerified: boolean; phone?: string | null; username?: string; role?: string };
+  user?: { id: string; name: string; avatar: string; isVerified: boolean; phone?: string | null; username?: string; role?: string; premiumUntil?: string | null };
   isUrgent?: boolean;
 }
 
@@ -65,6 +65,50 @@ export interface User {
   username?: string;
 }
 
+export interface Banner {
+  id: string
+  title: string
+  imageUrl: string
+  linkUrl: string
+}
+
+export interface HomeStats {
+  totalListings: number
+  activeListings: number
+  totalUsers: number
+  totalBusinesses: number
+  activeUsers30d: number
+  locations: number
+  totalTransactions: number
+}
+
+export interface Testimonial {
+  id: string
+  name: string
+  avatar: string | null
+  text: string
+  rating: number
+  role: string
+}
+
+export interface SiteSettings {
+  site_name: string
+  support_email: string
+  support_phone: string
+  support_hours: string
+  address: string
+  city: string
+  facebook_url: string
+  twitter_url: string
+  instagram_url: string
+  youtube_url: string
+  app_store_url: string
+  play_store_url: string
+  copyright_text: string
+  popular_brands?: string
+  [key: string]: unknown
+}
+
 export type ViewType = "home" | "listings" | "detail" | "favorites";
 
 export interface Filters {
@@ -90,6 +134,12 @@ interface AppState {
   favorites: string[];
   recentlyViewed: Listing[];
 
+  homeBanners: Banner[]
+  homeStats: HomeStats | null
+  homeTestimonials: Testimonial[]
+  siteSettings: SiteSettings
+  popularSearchTerms: string[]
+
   // Auth state — user only; session lives in HttpOnly cookie
   currentUser: User | null;
   /** @deprecated Session is cookie-based; always null. Kept for gradual migration. */
@@ -114,6 +164,8 @@ interface AppState {
   getRecentlyViewed: () => Listing[];
   addRecentlyViewed: (listing: Listing) => void;
   deleteListing: (id: string) => void;
+
+  setHomeData: (data: { banners: Banner[]; stats: HomeStats | null; testimonials: Testimonial[]; settings: SiteSettings; popularSearchTerms: string[] }) => void
 
   // Auth actions
   setCurrentUser: (user: User | null) => void;
@@ -184,6 +236,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   favorites: loadFromStorage<string[]>(FAVORITES_KEY, []),
   recentlyViewed: [],
 
+  homeBanners: [],
+  homeStats: null,
+  homeTestimonials: [],
+  siteSettings: {
+    site_name: 'ChapKE', support_email: '', support_phone: '', support_hours: '',
+    address: '', city: '', facebook_url: '', twitter_url: '', instagram_url: '',
+    youtube_url: '', app_store_url: '', play_store_url: '', copyright_text: '',
+  },
+  popularSearchTerms: [],
+
   // Never hydrate auth from localStorage — session is HttpOnly cookie only
   currentUser: null,
   authToken: null,
@@ -212,6 +274,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   setLocations: (locations) => set({ locations }),
   setListings: (listings) => set({ listings }),
   setFeaturedListings: (listings) => set({ featuredListings: listings }),
+  setHomeData: (data) => set({
+    homeBanners: data.banners,
+    homeStats: data.stats,
+    homeTestimonials: data.testimonials,
+    siteSettings: data.settings,
+    popularSearchTerms: data.popularSearchTerms,
+  }),
   setIsLoading: (loading) => set({ isLoading: loading }),
   resetToHome: () =>
     set({

@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl
     const search = searchParams.get('search') || ''
     const role = searchParams.get('role') || ''
+    const roles = searchParams.get('roles') || ''
+    const plan = searchParams.get('plan') || ''
     const status = searchParams.get('status') || ''
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
@@ -25,6 +27,22 @@ export async function GET(request: NextRequest) {
     }
 
     if (role) where.role = role
+    if (roles) where.role = { in: roles.split(',').map(r => r.trim()) }
+    if (plan) {
+      if (plan === 'Free') {
+        where.subscription = {
+          none: { status: 'active', endDate: { gte: new Date() } },
+        }
+      } else {
+        where.subscription = {
+          some: {
+            status: 'active',
+            endDate: { gte: new Date() },
+            plan: { name: plan },
+          },
+        }
+      }
+    }
     if (status === 'suspended') where.isSuspended = true
     if (status === 'inactive') where.isActive = false
 
@@ -41,6 +59,7 @@ export async function GET(request: NextRequest) {
           isVerified: true,
           isEmailVerified: true,
           isPhoneVerified: true,
+          premiumUntil: true,
           isActive: true,
           isSuspended: true,
           isBanned: true,
@@ -49,6 +68,11 @@ export async function GET(request: NextRequest) {
           createdAt: true,
           lastLoginAt: true,
           _count: { select: { listings: true, sessions: true } },
+          subscriptions: {
+            where: { status: 'active', endDate: { gte: new Date() } },
+            select: { plan: { select: { name: true } } },
+            take: 1,
+          },
         },
         orderBy: { createdAt: 'desc' },
         skip,

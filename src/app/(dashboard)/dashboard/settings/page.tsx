@@ -386,7 +386,7 @@ export default function SettingsPage() {
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
                     <Input value={profile.username} onChange={(e) => setProfile((p) => ({ ...p, username: e.target.value.replace(/[^a-z0-9_-]/g, '').toLowerCase() }))} placeholder="username" className="h-11 rounded-xl bg-white border-slate-200 pl-8" />
                   </div>
-                  <p className="text-[10px] text-muted-foreground">URL: chap.co.ke/seller/{profile.username || 'username'}</p>
+                  <p className="text-[10px] text-muted-foreground">URL: {(process.env.NEXT_PUBLIC_SITE_URL || 'https://chap.co.ke').replace(/^https?:\/\//, '')}/seller/{profile.username || 'username'}</p>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-navy font-medium">Email <span className="text-red-400">*</span></Label>

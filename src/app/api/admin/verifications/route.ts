@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const verifications = await db.verificationRequest.findMany({
       where: status !== 'all' ? { status } : {},
       include: {
-        user: { select: { id: true, name: true, email: true, phone: true, avatar: true, isVerified: true } },
+        user: { select: { id: true, name: true, email: true, phone: true, avatar: true, isVerified: true, premiumUntil: true } },
       },
       orderBy: { createdAt: 'desc' },
     })

@@ -38,6 +38,8 @@ import { ListingCard } from './listing-card'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'
+
 export function ListingDetail() {
   const {
     selectedListing,
@@ -72,7 +74,7 @@ export function ListingDetail() {
   const getListingUrl = () => `${window.location.origin}/listing/${listing.slug || listing.id}`
 
   const handleWhatsAppShare = () => {
-    const text = `${listing.title} - ${formatPrice(listing.price)} on ChapKE. Check it out!`
+    const text = `${listing.title} - ${formatPrice(listing.price)} on ${SITE_NAME}. Check it out!`
     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + getListingUrl())}`, '_blank')
   }
 
@@ -345,7 +347,7 @@ export function ListingDetail() {
                       asChild
                     >
                       <a
-                        href={`https://wa.me/${listing.contactPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi, I'm interested in: ${listing.title} - ${formatPrice(listing.price)} (from ChapKE)`)}`}
+                        href={`https://wa.me/${listing.contactPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hi, I'm interested in: ${listing.title} - ${formatPrice(listing.price)} (from ${SITE_NAME})`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

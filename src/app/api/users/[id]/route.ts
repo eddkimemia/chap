@@ -27,6 +27,7 @@ export async function GET(
         bio: true,
         role: true,
         isVerified: true,
+        premiumUntil: true,
         createdAt: true,
         _count: {
           select: {

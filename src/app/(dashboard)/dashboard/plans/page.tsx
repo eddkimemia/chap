@@ -33,8 +33,8 @@ interface Subscription {
 
 const planIcons: Record<string, React.ElementType> = {
   free: Shield,
-  premium: Star,
-  business: Crown,
+  pro: Star,
+  premium: Crown,
 }
 
 const planColors: Record<string, { card: string; badge: string; button: string; accent: string }> = {
@@ -44,13 +44,13 @@ const planColors: Record<string, { card: string; badge: string; button: string; 
     button: 'bg-slate-200 text-slate-700 hover:bg-slate-300',
     accent: 'text-slate-500',
   },
-  premium: {
+  pro: {
     card: 'border-amber-200 ring-1 ring-amber-300',
     badge: 'bg-amber-100 text-amber-800',
     button: 'bg-amber-500 text-white hover:bg-amber-600',
     accent: 'text-amber-600',
   },
-  business: {
+  premium: {
     card: 'border-royal/20 ring-1 ring-royal/30',
     badge: 'bg-royal/10 text-royal',
     button: 'bg-royal text-white hover:bg-royal/90',
@@ -204,8 +204,8 @@ export default function PremiumPlansPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-navy">Premium Plans</h1>
-        <p className="text-sm text-slate-400 mt-1">Unlock more features and boost your listings</p>
+        <h1 className="text-2xl font-bold text-navy">Pricing Plans</h1>
+        <p className="text-sm text-slate-400 mt-1">Choose the plan that fits your selling needs</p>
       </div>
 
       {/* Current plan banner */}
@@ -284,7 +284,7 @@ export default function PremiumPlansPage() {
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-slate-500">Max Listings</span>
-                      <span className="font-semibold text-navy">{plan.maxListings === 999 ? 'Unlimited' : plan.maxListings}</span>
+                      <span className="font-semibold text-navy">{plan.maxListings >= 999 ? 'Unlimited' : plan.maxListings}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-slate-500">Images per Listing</span>
@@ -321,7 +321,7 @@ export default function PremiumPlansPage() {
                       <>
                         <div className="flex items-start gap-2">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                          <span className="text-sm text-slate-600">{plan.maxListings} active listings</span>
+                          <span className="text-sm text-slate-600">{plan.maxListings >= 999 ? 'Unlimited' : plan.maxListings} active listings</span>
                         </div>
                         <div className="flex items-start gap-2">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />

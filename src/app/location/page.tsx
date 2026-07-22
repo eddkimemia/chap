@@ -8,9 +8,9 @@ import { MobileNav } from '@/components/classifieds/mobile-nav'
 import { db } from '@/lib/db'
 
 export const metadata: Metadata = {
-  title: 'Browse Locations - ChapKE Kenya',
-  description: 'Find listings by location across Kenya. Browse items in Nairobi, Mombasa, Kisumu and all counties.',
-  alternates: { canonical: 'https://chap.co.ke/location' },
+  title: `Browse Locations - ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'} Kenya`,
+  description: `Find listings by location across Kenya. Browse items in Nairobi, Mombasa, Kisumu and all counties.`,
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://chap.co.ke'}/location` },
 }
 
 export default async function LocationPage() {

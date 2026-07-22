@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
           reference: true,
           description: true,
           createdAt: true,
-          user: { select: { id: true, name: true, email: true } },
+          user: { select: { id: true, name: true, email: true, premiumUntil: true } },
         },
       }),
       db.payment.count({ where }),

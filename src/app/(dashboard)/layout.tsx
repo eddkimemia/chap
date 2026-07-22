@@ -19,6 +19,7 @@ import {
   Crown,
   HelpCircle,
   Store,
+  Megaphone,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -45,7 +46,8 @@ const mainNav = [
   { href: '/dashboard/favorites', label: 'Favorites', icon: Heart },
   { href: '/dashboard/reviews', label: 'Reviews', icon: Star },
   { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/dashboard/orders', label: 'Premium Plans', icon: Crown },
+  { href: '/dashboard/plans', label: 'Premium Plans', icon: Crown },
+  { href: '/dashboard/promotions', label: 'Promotions', icon: Megaphone },
   { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
   { href: '/dashboard/support', label: 'Help & Support', icon: HelpCircle },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },

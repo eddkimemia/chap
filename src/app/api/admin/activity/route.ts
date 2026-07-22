@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
           name: true,
           email: true,
           role: true,
+          premiumUntil: true,
           createdAt: true,
         },
       }),
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
           title: true,
           status: true,
           createdAt: true,
-          user: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true, premiumUntil: true } },
         },
       }),
       db.payment.findMany({
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
           currency: true,
           status: true,
           createdAt: true,
-          user: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true, premiumUntil: true } },
         },
       }),
       db.report.findMany({

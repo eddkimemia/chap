@@ -16,7 +16,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     const listing = await db.listing.findUnique({
       where: { id },
-      include: { user: { select: { name: true, email: true } } },
+      include: { user: { select: { name: true, email: true, premiumUntil: true } } },
     })
     if (!listing) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 })

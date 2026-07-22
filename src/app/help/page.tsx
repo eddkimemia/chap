@@ -49,6 +49,7 @@ export default function HelpPage() {
   const [openId, setOpenId] = useState<string | null>(null)
   const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' })
   const [formSent, setFormSent] = useState(false)
+  const [contactInfo, setContactInfo] = useState({ email: 'support@chap.co.ke', phone: '+254 700 000 000' })
 
   useEffect(() => {
     fetch('/api/faqs')
@@ -56,6 +57,17 @@ export default function HelpPage() {
       .then((data) => setFaqs(Array.isArray(data) ? data : []))
       .catch(() => toast.error('Failed to load FAQs'))
       .finally(() => setLoading(false))
+    fetch('/api/home')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.settings) {
+          setContactInfo({
+            email: data.settings.support_email || 'support@chap.co.ke',
+            phone: data.settings.support_phone || '+254 700 000 000',
+          })
+        }
+      })
+      .catch(() => {})
   }, [])
 
   const filteredFaqs = useMemo(() => {
@@ -248,8 +260,8 @@ export default function HelpPage() {
                 </p>
                 <div className="space-y-5">
                   {[
-                    { icon: Mail, label: 'support@chap.co.ke', desc: 'Email us anytime' },
-                    { icon: Phone, label: '+254 700 000 000', desc: 'Mon-Fri, 8am-6pm EAT' },
+                    { icon: Mail, label: contactInfo.email, desc: 'Email us anytime' },
+                    { icon: Phone, label: contactInfo.phone, desc: 'Mon-Fri, 8am-6pm EAT' },
                     { icon: MessageCircle, label: 'Live Chat', desc: 'Instant responses' },
                   ].map((item) => (
                     <div key={item.label} className="flex items-start gap-3">

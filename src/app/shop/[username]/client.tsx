@@ -135,7 +135,7 @@ export function ShopClient({ shop, listings, sellerStats, reviews }: ShopClientP
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ receiverId: shop.id, content: `Hi, I'm interested in your shop "${bp.companyName}" on ChapKE.` }),
+        body: JSON.stringify({ receiverId: shop.id, content: `Hi, I'm interested in your shop "${bp.companyName}" on ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'}.` }),
       })
       if (res.ok) { router.push('/dashboard/messages') }
       else { toast.error('Failed to start conversation') }
@@ -145,7 +145,7 @@ export function ShopClient({ shop, listings, sellerStats, reviews }: ShopClientP
   const handleWhatsApp = () => {
     if (!shop.phone) { toast.error('No phone number available'); return }
     const phone = shop.phone.replace(/[^0-9]/g, '')
-    const text = `Hi, I'm interested in your shop "${bp.companyName}" on ChapKE.`
+    const text = `Hi, I'm interested in your shop "${bp.companyName}" on ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'}.`
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
   }
 

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
+import { siteConfig } from '@/lib/site'
 import { Header } from '@/components/classifieds/header'
 import { Footer } from '@/components/classifieds/footer'
 import { MobileNav } from '@/components/classifieds/mobile-nav'
@@ -17,18 +18,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     where: { slug: categorySlug },
     select: { name: true, slug: true },
   })
-  if (!category) return { title: 'Category Not Found - ChapKE' }
+  if (!category) return { title: `Category Not Found - ${siteConfig.name}` }
 
   return {
-    title: `${category.name} - ChapKE Kenya`,
+    title: `${category.name} - ${siteConfig.name} Kenya`,
     description: `Browse ${category.name} listings in Kenya. Find the best deals on ${category.name} across Nairobi, Mombasa, Kisumu and all counties.`,
     openGraph: {
-      title: `${category.name} | ChapKE Kenya`,
+      title: `${category.name} | ${siteConfig.name} Kenya`,
       description: `Browse ${category.name} for sale in Kenya.`,
       type: 'website',
-      siteName: 'ChapKE',
+      siteName: siteConfig.name,
     },
-    alternates: { canonical: `https://chap.co.ke/category/${category.slug}` },
+    alternates: { canonical: `${siteConfig.url}/category/${category.slug}` },
   }
 }
 
@@ -54,8 +55,8 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     : null
 
   const breadcrumbItems = parentCategory
-    ? [{ name: 'Home', url: 'https://chap.co.ke' }, { name: parentCategory.name, url: `https://chap.co.ke/category/${parentCategory.slug}` }, { name: category.name, url: `https://chap.co.ke/category/${category.slug}` }]
-    : [{ name: 'Home', url: 'https://chap.co.ke' }, { name: category.name, url: `https://chap.co.ke/category/${category.slug}` }]
+    ? [{ name: 'Home', url: siteConfig.url }, { name: parentCategory.name, url: `${siteConfig.url}/category/${parentCategory.slug}` }, { name: category.name, url: `${siteConfig.url}/category/${category.slug}` }]
+    : [{ name: 'Home', url: siteConfig.url }, { name: category.name, url: `${siteConfig.url}/category/${category.slug}` }]
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
+import { siteConfig } from '@/lib/site'
 import { SellerProfileClient } from '@/components/classifieds/seller-profile-client'
 
 interface PageProps {
@@ -8,7 +9,7 @@ interface PageProps {
 }
 
 const userSelect = {
-  id: true, name: true, avatar: true, bio: true, username: true, createdAt: true,
+  id: true, name: true, avatar: true, bio: true, username: true, premiumUntil: true, createdAt: true,
   profile: { select: { city: true, country: true } },
 } as const
 
@@ -23,22 +24,22 @@ async function resolveUser(idOrUsername: string) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
   const resolved = await resolveUser(id)
-  if (!resolved) return { title: 'Seller Not Found - ChapKE' }
+  if (!resolved) return { title: `Seller Not Found - ${siteConfig.name}` }
   const user = resolved.user
 
   const cityPart = user.profile?.city ? ` in ${user.profile.city}, ${user.profile.country || 'Kenya'}` : ''
-  const description = `${user.name} — seller on ChapKE${cityPart}. ${user.bio ? user.bio.slice(0, 120) : 'Browse their listings and reviews.'}`
+  const description = `${user.name} — seller on ${siteConfig.name}${cityPart}. ${user.bio ? user.bio.slice(0, 120) : 'Browse their listings and reviews.'}`
 
   return {
-    title: `${user.name} - Seller Profile | ChapKE`,
+    title: `${user.name} - Seller Profile | ${siteConfig.name}`,
     description: description.slice(0, 200),
     openGraph: {
-      title: `${user.name} - Seller on ChapKE`,
+      title: `${user.name} - Seller on ${siteConfig.name}`,
       description: description.slice(0, 200),
       images: user.avatar ? [{ url: user.avatar }] : [],
       type: 'profile',
-      siteName: 'ChapKE',
-      url: `https://chap.co.ke/seller/${user.username || id}`,
+      siteName: siteConfig.name,
+      url: `${siteConfig.url}/seller/${user.username || id}`,
     },
     twitter: {
       card: 'summary',
@@ -46,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: description.slice(0, 200),
       images: user.avatar ? [user.avatar] : [],
     },
-    alternates: { canonical: `https://chap.co.ke/seller/${user.username || id}` },
+    alternates: { canonical: `${siteConfig.url}/seller/${user.username || id}` },
   }
 }
 
@@ -62,7 +63,7 @@ export default async function SellerPage({ params }: PageProps) {
     name: user.name,
     image: user.avatar || undefined,
     description: user.bio || undefined,
-    url: `https://chap.co.ke/seller/${user.username || id}`,
+    url: `${siteConfig.url}/seller/${user.username || id}`,
     ...(user.profile?.city ? { homeLocation: { '@type': 'Place', name: `${user.profile.city}, ${user.profile.country || 'Kenya'}` } } : {}),
   }
 

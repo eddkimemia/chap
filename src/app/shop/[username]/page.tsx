@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
+import { siteConfig } from '@/lib/site'
 import { Header } from '@/components/classifieds/header'
 import { Footer } from '@/components/classifieds/footer'
 import { MobileNav } from '@/components/classifieds/mobile-nav'
@@ -22,15 +23,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!user || !user.businessProfile) return { title: 'Shop Not Found - ChapKE' }
 
   return {
-    title: `${user.businessProfile.companyName} - Shop on ChapKE Kenya`,
-    description: user.businessProfile.description || `Browse products from ${user.businessProfile.companyName} on ChapKE.`,
+    title: `${user.businessProfile.companyName} - Shop on ${siteConfig.name} Kenya`,
+    description: user.businessProfile.description || `Browse products from ${user.businessProfile.companyName} on ${siteConfig.name}.`,
     openGraph: {
-      title: `${user.businessProfile.companyName} | ChapKE Kenya`,
-      description: user.businessProfile.description || `Shop ${user.businessProfile.companyName} on ChapKE.`,
+      title: `${user.businessProfile.companyName} | ${siteConfig.name} Kenya`,
+      description: user.businessProfile.description || `Shop ${user.businessProfile.companyName} on ${siteConfig.name}.`,
       type: 'profile',
-      siteName: 'ChapKE',
+      siteName: siteConfig.name,
     },
-    alternates: { canonical: `https://chap.co.ke/shop/${username}` },
+    alternates: { canonical: `${siteConfig.url}/shop/${username}` },
   }
 }
 

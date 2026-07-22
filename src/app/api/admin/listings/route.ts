@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         include: {
           category: { select: { id: true, name: true, slug: true } },
           location: { select: { id: true, name: true, slug: true } },
-          user: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true, premiumUntil: true } },
           _count: { select: { reports: true } },
         },
         orderBy: { createdAt: 'desc' },

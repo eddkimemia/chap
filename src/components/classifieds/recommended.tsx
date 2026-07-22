@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { useAppStore } from '@/lib/store'
+import { useAppStore, type Listing } from '@/lib/store'
 import { Sparkles, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ListingGrid } from './listing-grid'
@@ -15,15 +15,41 @@ export function RecommendedForYou() {
     if (!listings.length) return []
     const recentIds = new Set(viewed.map(l => l.id))
     const recentCats = new Set(viewed.slice(0, 3).map(l => l.category.slug))
-    const scored = listings
-      .filter(l => !recentIds.has(l.id))
-      .map(l => ({
-        ...l,
-        score: (l.isFeatured ? 10 : 0) + (recentCats.has(l.category.slug) ? 5 : 0),
-      }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 8)
-    return scored
+    const unseen = listings.filter(l => !recentIds.has(l.id))
+    if (!unseen.length) return []
+
+    const now = new Date()
+    const isPremium = (l: Listing) => l.user?.premiumUntil && new Date(l.user.premiumUntil) > now
+    const isBusiness = (l: Listing) => l.user?.role === 'business' && !isPremium(l)
+    const isFree = (l: Listing) => !isPremium(l) && !isBusiness(l)
+
+    const score = (l: Listing) =>
+      (l.isFeatured ? 10 : 0) + (recentCats.has(l.category.slug) ? 5 : 0) + (l.isPromoted ? 3 : 0)
+
+    const premium = unseen.filter(isPremium).sort((a, b) => score(b) - score(a))
+    const business = unseen.filter(isBusiness).sort((a, b) => score(b) - score(a))
+    const free = unseen.filter(isFree).sort((a, b) => score(b) - score(a))
+
+    const groups = [premium, business, free].filter(g => g.length > 0)
+    if (!groups.length) return []
+
+    const perGroup = Math.floor(8 / groups.length)
+    let remaining = 8
+    const selected: Listing[] = []
+
+    for (const group of groups) {
+      const take = Math.min(perGroup, group.length, remaining)
+      selected.push(...group.slice(0, take))
+      remaining -= take
+    }
+
+    if (remaining > 0) {
+      const used = new Set(selected.map(l => l.id))
+      const rest = unseen.filter(l => !used.has(l.id)).sort((a, b) => score(b) - score(a))
+      selected.push(...rest.slice(0, remaining))
+    }
+
+    return selected.slice(0, 8)
   }, [listings, recentlyViewed])
 
   if (!recommended.length) return null

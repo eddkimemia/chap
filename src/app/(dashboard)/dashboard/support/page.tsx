@@ -304,7 +304,7 @@ export default function SupportPage() {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-navy">Email</p>
-                      <a href="mailto:support@chap.co.ke" className="text-sm text-royal hover:underline">support@chap.co.ke</a>
+                      <a href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@chap.co.ke'}`} className="text-sm text-royal hover:underline">{process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@chap.co.ke'}</a>
                       <p className="text-xs text-slate-400">Response within 24 hours</p>
                     </div>
                   </div>

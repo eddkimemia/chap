@@ -41,11 +41,13 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
     const skip = (page - 1) * limit
 
-    // Expire past-due featured/boosted/promoted listings
+    // Expire past-due featured/boosted/promoted listings + seller promotions
     const now = new Date()
     await db.listing.updateMany({ where: { featuredUntil: { lt: now }, isFeatured: true }, data: { isFeatured: false, featuredUntil: null } })
     await db.listing.updateMany({ where: { promotedUntil: { lt: now }, isPromoted: true }, data: { isPromoted: false, promotedUntil: null } })
     await db.listing.updateMany({ where: { boostUntil: { lt: now }, boostCount: { gt: 0 } }, data: { boostCount: 0, boostUntil: null } })
+    await db.sellerPromotion.updateMany({ where: { endDate: { lt: now }, status: 'active' }, data: { status: 'expired' } })
+    await db.user.updateMany({ where: { premiumUntil: { lt: now } }, data: { premiumUntil: null } })
 
     const user = await getCurrentUser(request)
     const where: Record<string, unknown> = {}
@@ -109,7 +111,13 @@ export async function GET(request: NextRequest) {
     if (sort === 'price-asc') sortField = { price: 'asc' }
     if (sort === 'price-desc') sortField = { price: 'desc' }
     if (sort === 'popular') sortField = { views: 'desc' }
-    const orderBy: Record<string, string>[] = [sortField]
+
+    const orderBy: Record<string, unknown>[] = []
+    if (!mine) {
+      orderBy.push({ isFeatured: 'desc' })
+      orderBy.push({ user: { premiumUntil: 'desc' } })
+    }
+    orderBy.push(sortField)
 
     const selectFields: Record<string, unknown> = {
       id: true,
@@ -130,7 +138,7 @@ export async function GET(request: NextRequest) {
       updatedAt: true,
       status: true,
       displayId: true,
-      user: { select: { id: true, name: true, avatar: true, isVerified: true, username: true, role: true } },
+      user: { select: { id: true, name: true, avatar: true, isVerified: true, username: true, role: true, premiumUntil: true } },
       category: { select: { id: true, name: true, slug: true, parentId: true } },
       location: { select: { id: true, name: true, slug: true } },
       images: { orderBy: { order: 'asc' } },
@@ -203,7 +211,8 @@ export async function POST(request: NextRequest) {
       where: { userId: user.id, status: 'active', endDate: { gte: new Date() } },
       include: { plan: true },
     })
-    const plan = activeSub?.plan ?? { maxListings: 5, maxImages: 5 }
+    const plan = activeSub?.plan ?? { maxListings: 5, maxImages: 5, isFeatured: false, isPromoted: false }
+    const planEnd = activeSub?.endDate
 
     const maxListings = plan.maxListings === -1 ? Infinity : plan.maxListings
     const userListingCount = await db.listing.count({ where: { userId: user.id, status: { not: 'sold' } } })
@@ -294,6 +303,10 @@ export async function POST(request: NextRequest) {
           })),
         } : undefined,
         publishedAt: new Date(),
+        isFeatured: plan.isFeatured || false,
+        isPromoted: plan.isPromoted || false,
+        featuredUntil: plan.isFeatured ? planEnd : null,
+        promotedUntil: plan.isPromoted ? planEnd : null,
         images: parsedImages.length > 0 ? {
           create: parsedImages.map((url: string, i: number) => ({ url, order: i })),
         } : undefined,

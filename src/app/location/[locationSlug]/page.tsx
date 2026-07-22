@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
+import { siteConfig } from '@/lib/site'
 import { Header } from '@/components/classifieds/header'
 import { Footer } from '@/components/classifieds/footer'
 import { MobileNav } from '@/components/classifieds/mobile-nav'
@@ -23,12 +24,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `Listings in ${location.name} - ChapKE Kenya`,
     description: `Browse classifieds in ${location.name}, Kenya. Find cars, phones, property, jobs and more in ${location.name}.`,
     openGraph: {
-      title: `Listings in ${location.name} | ChapKE Kenya`,
+      title: `Listings in ${location.name} | ${siteConfig.name} Kenya`,
       description: `Browse classifieds in ${location.name}, Kenya.`,
       type: 'website',
-      siteName: 'ChapKE',
+      siteName: siteConfig.name,
     },
-    alternates: { canonical: `https://chap.co.ke/location/${location.slug}` },
+    alternates: { canonical: `${siteConfig.url}/location/${location.slug}` },
   }
 }
 
@@ -53,9 +54,10 @@ export default async function LocationPage({ params, searchParams }: PageProps) 
       })
     : null
 
+  const baseUrl = siteConfig.url
   const breadcrumbItems = parentLocation
-    ? [{ name: 'Home', url: 'https://chap.co.ke' }, { name: 'Locations', url: 'https://chap.co.ke/location' }, { name: parentLocation.name, url: `https://chap.co.ke/location/${parentLocation.slug}` }, { name: location.name, url: `https://chap.co.ke/location/${location.slug}` }]
-    : [{ name: 'Home', url: 'https://chap.co.ke' }, { name: 'Locations', url: 'https://chap.co.ke/location' }, { name: location.name, url: `https://chap.co.ke/location/${location.slug}` }]
+    ? [{ name: 'Home', url: baseUrl }, { name: 'Locations', url: `${baseUrl}/location` }, { name: parentLocation.name, url: `${baseUrl}/location/${parentLocation.slug}` }, { name: location.name, url: `${baseUrl}/location/${location.slug}` }]
+    : [{ name: 'Home', url: baseUrl }, { name: 'Locations', url: `${baseUrl}/location` }, { name: location.name, url: `${baseUrl}/location/${location.slug}` }]
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

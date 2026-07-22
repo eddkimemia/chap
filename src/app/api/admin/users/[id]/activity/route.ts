@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         orderBy: { createdAt: 'desc' },
         take: 50,
         include: {
-          user: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true, premiumUntil: true } },
           listing: { select: { id: true, title: true } },
         },
       }),

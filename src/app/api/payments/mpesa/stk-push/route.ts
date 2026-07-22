@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'phone, amount, and type are required' }, { status: 400 })
     }
 
-    const validTypes = ['listing_fee', 'subscription', 'boost', 'featured', 'promotion']
+    const validTypes = ['listing_fee', 'subscription', 'boost', 'featured', 'promotion', 'seller_promotion', 'listing_promotion']
     if (!validTypes.includes(type)) {
       return NextResponse.json({ error: `type must be one of: ${validTypes.join(', ')}` }, { status: 400 })
     }

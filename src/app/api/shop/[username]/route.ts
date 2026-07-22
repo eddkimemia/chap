@@ -55,7 +55,7 @@ export async function GET(
         category: { select: { name: true, slug: true } },
         images: { select: { url: true, alt: true }, take: 1, orderBy: { order: 'asc' } },
         user: {
-          select: { id: true, name: true, avatar: true, isVerified: true, username: true },
+          select: { id: true, name: true, avatar: true, isVerified: true, username: true, premiumUntil: true },
         },
       },
       orderBy: { createdAt: 'desc' },

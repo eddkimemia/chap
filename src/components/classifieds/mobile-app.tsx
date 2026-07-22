@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
+import { useAppStore } from '@/lib/store'
 
 function AppStoreIcon() {
   return (
@@ -24,6 +25,8 @@ function PlayStoreIcon() {
 }
 
 export function MobileApp() {
+  const { siteSettings } = useAppStore()
+
   return (
     <section className="py-20 bg-white overflow-hidden">
       <div className="container mx-auto px-4 lg:px-8">
@@ -37,10 +40,10 @@ export function MobileApp() {
             <p className="text-xs font-semibold text-royal tracking-wider uppercase mb-2">Mobile App</p>
             <h2 className="text-3xl sm:text-4xl font-bold text-navy mb-4">Buy & Sell on the Go</h2>
             <p className="text-slate-400 mb-8 max-w-md leading-relaxed">
-              Download the ChapKE app for a faster, smoother experience. Browse listings, chat with sellers, and post ads right from your phone.
+              Download the {siteSettings.site_name || 'ChapKE'} app for a faster, smoother experience. Browse listings, chat with sellers, and post ads right from your phone.
             </p>
             <div className="flex flex-wrap gap-3 mb-8">
-              <a href="https://apps.apple.com" target="_blank" rel="noopener noreferrer">
+              <a href={siteSettings.app_store_url || 'https://apps.apple.com'} target="_blank" rel="noopener noreferrer">
                 <Button className="h-14 px-6 rounded-2xl bg-navy text-white hover:bg-navy/90 transition-all border-0 cursor-pointer">
                   <AppStoreIcon />
                   <div className="text-left">
@@ -49,7 +52,7 @@ export function MobileApp() {
                   </div>
                 </Button>
               </a>
-              <a href="https://play.google.com" target="_blank" rel="noopener noreferrer">
+              <a href={siteSettings.play_store_url || 'https://play.google.com'} target="_blank" rel="noopener noreferrer">
                 <Button className="h-14 px-6 rounded-2xl bg-navy text-white hover:bg-navy/90 transition-all border-0 cursor-pointer">
                   <PlayStoreIcon />
                   <div className="text-left">
@@ -69,7 +72,7 @@ export function MobileApp() {
           >
             <Image
               src="/phoneapp.png"
-              alt="ChapKE Mobile App"
+              alt={`${siteSettings.site_name || 'ChapKE'} Mobile App`}
               width={320}
               height={640}
               className="object-contain drop-shadow-2xl"

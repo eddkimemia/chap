@@ -22,6 +22,7 @@ import { TrendingCategories } from '@/components/classifieds/trending-categories
 import { BrowseLocations } from '@/components/classifieds/browse-locations'
 import { TopSellers } from '@/components/classifieds/top-sellers'
 import { PremiumBusinesses } from '@/components/classifieds/premium-businesses'
+import { PremiumSellers } from '@/components/classifieds/premium-sellers'
 import { PopularBrands } from '@/components/classifieds/popular-brands'
 import { MarketplaceStats } from '@/components/classifieds/marketplace-stats'
 import { MobileApp } from '@/components/classifieds/mobile-app'
@@ -42,6 +43,10 @@ export default function Home() {
     favorites,
     categories,
     locations,
+    homeBanners,
+    popularSearchTerms,
+    homeStats,
+    siteSettings,
     setView,
     setSearchQuery,
     setShowPostAd,
@@ -49,6 +54,7 @@ export default function Home() {
     setLocations,
     setListings,
     setFeaturedListings,
+    setHomeData,
     setIsLoading,
     setSelectedListing,
     loadFavorites,
@@ -72,10 +78,11 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-      const [catRes, locRes, listRes] = await Promise.all([
+      const [catRes, locRes, listRes, homeRes] = await Promise.all([
           fetch('/api/categories'),
           fetch('/api/locations'),
           fetch('/api/listings'),
+          fetch('/api/home'),
         ])
 
         if (catRes.ok) {
@@ -92,10 +99,20 @@ export default function Home() {
           setListings(items)
           setFeaturedListings(items.filter((l: { isFeatured: boolean }) => l.isFeatured))
         }
+        if (homeRes.ok) {
+          const data = await homeRes.json()
+          setHomeData({
+            banners: data.banners || [],
+            stats: data.stats || null,
+            testimonials: data.testimonials || [],
+            settings: data.settings || {},
+            popularSearchTerms: data.popularSearchTerms || [],
+          })
+        }
       } catch { toast.error('Failed to load categories or listings') }
     }
     fetchData()
-  }, [setCategories, setLocations, setListings, setFeaturedListings])
+  }, [setCategories, setLocations, setListings, setFeaturedListings, setHomeData])
 
   const fetchFiltered = useCallback(async () => {
     if (view === 'detail' || view === 'favorites') return
@@ -141,18 +158,16 @@ export default function Home() {
 
   const homeFeatured = useMemo(() => {
     if (view !== 'home') return []
-    return featuredListings.length > 0 ? featuredListings : listings.slice(0, 6)
-  }, [view, featuredListings, listings])
+    return listings.filter(l => l.isFeatured)
+  }, [view, listings])
 
   const homeLatest = useMemo(() => {
     if (view !== 'home') return []
     const sorted = [...listings].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     )
-    const featuredIds = new Set(featuredListings.map((l) => l.id))
-    const nonFeatured = sorted.filter((l) => !featuredIds.has(l.id))
-    return nonFeatured.slice(0, 8)
-  }, [view, listings, featuredListings])
+    return sorted.slice(0, 8)
+  }, [view, listings])
 
   const trendingLocations = useMemo(() => {
     if (view !== 'home') return []
@@ -184,12 +199,15 @@ export default function Home() {
     } catch { /* localStorage read-only, silently ignore */ }
   }, [listings])
 
-  const heroImages = ['/uploads/hero1.jpg', '/uploads/hero2.jpg', '/uploads/hero3.jpg', '/uploads/hero4.jpg']
+  const heroImages = homeBanners.length > 0
+    ? homeBanners.map(b => b.imageUrl)
+    : ['/uploads/hero1.jpg', '/uploads/hero2.jpg', '/uploads/hero3.jpg', '/uploads/hero4.jpg']
   const [heroBg, setHeroBg] = useState(0)
   useEffect(() => {
+    if (!heroImages.length) return
     const timer = setInterval(() => setHeroBg((p) => (p + 1) % heroImages.length), 5000)
     return () => clearInterval(timer)
-  }, [])
+  }, [heroImages.length])
 
   const handleHeroSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -302,7 +320,7 @@ export default function Home() {
 
                     <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-6">
                       <span className="text-sm text-slate-300 font-medium">Popular:</span>
-                      {['Toyota Corolla', 'iPhone 15', 'Land Nairobi', 'MacBook'].map(
+                      {(popularSearchTerms.length > 0 ? popularSearchTerms : ['Toyota Corolla', 'iPhone 15', 'Land Nairobi', 'MacBook']).map(
                         (term) => (
                           <button
                             key={term}
@@ -330,10 +348,10 @@ export default function Home() {
                   >
                     <div className="grid grid-cols-2 gap-3">
                       {[
-                        { label: 'Active Listings', value: `${listings.length || 0}+`, icon: Package, color: 'text-royal', bg: 'bg-royal/5' },
+                        { label: 'Active Listings', value: `${(homeStats?.activeListings || listings.length || 0).toLocaleString()}+`, icon: Package, color: 'text-royal', bg: 'bg-royal/5' },
                         { label: 'Categories', value: `${categories.filter(c => !c.parentId).length || 0}+`, icon: Sparkles, color: 'text-accent-red', bg: 'bg-accent-red/5' },
                         { label: 'Locations', value: `${locations.length || 0}+`, icon: MapPin, color: 'text-electric', bg: 'bg-electric/5' },
-                        { label: 'Active Sellers', value: '5K+', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+                        { label: 'Active Sellers', value: `${(homeStats?.activeUsers30d || 0).toLocaleString()}+`, icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50' },
                       ].map((stat, i) => (
                         <motion.div
                           key={stat.label}
@@ -363,8 +381,8 @@ export default function Home() {
                             <BadgeCheck className="h-4 w-4" />
                           </div>
                           <div>
-                            <p className="text-base font-bold">250K+ Listings</p>
-                            <p className="text-xs text-white/70">40K Sellers &bull; 200 Categories</p>
+                            <p className="text-base font-bold">{(homeStats?.totalListings || 0).toLocaleString()}+ Listings</p>
+                            <p className="text-xs text-white/70">{(homeStats?.totalUsers || 0).toLocaleString()} Sellers &bull; {categories.filter(c => !c.parentId).length || 0} Categories</p>
                           </div>
                         </div>
                       </motion.div>
@@ -374,33 +392,34 @@ export default function Home() {
               </div>
             </section>
 
-             {/* Featured Listings */}
-            {homeFeatured.length > 0 && (
-              <section className="py-12">
-                <div className="container mx-auto px-4 lg:px-8">
-                  <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-royal/5">
-                        <TrendingUp className="h-5 w-5 text-royal" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold text-royal tracking-wider uppercase">Top picks</p>
-                        <h2 className="text-2xl sm:text-3xl font-bold text-navy">Featured Listings</h2>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-royal hover:text-royal/80 rounded-xl font-semibold" onClick={() => { useAppStore.setState({ view: 'listings' }); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
-                      View All <ArrowRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  </div>
-                  <ListingGrid listings={homeFeatured} />
-                </div>
-              </section>
-            )}
+            {/* Premium Sellers */}
+            <PremiumSellers />
 
             {/* Categories */}
             <CategoryGrid />
 
-             {/* Why Choose Us */}
+            {/* Featured Listings */}
+            <section className="py-12">
+              <div className="container mx-auto px-4 lg:px-8">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-royal/5">
+                      <TrendingUp className="h-5 w-5 text-royal" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-royal tracking-wider uppercase">Top picks</p>
+                      <h2 className="text-2xl sm:text-3xl font-bold text-navy">Featured Listings</h2>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="sm" className="text-royal hover:text-royal/80 rounded-xl font-semibold" onClick={() => { useAppStore.setState({ view: 'listings' }); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
+                    View All <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+                <ListingGrid listings={homeFeatured} />
+              </div>
+            </section>
+
+            {/* Why Choose Us */}
             <WhyChooseUs />
 
             {/* Latest Listings */}

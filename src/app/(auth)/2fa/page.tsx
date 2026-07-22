@@ -132,7 +132,7 @@ export default function TwoFactorPage() {
               <Key className="h-4 w-4 text-royal mt-0.5 shrink-0" />
               <p className="text-xs text-muted-foreground">
                 Having trouble? Contact support at{' '}
-                <a href="mailto:support@chap.co.ke" className="text-royal font-medium">support@chap.co.ke</a>
+                <a href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@chap.co.ke'}`} className="text-royal font-medium">{process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@chap.co.ke'}</a>
               </p>
             </div>
           </div>

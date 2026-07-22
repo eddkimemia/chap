@@ -117,9 +117,10 @@ export default function RegisterPage() {
     }
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://chap.co.ke'
   const usernameUrl = accountType === 'business'
-    ? `chap.co.ke/shop/${form.username || 'your-business'}`
-    : `chap.co.ke/seller/${form.username || 'username'}`
+    ? `${siteUrl.replace(/^https?:\/\//, '')}/shop/${form.username || 'your-business'}`
+    : `${siteUrl.replace(/^https?:\/\//, '')}/seller/${form.username || 'username'}`
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-8">

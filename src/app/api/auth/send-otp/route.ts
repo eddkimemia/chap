@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { getCurrentUser, generateOTP } from '@/lib/auth'
+import { getCurrentUser, generateOTP, hashOtp } from '@/lib/auth'
 import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
@@ -35,13 +35,14 @@ export async function POST(request: NextRequest) {
     }
 
     const code = generateOTP()
+    const codeHash = await hashOtp(code)
     const expiresAt = new Date()
     expiresAt.setMinutes(expiresAt.getMinutes() + 10)
 
     await db.twoFactorSession.create({
       data: {
         userId: user.id,
-        code,
+        code: codeHash,
         type: `verify_${type}`,
         expiresAt,
       },

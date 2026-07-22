@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { siteConfig } from '@/lib/site'
 import { Header } from '@/components/classifieds/header'
 import { Footer } from '@/components/classifieds/footer'
 import { MobileNav } from '@/components/classifieds/mobile-nav'
@@ -11,12 +12,12 @@ interface PageProps {
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const sp = await searchParams
   const q = sp.q || sp.search || ''
-  const title = q ? `Search "${q}" - ChapKE Kenya` : 'Search Listings - ChapKE Kenya'
+  const title = q ? `Search "${q}" - ${siteConfig.name} Kenya` : `Search Listings - ${siteConfig.name} Kenya`
 
   return {
     title,
-    description: `Search results for ${q || 'all listings'} on ChapKE. Find the best deals in Kenya.`,
-    alternates: { canonical: `https://chap.co.ke/search${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+    description: `Search results for ${q || 'all listings'} on ${siteConfig.name}. Find the best deals in Kenya.`,
+    alternates: { canonical: `${siteConfig.url}/search${q ? `?q=${encodeURIComponent(q)}` : ''}` },
   }
 }
 
@@ -32,8 +33,8 @@ export default async function SearchPage({ searchParams }: PageProps) {
             '@context': 'https://schema.org',
             '@type': 'BreadcrumbList',
             itemListElement: [
-              { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://chap.co.ke' },
-              { '@type': 'ListItem', position: 2, name: 'Search', item: `https://chap.co.ke/search${sp.q ? `?q=${encodeURIComponent(sp.q)}` : ''}` },
+              { '@type': 'ListItem', position: 1, name: 'Home', item: siteConfig.url },
+              { '@type': 'ListItem', position: 2, name: 'Search', item: `${siteConfig.url}/search${sp.q ? `?q=${encodeURIComponent(sp.q)}` : ''}` },
             ],
           }),
         }}

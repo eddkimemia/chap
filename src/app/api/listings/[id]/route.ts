@@ -21,7 +21,7 @@ export async function GET(
       where: { id },
       include: {
         user: {
-          select: { id: true, name: true, avatar: true, isVerified: true },
+          select: { id: true, name: true, avatar: true, isVerified: true, premiumUntil: true, role: true },
         },
         category: {
           select: { id: true, name: true, slug: true, icon: true },

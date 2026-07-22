@@ -11,36 +11,15 @@ import { TrendingUp, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = {
-  title: 'All Categories - ChapKE Kenya',
-  description: 'Browse all categories on ChapKE Kenya. Find vehicles, property, electronics, jobs, services, and more across Nairobi, Mombasa, Kisumu.',
+  title: `All Categories - ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'} Kenya`,
+  description: `Browse all categories on ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'} Kenya. Find vehicles, property, electronics, jobs, services, and more across Nairobi, Mombasa, Kisumu.`,
   openGraph: {
-    title: 'All Categories | ChapKE Kenya',
-    description: 'Browse all categories on ChapKE Kenya.',
+    title: `All Categories | ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'} Kenya`,
+    description: `Browse all categories on ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'} Kenya.`,
     type: 'website',
-    siteName: 'ChapKE',
+    siteName: process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE',
   },
-  alternates: { canonical: 'https://chap.co.ke/category' },
-}
-
-const categoryImage: Record<string, string> = {
-  vehicles: 'vehicles.png',
-  property: 'property.png',
-  electronics: 'electronics.png',
-  'phones-tablets': 'phones.png',
-  fashion: 'fashion.png',
-  jobs: 'jobs.png',
-  services: 'service.png',
-  'agriculture-food': 'agriculture.png',
-  'furniture-home': 'furniture.png',
-  'health-beauty': 'health.png',
-  'sports-outdoors': 'sports.png',
-  'business-industrial': 'business-industrial.png',
-  'books-media': 'books.png',
-  'pets-animals': 'pets.png',
-  'food-drinks': 'foods.png',
-  'hobbies-arts': 'hobbies.png',
-  'travel-tourism': 'travel.png',
-  'baby-kids': 'baby.png',
+  alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://chap.co.ke'}/category` },
 }
 
 export default async function CategoriesPage() {
@@ -58,6 +37,24 @@ export default async function CategoriesPage() {
     return { ...cat, totalListings: (cat._count?.listings || 0) + childCount }
   })
 
+  const premiumListings = await db.listing.findMany({
+    where: {
+      status: 'active',
+      user: { premiumUntil: { gt: new Date() } },
+    },
+    select: {
+      id: true, slug: true, title: true, description: true, price: true,
+      currency: true, condition: true, isFeatured: true, isPromoted: true,
+      isNegotiable: true, views: true, createdAt: true,
+      category: { select: { id: true, name: true, slug: true, parentId: true } },
+      location: { select: { id: true, name: true, slug: true } },
+      images: { orderBy: { order: 'asc' }, take: 1 },
+      user: { select: { id: true, name: true, avatar: true, phone: true, isVerified: true, premiumUntil: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 8,
+  })
+
   const featuredListings = await db.listing.findMany({
     where: { status: 'active' },
     select: {
@@ -67,12 +64,13 @@ export default async function CategoriesPage() {
       category: { select: { id: true, name: true, slug: true, parentId: true } },
       location: { select: { id: true, name: true, slug: true } },
       images: { orderBy: { order: 'asc' }, take: 1 },
-      user: { select: { id: true, name: true, avatar: true, phone: true, isVerified: true } },
+      user: { select: { id: true, name: true, avatar: true, phone: true, isVerified: true, premiumUntil: true } },
     },
     orderBy: { createdAt: 'desc' },
     take: 18,
   })
 
+  const shuffledPremium = [...premiumListings].sort(() => 0.5 - Math.random())
   const shuffledFeatured = [...featuredListings].sort(() => 0.5 - Math.random())
 
   return (
@@ -91,21 +89,19 @@ export default async function CategoriesPage() {
             </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-3">
               {enriched.map((cat) => {
-                const img = categoryImage[cat.slug]
                 return (
                   <Link
                     key={cat.id}
                     href={`/category/${cat.slug}`}
                     className="group relative flex flex-col items-center justify-end rounded-xl overflow-hidden aspect-[3/4] transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
                   >
-                    {img && (
-                      <Image
-                        src={`/categories/${img}`}
-                        alt={cat.name}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                    )}
+                    <Image
+                      src={`/categories/${cat.slug}.png`}
+                      alt={cat.name}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                     <div className="relative z-10 flex flex-col items-center p-2 pb-3">
                       <p className="text-[11px] sm:text-xs font-bold text-white text-center leading-tight drop-shadow-sm">
@@ -123,6 +119,30 @@ export default async function CategoriesPage() {
             </div>
           </div>
         </section>
+
+        {/* Premium Listings */}
+        {shuffledPremium.length > 0 && (
+          <section className="py-12 bg-gradient-to-b from-slate-50/50 to-white">
+            <div className="container mx-auto px-4 lg:px-8">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-royal/5">
+                    <Sparkles className="h-5 w-5 text-royal" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-royal tracking-wider uppercase">Premium</p>
+                    <h2 className="text-2xl font-bold text-navy">Premium Listings</h2>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {shuffledPremium.map((listing, i) => (
+                  <ListingCard key={listing.id} listing={JSON.parse(JSON.stringify(listing)) as any} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Featured Listings */}
         <section className="py-12">

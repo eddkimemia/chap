@@ -14,7 +14,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       return NextResponse.json({ error: 'Status must be approved or rejected' }, { status: 400 })
     }
 
-    const request_ = await db.verificationRequest.findUnique({ where: { id }, include: { user: { select: { name: true, email: true } } } })
+    const request_ = await db.verificationRequest.findUnique({ where: { id }, include: { user: { select: { name: true, email: true, premiumUntil: true } } } })
     if (!request_) return NextResponse.json({ error: 'Verification request not found' }, { status: 404 })
 
     const updated = await db.verificationRequest.update({

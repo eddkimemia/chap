@@ -5,27 +5,6 @@ import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { useAppStore } from '@/lib/store'
 
-const categoryImage: Record<string, string> = {
-  vehicles: 'vehicles.png',
-  property: 'property.png',
-  electronics: 'electronics.png',
-  'phones-tablets': 'phones.png',
-  fashion: 'fashion.png',
-  jobs: 'jobs.png',
-  services: 'service.png',
-  'agriculture-food': 'agriculture.png',
-  'furniture-home': 'furniture.png',
-  'health-beauty': 'health.png',
-  'sports-outdoors': 'sports.png',
-  'business-industrial': 'business-industrial.png',
-  'books-media': 'books.png',
-  'pets-animals': 'pets.png',
-  'food-drinks': 'foods.png',
-  'hobbies-arts': 'hobbies.png',
-  'travel-tourism': 'travel.png',
-  'baby-kids': 'baby.png',
-}
-
 const containerVariants = {
   hidden: {},
   show: {
@@ -60,7 +39,6 @@ export function CategoryGrid() {
           className="grid grid-cols-3 sm:grid-cols-6 lg:grid-cols-9 gap-3 sm:gap-4"
         >
           {parentCategories.map((cat) => {
-            const img = categoryImage[cat.slug]
             const count = cat._count?.listings || 0
 
             return (
@@ -69,14 +47,13 @@ export function CategoryGrid() {
                   href={`/category/${cat.slug}`}
                   className="group relative flex flex-col items-center justify-end rounded-2xl overflow-hidden aspect-[4/5] transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
                 >
-                  {img && (
-                    <Image
-                      src={`/categories/${img}`}
-                      alt={cat.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
-                    />
-                  )}
+                  <Image
+                    src={`/categories/${cat.slug}.png`}
+                    alt={cat.name}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                   <div className="relative z-10 flex flex-col items-center p-3 sm:p-4 pb-4 sm:pb-5">
                     <p className="text-xs sm:text-sm font-bold text-white text-center leading-tight drop-shadow-sm">

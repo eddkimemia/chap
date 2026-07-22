@@ -18,6 +18,7 @@ import {
   Home,
   LogOut,
   ShieldCheck,
+  Award,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -42,6 +43,7 @@ const adminNav = [
   { href: '/admin/blog', label: 'Blog', icon: PenTool },
   { href: '/admin/verifications', label: 'Verifications', icon: ShieldCheck },
   { href: '/admin/business-verifications', label: 'Business Verifications', icon: ShieldCheck },
+  { href: '/admin/seller-promotions', label: 'Seller Promotions', icon: Award },
 ]
 
 function AdminSidebar({ user, onLogout }: { user: User | null; onLogout: () => void }) {

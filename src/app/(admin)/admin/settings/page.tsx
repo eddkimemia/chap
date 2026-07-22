@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Save, Settings2, Building2, Mail, Shield, Bell, Palette } from 'lucide-react'
+import { Save, Settings2, Building2, Mail, Shield, Bell, Palette, Smartphone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,8 @@ export default function AdminSystemSettingsPage() {
     maintenance_mode: false, registration_enabled: true,
     email_sender_name: '', email_sender_address: '', smtp_host: '', smtp_port: 587, smtp_user: '', smtp_pass: '',
     site_primary_color: '#2563eb', site_secondary_color: '#f97316', site_logo_url: '', site_favicon_url: '',
+    facebook_url: '', twitter_url: '', instagram_url: '', youtube_url: '',
+    app_store_url: '', play_store_url: '',
   })
 
   useEffect(() => { fetchSettings() }, [])
@@ -91,6 +93,32 @@ export default function AdminSystemSettingsPage() {
             <div className="space-y-2"><Label className="text-xs font-medium text-navy">City</Label><Input value={settings.city} onChange={(e) => setSettings({ ...settings, city: e.target.value })} className="rounded-xl h-10" /></div>
           </div>
           <div className="space-y-2"><Label className="text-xs font-medium text-navy">Address</Label><Input value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} className="rounded-xl h-10" /></div>
+        </CardContent>
+      </Card>
+
+      {/* Social Media */}
+      <Card className="rounded-2xl border-0 shadow-premium">
+        <CardHeader><CardTitle className="text-navy text-base font-bold flex items-center gap-2"><svg className="h-4 w-4 text-royal" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Social Media</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label className="text-xs font-medium text-navy">Facebook URL</Label><Input value={settings.facebook_url} onChange={(e) => setSettings({ ...settings, facebook_url: e.target.value })} placeholder="https://facebook.com/chapke" className="rounded-xl h-10" /></div>
+            <div className="space-y-2"><Label className="text-xs font-medium text-navy">Twitter URL</Label><Input value={settings.twitter_url} onChange={(e) => setSettings({ ...settings, twitter_url: e.target.value })} placeholder="https://twitter.com/chapke" className="rounded-xl h-10" /></div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label className="text-xs font-medium text-navy">Instagram URL</Label><Input value={settings.instagram_url} onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })} placeholder="https://instagram.com/chapke" className="rounded-xl h-10" /></div>
+            <div className="space-y-2"><Label className="text-xs font-medium text-navy">YouTube URL</Label><Input value={settings.youtube_url} onChange={(e) => setSettings({ ...settings, youtube_url: e.target.value })} placeholder="https://youtube.com/@chapke" className="rounded-xl h-10" /></div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Mobile App */}
+      <Card className="rounded-2xl border-0 shadow-premium">
+        <CardHeader><CardTitle className="text-navy text-base font-bold flex items-center gap-2"><Smartphone className="h-4 w-4 text-royal" /> Mobile App</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2"><Label className="text-xs font-medium text-navy">App Store URL</Label><Input value={settings.app_store_url} onChange={(e) => setSettings({ ...settings, app_store_url: e.target.value })} placeholder="https://apps.apple.com/..." className="rounded-xl h-10" /></div>
+            <div className="space-y-2"><Label className="text-xs font-medium text-navy">Play Store URL</Label><Input value={settings.play_store_url} onChange={(e) => setSettings({ ...settings, play_store_url: e.target.value })} placeholder="https://play.google.com/..." className="rounded-xl h-10" /></div>
+          </div>
         </CardContent>
       </Card>
 

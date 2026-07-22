@@ -23,6 +23,8 @@ import {
   ShieldCheck,
   XCircle,
   Pencil,
+  Store,
+  UserRound,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -75,6 +77,7 @@ interface UserRecord {
   createdAt: string
   lastLoginAt?: string
   _count?: { listings: number; sessions: number }
+  subscription?: { plan: { name: string } }[]
 }
 
 export default function AdminUsersPage() {
@@ -83,6 +86,8 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [roleFilter, setRoleFilter] = useState('')
+  const [planFilter, setPlanFilter] = useState('')
 
   const [activeUser, setActiveUser] = useState<UserRecord | null>(null)
   const [dialog, setDialog] = useState<'reset' | 'verify' | 'notify' | 'impersonate' | 'activity' | 'ban' | 'notes' | 'edit' | null>(null)
@@ -120,12 +125,15 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     fetchUsers()
-  }, [page])
+  }, [page, roleFilter, planFilter])
 
   const fetchUsers = async () => {
     setLoading(true)
     try {
-      const res = await apiFetch(`/api/admin/users?page=${page}&limit=20&search=${search}`)
+      const params = new URLSearchParams({ page: String(page), limit: '20', search })
+      if (roleFilter) params.set('roles', roleFilter)
+      if (planFilter) params.set('plan', planFilter)
+      const res = await apiFetch(`/api/admin/users?${params}`)
       if (res.ok) {
         const data = await res.json()
         setUsers(data.users || [])
@@ -390,6 +398,40 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
+      {/* Role filter tabs */}
+      <div className="flex gap-1 p-1 bg-slate-100 rounded-2xl w-fit">
+        {[
+          { value: 'all', label: 'All', icon: Users },
+          { value: 'sellers', label: 'Sellers', icon: UserRound },
+          { value: 'shops', label: 'Shops', icon: Store },
+        ].map((tab) => {
+          const Icon = tab.icon
+          const isActive = tab.value === 'all'
+            ? !roleFilter && !planFilter
+            : tab.value === 'sellers'
+              ? roleFilter === 'seller,user'
+              : planFilter === 'Pro'
+          return (
+            <button
+              key={tab.value}
+              onClick={() => {
+                setRoleFilter(tab.value === 'sellers' ? 'seller,user' : '')
+                setPlanFilter(tab.value === 'shops' ? 'Pro' : '')
+                setPage(1)
+              }}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                isActive
+                  ? 'bg-white text-navy shadow-sm'
+                  : 'text-slate-500 hover:text-navy'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
       <form onSubmit={handleSearch} className="flex gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -412,7 +454,7 @@ export default function AdminUsersPage() {
               <TableRow className="bg-muted/30">
                 <TableHead className="text-navy font-semibold text-xs uppercase tracking-wider">User</TableHead>
                 <TableHead className="text-navy font-semibold text-xs uppercase tracking-wider">Username</TableHead>
-                <TableHead className="text-navy font-semibold text-xs uppercase tracking-wider">Role</TableHead>
+                <TableHead className="text-navy font-semibold text-xs uppercase tracking-wider">Plan</TableHead>
                 <TableHead className="text-navy font-semibold text-xs uppercase tracking-wider">Status</TableHead>
                 <TableHead className="text-navy font-semibold text-xs uppercase tracking-wider">Joined</TableHead>
                 <TableHead className="text-right text-navy font-semibold text-xs uppercase tracking-wider">Actions</TableHead>
@@ -458,12 +500,14 @@ export default function AdminUsersPage() {
                       <Badge
                         variant="outline"
                         className={`text-[10px] rounded-lg font-medium ${
-                          user.role === 'admin'
-                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                          (user.subscription?.[0]?.plan?.name || 'Free') === 'Premium'
+                            ? 'bg-royal/10 text-royal border-royal/20'
+                            :               (user.subscription?.[0]?.plan?.name || 'Free') === 'Pro'
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
                             : 'bg-slate-50 text-slate-600 border-slate-200'
                         }`}
                       >
-                        {user.role}
+                        {user.subscription?.[0]?.plan?.name || 'Free'}
                       </Badge>
                     </TableCell>
                     <TableCell>

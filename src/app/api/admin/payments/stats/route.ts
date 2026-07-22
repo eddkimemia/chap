@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         provider: true,
         status: true,
         createdAt: true,
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, premiumUntil: true } },
       },
     })
 

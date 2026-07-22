@@ -1241,8 +1241,8 @@ async function seed() {
   // Upsert plans
   const plans = [
     { name: 'Free', slug: 'free', description: 'Get started with basic features', price: 0, currency: 'KES', interval: 'monthly', maxListings: 5, maxImages: 5, maxVideos: 0, isFeatured: false, isPromoted: false, isActive: true, order: 1, planFeatures: { create: [{ feature: '5 listings' }, { feature: '5 images per listing' }] } },
-    { name: 'Premium', slug: 'premium', description: 'For serious sellers who want more exposure', price: 999, currency: 'KES', interval: 'monthly', maxListings: 50, maxImages: 10, maxVideos: 3, isFeatured: true, isPromoted: true, isActive: true, order: 2, planFeatures: { create: [{ feature: '50 listings' }, { feature: '10 images per listing' }, { feature: 'Featured' }, { feature: 'Boost' }] } },
-    { name: 'Business', slug: 'business', description: 'Unlimited power for businesses', price: 4999, currency: 'KES', interval: 'monthly', maxListings: -1, maxImages: 20, maxVideos: 10, isFeatured: true, isPromoted: true, isActive: true, order: 3, planFeatures: { create: [{ feature: 'Unlimited listings' }, { feature: '20 images per listing' }, { feature: 'Featured' }, { feature: 'Boost' }, { feature: 'Storefront' }] } },
+    { name: 'Pro', slug: 'pro', description: 'Grow your business with featured listings', price: 499, currency: 'KES', interval: 'monthly', maxListings: 20, maxImages: 10, maxVideos: 3, isFeatured: true, isPromoted: false, isActive: true, order: 2, planFeatures: { create: [{ feature: '20 listings' }, { feature: '10 images per listing' }, { feature: 'Featured listings' }] } },
+    { name: 'Premium', slug: 'premium', description: 'The ultimate plan for power sellers', price: 999, currency: 'KES', interval: 'monthly', maxListings: 999, maxImages: 20, maxVideos: 10, isFeatured: true, isPromoted: true, isActive: true, order: 3, planFeatures: { create: [{ feature: 'Unlimited listings' }, { feature: '20 images per listing' }, { feature: 'Featured listings' }, { feature: 'Premium badge' }, { feature: 'Storefront' }] } },
   ];
   for (const plan of plans) {
     const { planFeatures, ...planData } = plan;
@@ -1349,7 +1349,7 @@ async function seed() {
   // Create FAQs (delete & recreate for freshness)
   const faqs = [
     { question: 'How do I post an ad?', answer: 'Click the "Post Ad" button, fill in the details, upload photos, and publish. It takes less than a minute!', category: 'Getting Started', order: 1 },
-    { question: 'Is it free to list?', answer: 'Yes! Free plan allows up to 5 active listings. Upgrade to Premium or Business for more features.', category: 'Pricing', order: 2 },
+    { question: 'Is it free to list?', answer: 'Yes! Free plan allows up to 5 active listings. Upgrade to Pro or Premium for more features.', category: 'Pricing', order: 2 },
     { question: 'How do I contact a seller?', answer: 'Click on any listing and use the Call, WhatsApp, or Email buttons to reach the seller directly.', category: 'Buying', order: 3 },
     { question: 'How do I report a suspicious listing?', answer: 'Click the report button on any listing and select the reason. Our team reviews reports within 24 hours.', category: 'Safety', order: 4 },
     { question: 'What payment methods are accepted?', answer: 'We accept M-Pesa, Stripe, Flutterwave, Paystack, and PayPal for Premium subscriptions and featured listings.', category: 'Pricing', order: 5 },

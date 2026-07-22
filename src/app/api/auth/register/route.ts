@@ -90,6 +90,24 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Auto-assign Free subscription
+    const freePlan = await db.plan.findUnique({ where: { slug: 'free' } })
+    if (freePlan) {
+      const now = new Date()
+      const endDate = new Date(now)
+      endDate.setFullYear(endDate.getFullYear() + 100)
+      await db.subscription.create({
+        data: {
+          userId: user.id,
+          planId: freePlan.id,
+          status: 'active',
+          startDate: now,
+          endDate,
+          autoRenew: true,
+        },
+      })
+    }
+
     const expiresAt = new Date()
     expiresAt.setMinutes(expiresAt.getMinutes() + 10)
 

@@ -1,10 +1,17 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { useAppStore } from '@/lib/store'
 
-const brands = [
+interface Brand {
+  name: string
+  image: string
+}
+
+const defaultBrands: Brand[] = [
   { name: 'Samsung', image: 'samsung.jpg' },
   { name: 'Tecno', image: 'tecno.png' },
   { name: 'Xiaomi', image: 'xiaomi.png' },
@@ -16,6 +23,21 @@ const brands = [
 ]
 
 export function PopularBrands() {
+  const { siteSettings } = useAppStore()
+  const [brands, setBrands] = useState<Brand[]>(defaultBrands)
+
+  useEffect(() => {
+    const brandsJson = siteSettings?.popular_brands
+    if (brandsJson) {
+      try {
+        const parsed = typeof brandsJson === 'string' ? JSON.parse(brandsJson) : brandsJson
+        if (Array.isArray(parsed) && parsed.length) setBrands(parsed)
+      } catch {}
+    }
+  }, [siteSettings])
+
+  if (!brands.length) return null
+
   return (
     <section className="py-16 bg-slate-50/50">
       <div className="container mx-auto px-4 lg:px-8">

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const listing = await db.listing.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, premiumUntil: true } },
         category: { select: { id: true, name: true } },
         location: { select: { id: true, name: true } },
         images: { orderBy: { order: 'asc' } },

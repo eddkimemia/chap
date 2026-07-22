@@ -115,10 +115,14 @@ export default function ListingsPage() {
     } catch (err: unknown) { toast.error(err instanceof Error ? err.message : 'An error occurred') }
   }
 
-  const handleBoostOpen = (type: string, durationDays: number) => {
-    const opt = promoOptions.find(o => o.type === type)
-    const amount = opt?.price || 0
-    setMpesaDialog({ open: true, listingId: boostDialog.listingId, type, durationDays, amount })
+  const handleListingPromoOpen = (duration: string, amount: number) => {
+    setMpesaDialog({
+      open: true,
+      listingId: boostDialog.listingId,
+      type: `listing_promo_${duration}`,
+      durationDays: duration === 'weekly' ? 7 : 30,
+      amount,
+    })
     setPhoneNumber('')
     setMpesaStep('enter-phone')
     setMpesaProcessing(false)
@@ -132,13 +136,17 @@ export default function ListingsPage() {
     setMpesaProcessing(true)
     setMpesaStep('check-phone')
     try {
+      const isListingPromo = mpesaDialog.type.startsWith('listing_promo_')
+      const paymentType = isListingPromo
+        ? 'listing_promotion'
+        : mpesaDialog.type === 'featured' ? 'featured' : mpesaDialog.type === 'promote' ? 'promotion' : 'boost'
       const res = await apiFetch('/api/payments/mpesa/stk-push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone: phoneNumber,
           amount: mpesaDialog.amount,
-          type: mpesaDialog.type === 'featured' ? 'featured' : mpesaDialog.type === 'promote' ? 'promotion' : 'boost',
+          type: paymentType,
           description: `${mpesaDialog.type} listing`,
           metadata: { listingId: mpesaDialog.listingId, type: mpesaDialog.type, durationDays: mpesaDialog.durationDays },
         }),
@@ -175,18 +183,26 @@ export default function ListingsPage() {
       const payment = await res.json()
       if (payment.status === 'completed') {
         if (pollRef.current) clearInterval(pollRef.current)
-        const boostRes = await apiFetch(`/api/listings/${mpesaDialog.listingId}/boost`, {
-          method: 'POST',
-          body: JSON.stringify({ type: mpesaDialog.type, durationDays: mpesaDialog.durationDays, amount: mpesaDialog.amount, paymentId }),
-        })
+        const isListingPromo = mpesaDialog.type.startsWith('listing_promo_')
+        const duration = mpesaDialog.type === 'listing_promo_weekly' ? 'weekly' : 'monthly'
+        const promoRes = isListingPromo
+          ? await apiFetch('/api/promotions/listing', {
+              method: 'POST',
+              body: JSON.stringify({ listingId: mpesaDialog.listingId, duration, paymentId }),
+            })
+          : await apiFetch(`/api/listings/${mpesaDialog.listingId}/boost`, {
+              method: 'POST',
+              body: JSON.stringify({ type: mpesaDialog.type, durationDays: mpesaDialog.durationDays, amount: mpesaDialog.amount, paymentId }),
+            })
         setMpesaProcessing(false)
-        if (boostRes.ok) {
+        if (promoRes.ok) {
           setMpesaStep('done')
-          toast.success(`Listing ${mpesaDialog.type === 'featured' ? 'featured' : 'boosted'} successfully!`)
+          const label = isListingPromo ? 'promoted' : mpesaDialog.type === 'featured' ? 'featured' : 'boosted'
+          toast.success(`Listing ${label} successfully!`)
           setTimeout(() => { setMpesaDialog({ open: false, listingId: '', type: '', durationDays: 0, amount: 0 }); setBoostDialog({ open: false, listingId: '' }); fetchListings() }, 1500)
         } else {
-          const d = await boostRes.json()
-          toast.error(d.error || 'Failed to boost listing')
+          const d = await promoRes.json()
+          toast.error(d.error || 'Failed to promote listing')
           setMpesaStep('enter-phone')
         }
       } else if (payment.status === 'failed') {
@@ -218,10 +234,9 @@ export default function ListingsPage() {
     else setSelected(new Set(filtered.map((l) => l.id)))
   }
 
-  const promoOptions = [
-    { type: 'featured', label: 'Feature Listing', desc: 'Featured badge + top placement', days: 7, price: 499 },
-    { type: 'boost', label: 'Boost Listing', desc: 'Higher visibility in search', days: 7, price: 299 },
-    { type: 'promote', label: 'Promote Listing', desc: 'Premium promotion package', days: 14, price: 999 },
+  const listingPromoOptions = [
+    { duration: 'weekly', label: 'Boost Weekly', desc: 'Priority visibility for 7 days', price: 200 },
+    { duration: 'monthly', label: 'Boost Monthly', desc: 'Priority visibility for 30 days', price: 500 },
   ]
 
   return (
@@ -247,9 +262,6 @@ export default function ListingsPage() {
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleBulk('pause')} className="rounded-xl text-xs h-8">
               <Pause className="h-3 w-3 mr-1" /> Pause
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => handleBulk('feature')} className="rounded-xl text-xs h-8">
-              <Star className="h-3 w-3 mr-1" /> Feature
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleBulk('delete')} className="rounded-xl text-xs h-8 text-red-600 hover:text-red-600 border-red-200 hover:bg-red-50">
               <Trash2 className="h-3 w-3 mr-1" /> Delete
@@ -431,17 +443,19 @@ export default function ListingsPage() {
             <DialogDescription>Boost your listing&apos;s visibility and reach more buyers.</DialogDescription>
           </DialogHeader>
           <div className="space-y-3 py-2">
-            {promoOptions.map((opt) => (
-              <button key={opt.type} onClick={() => handleBoostOpen(opt.type, opt.days)}
-                className="w-full text-left p-4 rounded-xl border border-slate-200 hover:border-royal/30 hover:bg-royal/5 transition-all group">
+            {listingPromoOptions.map((opt) => (
+              <button key={opt.duration} onClick={() => handleListingPromoOpen(opt.duration, opt.price)}
+                className="w-full text-left p-4 rounded-xl border-2 border-amber-200 hover:border-amber-400 bg-amber-50/30 hover:bg-amber-50 transition-all group">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-navy group-hover:text-royal transition-colors">{opt.label}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{opt.desc}</p>
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                    <div>
+                      <p className="font-semibold text-navy group-hover:text-amber-600 transition-colors">{opt.label}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{opt.desc}</p>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-bold text-royal">{opt.days} days</p>
-                    <p className="text-[10px] text-slate-400">KES {formatPrice(opt.price)}</p>
+                    <p className="text-xs font-bold text-amber-600">KES {formatPrice(opt.price)}</p>
                   </div>
                 </div>
               </button>

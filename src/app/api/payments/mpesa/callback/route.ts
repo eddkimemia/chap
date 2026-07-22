@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { rateLimit } from '@/lib/rate-limit'
 
 interface MpesaCallbackItem {
   Name: string
@@ -20,8 +21,51 @@ interface MpesaCallbackBody {
   }
 }
 
+/** Known Safaricom production IP ranges for M-Pesa callbacks. */
+const SAFARICOM_IPS = new Set([
+  '196.201.214.200',
+  '196.201.214.206',
+  '196.201.213.114',
+  '196.201.214.207',
+  '196.201.214.208',
+  '196.201.213.44',
+  '196.201.212.127',
+  '196.201.212.138',
+  '196.201.212.129',
+  '196.201.212.136',
+  '196.201.212.74',
+  '196.201.212.69',
+])
+
+function getClientIp(request: NextRequest): string {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')?.trim()
+    || 'unknown'
+}
+
+function isAllowedIp(ip: string): boolean {
+  if (ip === 'unknown') return false
+  if (process.env.MPESA_ALLOWED_IPS) {
+    const allowed = process.env.MPESA_ALLOWED_IPS.split(',').map((s) => s.trim())
+    return allowed.includes(ip)
+  }
+  return SAFARICOM_IPS.has(ip)
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const ip = getClientIp(request)
+
+    if (!isAllowedIp(ip)) {
+      console.warn(`M-Pesa callback rejected: untrusted IP ${ip}`)
+      return NextResponse.json({ ResultCode: 1, ResultDesc: 'Forbidden' }, { status: 403 })
+    }
+
+    const rl = rateLimit(`mpesa-callback:${ip}`, 10, 60)
+    if (!rl.allowed) {
+      return NextResponse.json({ ResultCode: 1, ResultDesc: 'Rate limited' }, { status: 429 })
+    }
+
     const raw = await request.json() as MpesaCallbackBody
     const callback = raw.Body?.stkCallback
 

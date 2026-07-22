@@ -90,6 +90,7 @@ export function Header() {
     currentUser,
     setCurrentUser,
     logout,
+    siteSettings,
   } = useAppStore()
 
   useEffect(() => {
@@ -182,7 +183,7 @@ export function Header() {
               </Select>
               <Input
                 type="search"
-                placeholder="Search for anything in Kenya..."
+                placeholder={`Search on ${siteSettings.site_name || 'ChapKE'}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
@@ -295,17 +296,9 @@ export function Header() {
                           Dashboard
                         </Link>
                       </DropdownMenuItem>
-                      {currentUser.role === 'business' && (
-                        <DropdownMenuItem asChild>
-                          <Link href={`/shop/${currentUser.username || currentUser.id}`} className="flex items-center gap-2 cursor-pointer">
-                            <ShoppingBag className="h-4 w-4 text-slate-500" />
-                            My Shop
-                          </Link>
-                        </DropdownMenuItem>
-                      )}
                       <DropdownMenuItem asChild>
-                        <Link href={`/seller/${currentUser.username || currentUser.id}`} className="flex items-center gap-2 cursor-pointer">
-                          <User className="h-4 w-4 text-slate-500" />
+                        <Link href={currentUser.role === 'business' ? `/shop/${currentUser.username || currentUser.id}` : `/seller/${currentUser.username || currentUser.id}`} className="flex items-center gap-2 cursor-pointer">
+                          <ShoppingBag className="h-4 w-4 text-slate-500" />
                           My Profile
                         </Link>
                       </DropdownMenuItem>
@@ -486,25 +479,13 @@ export function Header() {
                     Dashboard
                   </Button>
                 </Link>
-                {currentUser.role === 'business' && (
-                  <Link href={`/shop/${currentUser.username || currentUser.id}`}>
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start gap-3 rounded-xl hover:bg-primary/5 hover:text-primary"
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      <ShoppingBag className="h-4 w-4" />
-                      My Shop
-                    </Button>
-                  </Link>
-                )}
-                <Link href={`/seller/${currentUser.username || currentUser.id}`}>
+                <Link href={currentUser.role === 'business' ? `/shop/${currentUser.username || currentUser.id}` : `/seller/${currentUser.username || currentUser.id}`}>
                   <Button
                     variant="ghost"
                     className="w-full justify-start gap-3 rounded-xl hover:bg-primary/5 hover:text-primary"
                     onClick={() => setMobileOpen(false)}
                   >
-                    <User className="h-4 w-4" />
+                    <ShoppingBag className="h-4 w-4" />
                     My Profile
                   </Button>
                 </Link>

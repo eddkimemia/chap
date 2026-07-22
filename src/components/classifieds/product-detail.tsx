@@ -45,6 +45,7 @@ interface MiniListing {
   images: { url: string }[]; createdAt: string; condition: string
   location: { name: string } | null
   isFeatured?: boolean; category?: { name: string; slug: string }
+  user?: { premiumUntil?: string | null }
 }
 interface SellerStatsData {
   avgRating: number; totalReviews: number; totalSales: number
@@ -56,7 +57,7 @@ interface BreadcrumbItem {
 
 interface ProductDetailProps {
   listing: Listing & {
-    user: { id: string; name: string; avatar: string | null; isVerified: boolean; createdAt: string; role: string; bio: string | null; username?: string }
+    user: { id: string; name: string; avatar: string | null; isVerified: boolean; premiumUntil?: string | null; createdAt: string; role: string; bio: string | null; username?: string }
     videos: { id: string; url: string; thumbnail: string; duration: number }[]
     documents: { id: string; url: string; name: string; type: string }[]
   }
@@ -256,8 +257,13 @@ function SimilarCard({ item }: { item: MiniListing }) {
             {item.title.charAt(0)}
           </div>
         )}
+        {item.user?.premiumUntil && new Date(item.user.premiumUntil) > new Date() && (
+          <Badge className="absolute top-2 left-2 bg-amber-500 text-white border-none text-[9px] px-1.5 py-0.5 font-semibold rounded-md flex items-center gap-0.5">
+            <Star className="h-2.5 w-2.5 fill-white" /> Premium
+          </Badge>
+        )}
         {item.isFeatured && (
-          <Badge className="absolute top-2 left-2 bg-royal text-white border-none text-[9px] px-1.5 py-0.5 font-semibold rounded-md">Featured</Badge>
+          <Badge className="absolute top-2 right-2 bg-royal text-white border-none text-[9px] px-1.5 py-0.5 font-semibold rounded-md">Featured</Badge>
         )}
       </div>
       <p className="text-sm font-bold text-navy truncate">{formatPrice(item.price)}</p>
@@ -670,6 +676,11 @@ export function ProductDetailClient({
                       <div className="flex items-center gap-1.5">
                         <p className="font-bold text-navy truncate">{listing.user.name}</p>
                         {listing.user.isVerified && <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />}
+                        {listing.user.premiumUntil && new Date(listing.user.premiumUntil) > new Date() && (
+                          <Badge className="bg-amber-500 text-white border-none text-[9px] px-1.5 py-0 font-semibold rounded-md ml-1">
+                            <Star className="h-2.5 w-2.5 mr-0.5 inline fill-white" /> Premium Shop
+                          </Badge>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
                         <StarRating rating={AvgRating} />

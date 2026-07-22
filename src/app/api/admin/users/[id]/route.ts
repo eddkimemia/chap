@@ -16,6 +16,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         phone: true,
         role: true,
         isVerified: true,
+        premiumUntil: true,
         isActive: true,
         isSuspended: true,
         suspendedReason: true,

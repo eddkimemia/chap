@@ -3,32 +3,13 @@
 import { motion } from 'framer-motion'
 import { Star, Quote } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-
-const testimonials = [
-  {
-    name: 'Grace Mwangi',
-    role: 'Buyer, Nairobi',
-    avatar: null,
-    text: 'I found my dream car on ChapKE in just three days! The seller verification gave me confidence to make the purchase. Highly recommended!',
-    rating: 5,
-  },
-  {
-    name: 'James Otieno',
-    role: 'Seller, Mombasa',
-    avatar: null,
-    text: 'As a small business owner, ChapKE has been a game-changer. I\'ve sold over 50 items and the platform\'s messaging system makes communication so easy.',
-    rating: 5,
-  },
-  {
-    name: 'Faith Kamau',
-    role: 'Buyer & Seller, Kisumu',
-    avatar: null,
-    text: 'The best classifieds platform in Kenya! The safety tips and verified sellers make it feel secure. I\'ve done over 20 transactions without any issues.',
-    rating: 5,
-  },
-]
+import { useAppStore } from '@/lib/store'
 
 export function Testimonials() {
+  const { homeTestimonials } = useAppStore()
+
+  if (!homeTestimonials.length) return null
+
   return (
     <section className="py-20 bg-slate-50/50">
       <div className="container mx-auto px-4 lg:px-8">
@@ -42,9 +23,9 @@ export function Testimonials() {
           <h2 className="text-3xl sm:text-4xl font-bold text-navy">What Our Users Say</h2>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
+          {homeTestimonials.slice(0, 3).map((t, i) => (
             <motion.div
-              key={t.name}
+              key={t.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -65,7 +46,6 @@ export function Testimonials() {
                 </Avatar>
                 <div>
                   <p className="text-sm font-semibold text-navy">{t.name}</p>
-                  <p className="text-[11px] text-slate-400">{t.role}</p>
                 </div>
               </div>
             </motion.div>

@@ -10,10 +10,13 @@ const manrope = Manrope({
   weight: ["300", "400", "500", "600", "700", "800"],
 });
 
+const siteName = process.env.NEXT_PUBLIC_SITE_NAME || "ChapKE";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://chap.co.ke";
+const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "Kenya's premier digital marketplace for buying and selling vehicles, property, electronics, and more.";
+
 export const metadata: Metadata = {
-  title: "ChapKE — Kenya's Premier Digital Marketplace",
-  description:
-    "The most trusted platform for buying and selling across Kenya. Vehicles, property, electronics, and more — powered by cutting-edge technology.",
+  title: `${siteName} — Kenya's Premier Digital Marketplace`,
+  description: siteDescription,
   keywords: [
     "ChapKE",
     "Kenya marketplace",
@@ -27,7 +30,7 @@ export const metadata: Metadata = {
     "jobs Kenya",
     "premium classifieds",
   ],
-  authors: [{ name: "ChapKE" }],
+  authors: [{ name: siteName }],
   icons: {
     icon: "/fav.png",
   },
@@ -35,21 +38,19 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "ChapKE",
+    title: siteName,
   },
   openGraph: {
-    title: "ChapKE — Kenya's Premier Digital Marketplace",
-    description:
-      "The most trusted platform for buying and selling across Kenya. Powered by cutting-edge technology.",
+    title: `${siteName} — Kenya's Premier Digital Marketplace`,
+    description: siteDescription,
     type: "website",
-    siteName: "ChapKE",
+    siteName: siteName,
     locale: "en_KE",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ChapKE — Kenya's Premier Digital Marketplace",
-    description:
-      "The most trusted platform for buying and selling across Kenya. Powered by cutting-edge technology.",
+    title: `${siteName} — Kenya's Premier Digital Marketplace`,
+    description: siteDescription,
   },
 };
 
@@ -73,7 +74,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="ChapKE" />
+        <meta name="apple-mobile-web-app-title" content={siteName} />
       </head>
       <body
         className={`${manrope.variable} antialiased`}
@@ -85,22 +86,14 @@ export default function RootLayout({
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'Organization',
-              name: 'ChapKE',
-              url: 'https://chap.co.ke',
-              logo: 'https://chap.co.ke/chaplogo.png',
-              description:
-                "Kenya's premier digital marketplace for buying and selling vehicles, property, electronics, and more.",
+              name: siteName,
+              url: siteUrl,
+              description: siteDescription,
               sameAs: [
-                'https://facebook.com/chapke',
-                'https://twitter.com/chapke',
-                'https://instagram.com/chapke',
-              ],
-              contactPoint: {
-                '@type': 'ContactPoint',
-                telephone: '+254-XXX-XXX-XXX',
-                contactType: 'customer support',
-                availableLanguage: ['English', 'Swahili'],
-              },
+                process.env.NEXT_PUBLIC_FACEBOOK_URL || 'https://facebook.com/chapke',
+                process.env.NEXT_PUBLIC_TWITTER_URL || 'https://twitter.com/chapke',
+                process.env.NEXT_PUBLIC_INSTAGRAM_URL || 'https://instagram.com/chapke',
+              ].filter(Boolean),
             }),
           }}
         />

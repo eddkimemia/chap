@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { validateSession, SESSION_COOKIE_NAME } from '@/lib/auth'
 import { ProductDetailClient } from '@/components/classifieds/product-detail'
 import { generateListingSchema, generateBreadcrumbSchema } from '@/lib/seo'
+import { siteConfig } from '@/lib/site'
 import { Header } from '@/components/classifieds/header'
 import { Footer } from '@/components/classifieds/footer'
 import { MobileNav } from '@/components/classifieds/mobile-nav'
@@ -28,7 +29,7 @@ async function resolveListing(slug: string) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
   const resolved = await resolveListing(slug)
-  if (!resolved) return { title: 'Listing Not Found - ChapKE' }
+  if (!resolved) return { title: `Listing Not Found - ${siteConfig.name}` }
 
   const listing = await db.listing.findUnique({
     where: { id: resolved.id },
@@ -37,24 +38,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       images: { select: { url: true }, orderBy: { order: 'asc' }, take: 1 },
       category: { select: { name: true, slug: true } },
       location: { select: { name: true } },
-      user: { select: { name: true } },
+      user: { select: { name: true, premiumUntil: true } },
       condition: true, createdAt: true,
     },
   })
-  if (!listing) return { title: 'Listing Not Found - ChapKE' }
+  if (!listing) return { title: `Listing Not Found - ${siteConfig.name}` }
 
   const firstImage = listing.images[0]?.url
 
   return {
-    title: `${listing.title} - ChapKE`,
+    title: `${listing.title} - ${siteConfig.name}`,
     description: listing.description.slice(0, 160),
     openGraph: {
       title: `${listing.title} | KES ${listing.price.toLocaleString()}`,
       description: listing.description.slice(0, 200),
       images: firstImage ? [{ url: firstImage }] : [],
       type: 'website',
-      siteName: 'ChapKE',
-      url: `https://chap.co.ke/listing/${listing.slug}`,
+      siteName: siteConfig.name,
+      url: `${siteConfig.url}/listing/${listing.slug}`,
     },
     twitter: {
       card: 'summary_large_image',
@@ -62,7 +63,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: listing.description.slice(0, 200),
       images: firstImage ? [firstImage] : [],
     },
-    alternates: { canonical: `https://chap.co.ke/listing/${listing.slug}` },
+    alternates: { canonical: `${siteConfig.url}/listing/${listing.slug}` },
   }
 }
 
@@ -84,7 +85,7 @@ export default async function ListingPage({ params }: PageProps) {
       status: isOwner ? listingOwner!.status : 'active',
     },
     include: {
-      user: { select: { id: true, name: true, avatar: true, isVerified: true, createdAt: true, role: true, bio: true, username: true } },
+      user: { select: { id: true, name: true, avatar: true, isVerified: true, premiumUntil: true, createdAt: true, role: true, bio: true, username: true } },
       category: { select: { id: true, name: true, slug: true, parentId: true, icon: true } },
       location: { select: { id: true, name: true, slug: true } },
       images: { orderBy: { order: 'asc' } },
@@ -121,7 +122,7 @@ export default async function ListingPage({ params }: PageProps) {
 
   const reviews = await db.review.findMany({
     where: { targetId: listing.userId, isPublic: true },
-    include: { author: { select: { id: true, name: true, avatar: true, isVerified: true } } },
+    include: { author: { select: { id: true, name: true, avatar: true, isVerified: true, premiumUntil: true } } },
     orderBy: { createdAt: 'desc' },
     take: 10,
   })

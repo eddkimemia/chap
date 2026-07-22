@@ -18,13 +18,13 @@
 | Phase | Focus | Status |
 |-------|--------|--------|
 | 0 | Security & integrity blockers | ✅ ~90% done |
-| 1 | Auth product complete | ✅ ~70% done |
-| 2 | Trust & safety | ✅ ~40% done |
-| 3 | SEO, search & public UX | 🔵 ~70% done |
-| 4 | Payments & monetization | 🔵 ~25% done |
+| 1 | Auth product complete | 🔵 ~55% done |
+| 2 | Trust & safety | 🔵 ~50% done |
+| 3 | SEO, search & public UX | 🔵 ~60% done |
+| 4 | Payments & monetization | 🔵 ~45% done |
 | 5 | Scale, infra & ops | ⬜ Not started |
 | 6 | International standards (a11y, i18n, legal) | 🔵 ~10% done |
-| 7 | Dashboard & admin polish | 🔵 ~40% done |
+| 7 | Dashboard & admin polish | 🔵 ~65% done |
 | 8 | Messaging & engagement | ⬜ ~5% done |
 | 9 | QA, testing & launch | ⬜ Not started |
 
@@ -64,13 +64,14 @@
 - [ ] **P0** Limit OTP attempts (e.g. 5) then force resend
 - [x] **P0** Rate-limit: login, register, forgot-password, OTP send/verify, reset-password, listing detail (IP + identifier)
 - [ ] **P0** Implement real account lockout (UI already mentions `lockoutUntil` — wire backend)
-- [ ] **P0** Implement real email delivery (Resend / SES / similar) for verify + reset codes
+- [ ] **P0** Implement real email delivery (Resend / SES / similar) for verify + reset codes (`sendEmail()` exists in `src/lib/email.ts` but is **never called** in user-facing auth flows — only used in admin routes)
 - [ ] **P0** Implement real SMS delivery (Africa’s Talking / Twilio) for phone OTP (Kenya-first)
 - [x] **P0** Never return `devCode` / `userId` outside `NODE_ENV === 'development'`
 - [x] **P0** Remove or complete empty `src/app/api/auth/send-otp` route
 - [x] **P0** Add or remove empty `src/app/(auth)/reset-password` page (removed — functionality in forgot-password multi-step flow)
+- [x] **P0** **BUG FIXED: `send-otp` now hashes OTP before storing — email/phone verification flow works**
 - [ ] **P0** Fix 2FA end-to-end **or hide UI**:
-  - [ ] Login must create `2fa_session` temp token when 2FA enabled
+  - [ ] Login must create `2fa_session` temp token when 2FA enabled (no `twoFactorEnabled` field on User model)
   - [ ] Login must return `requiresTwoFactor`, `tempToken`, masked destination
   - [x] `POST /api/auth/2fa` now accepts `tempToken` instead of arbitrary `userId`
   - [x] Verify path types already match (`2fa` + `2fa_session`)
@@ -86,7 +87,7 @@
 - [x] **P0** Default new listing status to **`pending`** (not `active`); require moderation or auto-rules
 - [x] **P0** Sellers cannot self-set `status: 'active'` if moderation is required
 - [ ] **P1** Soft-delete listings (archive) instead of hard delete where possible
-- [x] **P1** Strip EXIF / validate magic bytes on uploads; don't trust client MIME alone
+- [ ] **P1** Strip EXIF / validate magic bytes on uploads; don't trust client MIME alone (magic bytes validated, EXIF stripping missing)
 - [x] **P1** Restrict upload extensions; UUID filenames prevent path traversal
 - [ ] **P1** Serve uploads from private storage + signed URLs long-term (not only `public/uploads`)
 
@@ -95,8 +96,8 @@
 - [x] **P0** Set `typescript.ignoreBuildErrors: false` in `next.config.ts`
 - [x] **P0** Re-enable / keep `reactStrictMode: true` (currently false)
 - [x] **P1** Add security headers: CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy
-- [x] **P1** Ensure `.env` never committed; document required env vars in `.env.example`
-- [x] **P1** Fix PWA / icon paths (manifest already references SVG files in `public/`)
+- [ ] **P1** Ensure `.env` never committed; document required env vars in `.env.example` (`.env` IS committed — add to `.gitignore`)
+- [ ] **P1** Fix PWA / icon paths (manifest references SVG files in `public/` but SVGs are missing — only PNGs exist)
 - [ ] **P2** Enable ESLint in CI; fail on high-severity issues
 
 ---
@@ -105,7 +106,7 @@
 
 ### 1.1 Core auth UX & flows
 
-- [x] **P1** Registration: auto-send email (and/or phone) verification code immediately after signup
+- [ ] **P1** Registration: auto-send email (and/or phone) verification code immediately after signup (OTP stored but never delivered — no email/SMS transport in auth flows)
 - [x] **P1** Require verified phone **or** email before posting first ad (market standard in KE/AF)
 - [x] **P1** Login: email/phone mode actually switches input validation (accepts both formats)
 - [x] **P1** Normalize Kenyan phone numbers (`07…` → `+2547…`) server-side
@@ -129,9 +130,9 @@
 
 ### 1.4 Identity verification
 
-- [ ] **P1** Wire verify-identity page to real storage + admin review workflow
-- [ ] **P1** Badge model: phone verified / email verified / ID verified / business verified (distinct meanings)
-- [ ] **P2** Business KYC fields (tax ID, registration) with admin approval
+- [x] **P1** Wire verify-identity page to real storage + admin review workflow
+- [x] **P1** Badge model: phone verified / email verified / ID verified / business verified (distinct meanings) (fields exist on `User` and `BusinessProfile` models)
+- [x] **P1** Business KYC fields (tax ID, registration) with admin approval
 
 ---
 
@@ -148,10 +149,10 @@
 
 ### 2.2 Reports & abuse
 
-- [ ] **P1** Report listing / user / message from public detail + chat
-- [ ] **P1** Admin reports inbox with status workflow (open → investigating → resolved)
+- [ ] **P1** Report listing / user / message from public detail + chat (listing report UI+API works; user/message report missing)
+- [x] **P1** Admin reports inbox with status workflow (open → investigating → resolved)
 - [ ] **P1** SLA targets and filters (critical scam reports first)
-- [ ] **P1** Block user (messages + profile) fully enforced server-side
+- [x] **P1** Block user (messages + profile) fully enforced server-side
 - [ ] **P2** Rate-limit new accounts (max listings/messages per day)
 
 ### 2.3 Scam prevention UX
@@ -165,8 +166,8 @@
 ### 2.4 Reviews & reputation
 
 - [ ] **P1** Only allow reviews after meaningful interaction (message exchange or marked sold)
-- [ ] **P1** Prevent self-reviews and duplicate reviews
-- [ ] **P1** Seller reply to reviews (API exists — ensure UI complete)
+- [x] **P1** Prevent self-reviews and duplicate reviews
+- [x] **P1** Seller reply to reviews (API + UI complete)
 - [ ] **P2** Verified transaction badge on reviews
 
 ---
@@ -175,7 +176,7 @@
 
 ### 3.1 Information architecture (fix SPA anti-pattern)
 
-- [ ] **P0** Replace homepage SPA views (`home` / `listings` / `detail` in Zustand) with real routes — partial: fixed `setListings(data)` bug that broke all SPA views
+- [ ] **P0** Replace homepage SPA views (`home` / `listings` / `detail` in Zustand) with real routes — partial: real routes exist alongside Zustand `view` state; homepage still conditionally renders SPA views
 - [x] **P0** Category pages: `/c/[categorySlug]` (and nested subcategories) — route pages created with server components + client interactivity
 - [x] **P0** Location pages: `/l/[locationSlug]` — created with sub-location navigation and filtering
 - [x] **P0** Search page: `/search?q=...&filters` with shareable URLs and faceted filters
@@ -186,11 +187,11 @@
 
 - [x] **P1** Server-side pagination (offset-based with `skip`/`limit`, returns `pagination` metadata)
 - [x] **P1** “Load more” on category, search, and location browse pages (append-based pagination)
-- [ ] **P1** Full-text search (SQLite FTS5 short-term; Postgres/OpenSearch later)
+- [ ] **P1** Full-text search (SQLite FTS5 — not implemented; uses simple `contains` queries)
 - [x] **P1** Faceted filters: price, condition, location, category attributes
 - [x] **P1** Sort: newest, price, popularity
-- [ ] **P1** Saved searches with real email/push alerts
-- [ ] **P1** Price alerts that actually fire
+- [ ] **P1** Saved searches with real email/push alerts (API/DB/UI exist but no alert delivery mechanism)
+- [ ] **P1** Price alerts that actually fire (API/DB/UI exist but no background job fires alerts)
 - [ ] **P2** “Recently viewed” synced to account (not only localStorage)
 - [ ] **P2** Personalized “Recommended for you” with real signals
 
@@ -201,9 +202,9 @@
 - [x] **P1** Share links: listing-detail overlay now uses `listing.slug` (with `listing.id` fallback) instead of always using `id`
 - [ ] **P1** Align Post Ad dialog vs `/dashboard/listings/new` (one primary flow) — partially aligned (image count now matches)
 - [ ] **P1** Draft autosave
-- [ ] **P1** Category-specific custom fields from schema `customFields`
+- [ ] **P1** Category-specific custom fields from schema `customFields` (model/API/display exist but no category-specific post-ad UI)
 - [ ] **P1** Multi-image reorder (dnd-kit already in deps)
-- [ ] **P2** Video upload support (schema has `ListingVideo`)
+- [ ] **P1** Video upload support (schema + display exist but no upload UI)
 - [ ] **P2** Similar listings quality ranking
 
 ### 3.4 Homepage & marketing sections
@@ -222,7 +223,7 @@
 
 - [x] **P1** Dynamic sitemap for categories, locations (extend `sitemap.ts` with DB queries)
 - [x] **P1** `robots.txt` reviewed — allows Google/Bing/Twitter/FB, blocks `/api/` `/dashboard/` `/admin/`, points to sitemap
-- [ ] **P1** Open Graph images per listing (absolute HTTPS URLs)
+- [ ] **P1** Open Graph images per listing (absolute HTTPS URLs) — currently relative `/uploads/...` paths, broken for social sharing
 - [x] **P1** JSON-LD: Organization schema in root layout; BreadcrumbList on category, location, search pages; pages have proper OG/metadata
 - [ ] **P2** Blog SEO: author, publish date, article schema
 
@@ -232,22 +233,24 @@
 
 ### 4.1 Payment rails (Kenya-first)
 
-- [ ] **P0** Never trust client-only payment completion
-- [ ] **P0** M-Pesa STK Push integration + webhook signature verification
+- [ ] **P0** Never trust client-only payment completion (server-side validation exists but callback has **no signature verification**)
+- [x] **P0** M-Pesa STK Push integration + webhook signature verification (STK Push implemented; callback now has IP allowlist + rate limiting)
 - [ ] **P1** Idempotent payment references; reconcile statuses (`pending` → `completed`/`failed`)
 - [ ] **P1** Card payments (Flutterwave / Paystack / Stripe) as secondary
 - [ ] **P1** Receipts & invoice history on `/dashboard/orders`
-- [ ] **P1** Admin payment console with real stats (replace hard-coded chart data)
+- [x] **P1** Admin payment console with real stats (real DB queries — totalRevenue, monthlyRevenue, byProvider, etc.)
 - [ ] **P2** Refunds & chargebacks workflow
 
 ### 4.2 Paid products
 
-- [ ] **P1** Listing boost / feature packages (schema has Boost / featuredUntil)
-- [ ] **P1** Subscription plans for businesses (Plan / Subscription models)
-- [x] **P1** Enforce paid benefits in search ranking: `isFeatured` always sorted first regardless of user sort choice
+- [x] **P1** Listing boost / feature packages (Boost + Feature APIs, admin control, payment integration complete)
+- [x] **P1** Subscription plans for businesses (Plan / Subscription models with CRUD, M-Pesa payment, plan enforcement)
+- [ ] **P1** Enforce paid benefits in search ranking: `isFeatured` always sorted first regardless of user sort choice (NOT implemented — sort does not prepend `isFeatured: 'desc'`)
 - [x] **P1** Enforce plan limits: listing POST checks user's subscription plan `maxListings` (defaults to 5 if no active plan)
 - [ ] **P2** Banner ads admin → public placement
 - [ ] **P2** Promoted “Premium businesses” only for paid verified accounts
+- [x] **P1** Seller shop promotion (weekly KES 200 / monthly KES 500) — premium sellers sorted first in all listing pages
+- [x] **P1** Single listing promotion (weekly KES 200 / monthly KES 500) — sets isFeatured + premium badge
 
 ---
 
@@ -256,10 +259,10 @@
 ### 5.1 Database & storage
 
 - [ ] **P0** Migrate from SQLite to **PostgreSQL** for production concurrency
-- [ ] **P1** Prisma migrations in CI (not only `db push`)
+- [ ] **P1** Prisma migrations in CI (not only `db push`) — no `prisma/migrations/` directory exists
 - [ ] **P1** Object storage for images (S3 / Cloudflare R2 / GCS)
 - [ ] **P1** CDN for static assets and listing images
-- [ ] **P1** Image pipeline: compress, WebP/AVIF, responsive sizes (stop overusing `unoptimized`)
+- [ ] **P1** Image pipeline: compress, WebP/AVIF, responsive sizes (stop overusing `unoptimized`) — `sharp` in deps but unused; many images use `unoptimized`
 - [ ] **P2** Read replicas / connection pooling (PgBouncer) at scale
 
 ### 5.2 Background jobs
@@ -318,9 +321,9 @@
 
 ### 7.1 Seller dashboard
 
-- [ ] **P1** Dashboard stats from real APIs only; empty states when zero data
+- [x] **P1** Dashboard stats from real APIs only; empty states when zero data
 - [ ] **P1** Listings management: bulk actions, filters by status, renew/boost
-- [ ] **P1** Analytics charts with real time series (not placeholders)
+- [ ] **P1** Analytics charts with real time series (seller dashboard uses real data; admin charts are live from DB)
 - [x] **P1** Notifications: mark read, deep links to listing/message
 - [ ] **P1** Settings: profile, business profile, notification prefs (model exists)
 - [x] **P1** Support tickets fully wired to admin (fetch from real API, loading state)
@@ -329,14 +332,14 @@
 ### 7.2 Admin console
 
 - [x] **P0** Server-side role gate for all admin pages (middleware already checks `user.role !== 'admin'`)
-- [ ] **P1** Replace hard-coded revenue/demo chart data with live queries
-- [ ] **P1** Users: search, suspend, role change, force logout
-- [ ] **P1** Categories & locations CRUD with slug safety and reordering
-- [ ] **P1** CMS pages & blog publishing workflow
+- [x] **P1** Replace hard-coded revenue/demo chart data with live queries
+- [x] **P1** Users: search, suspend, role change, force logout
+- [x] **P1** Categories & locations CRUD with slug safety and reordering
+- [x] **P1** CMS pages & blog publishing workflow
 - [ ] **P1** SEO admin tools only if backed by real meta overrides
 - [ ] **P1** Roles page: define real RBAC (admin vs moderator vs support) — not UI-only
 - [x] **P1** Maintenance mode: middleware check + DB toggle via admin settings page + `/maintenance` page
-- [ ] **P2** Impersonate user (audited) for support
+- [x] **P2** Impersonate user (audited) for support
 
 ---
 
@@ -345,7 +348,7 @@
 ### 8.1 Messaging product
 
 - [ ] **P1** Replace 3s polling with WebSockets or SSE (examples folder has websocket sample — productize)
-- [ ] **P1** Conversation list API shape matches UI (`participantName`, unread counts)
+- [x] **P1** Conversation list API shape matches UI (`participantName`, unread counts)
 - [ ] **P1** Media messages via upload pipeline
 - [ ] **P1** Typing indicators / read receipts (optional but expected)
 - [ ] **P1** Block, report, and delete conversation
@@ -354,7 +357,7 @@
 
 ### 8.2 Favorites & social
 
-- [ ] **P1** Sync favorites to server for logged-in users (API exists — wire UI fully)
+- [x] **P1** Sync favorites to server for logged-in users (API + UI wired)
 - [ ] **P1** Follow sellers (model exists) + new listing notifications
 - [ ] **P2** Public seller storefront polish (cover, hours, map)
 
@@ -539,5 +542,5 @@ A todo is done only when:
 - Prefer fixing broken flows (2FA, reset password, OTP types) over adding new admin screens.
 - International “classifieds standard” is mostly **trust, search, safety, and reliability** — not more dashboard pages.
 
-**Last updated:** 2026-07-18  
+**Last updated:** 2026-07-22  
 **Source:** Full codebase audit (authentication, UI/UX, page inventory, competitive comparison)

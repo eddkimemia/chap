@@ -52,6 +52,8 @@ interface ListingCardProps {
   index?: number
 }
 
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'
+
 export function ListingCard({ listing, index = 0 }: ListingCardProps) {
   const { toggleFavorite, isFavorite, categories } = useAppStore()
   const images = listing.images || []
@@ -82,7 +84,7 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
         body: JSON.stringify({
           receiverId: listing.user.id,
           listingId: listing.id,
-          content: `Hi, I'm interested in "${listing.title}" on ChapKE`,
+          content: `Hi, I'm interested in "${listing.title}" on ${SITE_NAME}`,
         }),
       })
       if (res.ok) router.push('/dashboard/messages')
@@ -106,7 +108,7 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
     e.stopPropagation()
     const phone = (listing.user?.phone || listing.contactPhone)?.replace(/[^0-9]/g, '')
     if (phone) {
-      const text = `Hi, I'm interested in "${listing.title}" on ChapKE`
+      const text = `Hi, I'm interested in "${listing.title}" on ${SITE_NAME}`
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
     } else {
       toast.error('WhatsApp number not available')
@@ -169,16 +171,19 @@ export function ListingCard({ listing, index = 0 }: ListingCardProps) {
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-            {listing.isFeatured && (
+            {(listing.user?.premiumUntil && new Date(listing.user.premiumUntil) > new Date()) ? (
+              <Badge className="bg-amber-500 text-white border-none text-[10px] px-2 py-0.5 font-semibold rounded-lg shadow-lg">
+                <Star className="h-3 w-3 mr-0.5 inline fill-white" /> Premium
+              </Badge>
+            ) : listing.isFeatured ? (
               <Badge className="bg-royal text-white border-none text-[10px] px-2 py-0.5 shadow-md font-semibold rounded-lg">
                 Featured
               </Badge>
-            )}
-            {listing.isPromoted && (
+            ) : listing.isPromoted ? (
               <Badge className="bg-accent-red text-white border-none text-[10px] px-2 py-0.5 shadow-md font-semibold rounded-lg">
                 Promoted
               </Badge>
-            )}
+            ) : null}
             <Badge
               variant={listing.condition === 'New' ? 'default' : 'secondary'}
               className={cn(

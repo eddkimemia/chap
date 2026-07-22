@@ -79,6 +79,18 @@ export async function POST(request: NextRequest) {
       include: { plan: true },
     })
 
+    if (plan.isFeatured || plan.isPromoted) {
+      await db.listing.updateMany({
+        where: { userId: user.id, status: 'active' },
+        data: {
+          isFeatured: plan.isFeatured || false,
+          isPromoted: plan.isPromoted || false,
+          featuredUntil: plan.isFeatured ? endDate : null,
+          promotedUntil: plan.isPromoted ? endDate : null,
+        },
+      })
+    }
+
     return NextResponse.json(subscription, { status: 201 })
   } catch (error) {
     if (error instanceof Error && error.message === 'Unauthorized') {

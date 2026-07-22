@@ -30,6 +30,7 @@ model User {
   isBanned        Boolean   @default(false)
   bannedReason    String?
   lastLoginAt     DateTime?
+  premiumUntil    DateTime?
   notes           String    @default("")
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
@@ -63,6 +64,7 @@ model User {
   sessions2fa       TwoFactorSession[]
   verificationRequests VerificationRequest[]
   boosts              Boost[]
+  sellerPromotions    SellerPromotion[]
 
   @@index([role])
   @@index([isActive])
@@ -533,7 +535,7 @@ model Subscription {
 
 model Plan {
   id              String   @id @default(cuid())
-  name            String   // Free, Premium, Business
+  name            String   // Free, Pro, Premium
   slug            String   @unique
   description     String
   price           Float
@@ -572,6 +574,28 @@ model Boost {
   endDate   DateTime
   status    String   @default("active")
   createdAt DateTime @default(now())
+}
+
+// ─── SELLER PROMOTIONS ─────────────────────────────────────────────────────────
+
+model SellerPromotion {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // shop, listing
+  listingId String?  // null for shop promotions, set for single listing promotions
+  amount    Float
+  duration  String   // weekly, monthly
+  startDate DateTime @default(now())
+  endDate   DateTime
+  status    String   @default("active") // active, expired, cancelled
+  paymentId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([endDate])
 }
 
 // ─── REPORTS & MODERATION ──────────────────────────────────────────────────────

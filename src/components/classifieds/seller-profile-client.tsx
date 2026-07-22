@@ -45,6 +45,7 @@ interface SellerData {
   bio: string | null
   role: string
   isVerified: boolean
+  premiumUntil: string | null
   createdAt: string
   _count: {
     listings: number
@@ -104,7 +105,7 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
         setSeller(s)
         setListings(listingsData.listings || [])
         setReviews(reviewsData.reviews || [])
-        if (s?.name) document.title = `${s.name} - Seller Profile | ChapKE`
+        if (s?.name) document.title = `${s.name} - Seller Profile | ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'}`
       })
       .catch(() => toast.error('Failed to load seller'))
       .finally(() => {
@@ -190,6 +191,11 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
                   <h1 className="text-xl font-bold text-navy">{seller.name}</h1>
                   {seller.isVerified && (
                     <ShieldCheck className="h-5 w-5 text-royal" />
+                  )}
+                  {seller.premiumUntil && new Date(seller.premiumUntil) > new Date() && (
+                    <Badge className="bg-amber-500 text-white border-none text-xs px-2 py-0.5 rounded-lg flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-white" /> Premium Shop
+                    </Badge>
                   )}
                 </div>
                 {seller.username && (
@@ -280,7 +286,7 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
                         method: 'POST',
                         credentials: 'include',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ receiverId: sellerId, content: `Hi, I'm interested in your listings on ChapKE.` }),
+                        body: JSON.stringify({ receiverId: sellerId, content: `Hi, I'm interested in your listings on ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'}.` }),
                       })
                       if (res.ok) {
                         router.push('/dashboard/messages')
@@ -300,7 +306,7 @@ export function SellerProfileClient({ sellerId }: { sellerId: string }) {
                       className="w-full rounded-xl border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
                       onClick={() => {
                         const phone = seller.phone!.replace(/[^0-9]/g, '')
-                        const text = `Hi, I found your profile on ChapKE and I'm interested in your listings.`
+                        const text = `Hi, I found your profile on ${process.env.NEXT_PUBLIC_SITE_NAME || 'ChapKE'} and I'm interested in your listings.`
                         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank')
                       }}
                     >
